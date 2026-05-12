@@ -1,16 +1,24 @@
 name: 📸 EBS Aprendiz — Postagem Diária
 
 on:
-  schedule:
-    # Horário: 09:00 BRT (UTC-3) = 12:00 UTC
-    # Ajuste conforme preferência: https://crontab.guru
-    - cron: '0 12 * * *'
+  # ─────────────────────────────────────────────────────────────
+  # CRON AUTOMÁTICO — desativado durante fase de testes
+  # Para reativar: descomente as 3 linhas abaixo
+  # ─────────────────────────────────────────────────────────────
+  # schedule:
+  #   # 09:00 BRT (UTC-3) = 12:00 UTC
+  #   - cron: '0 12 * * *'
 
-  # Permite disparo manual pelo GitHub Actions UI (para testar)
+  # Disparo manual pelo GitHub Actions UI
   workflow_dispatch:
     inputs:
+      confirm_post:
+        description: '✅ CONFIRMAR POSTAGEM REAL no @aprendiz.ebs? (escreva: sim)'
+        required: true
+        default: ''
+        type: string
       dry_run:
-        description: 'Dry run (não posta, só valida)'
+        description: '🧪 Dry run — apenas valida a fila, não posta'
         required: false
         default: 'false'
         type: boolean
@@ -52,6 +60,19 @@ jobs:
           echo "## ⚠️ Fila Vazia" >> $GITHUB_STEP_SUMMARY
           echo "Nenhum carrossel aprovado na fila. Crie novos carrosséis com os agentes AIOX." >> $GITHUB_STEP_SUMMARY
 
+      - name: 🛑 Verificar confirmação
+        if: steps.check_queue.outputs.approved != '0' && inputs.dry_run != 'true'
+        run: |
+          CONFIRM="${{ inputs.confirm_post }}"
+          if [ "$CONFIRM" != "sim" ]; then
+            echo "::error::Postagem NÃO confirmada. Para postar, preencha o campo 'confirm_post' com: sim"
+            echo "## 🛑 Postagem Bloqueada" >> $GITHUB_STEP_SUMMARY
+            echo "O campo **confirm_post** não foi preenchido com \`sim\`." >> $GITHUB_STEP_SUMMARY
+            echo "Nenhum post foi realizado. Rode novamente com confirm_post = **sim** para postar." >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+          echo "✅ Confirmação recebida: '$CONFIRM' — prosseguindo com postagem"
+
       - name: 🚀 Postar carrossel
         if: steps.check_queue.outputs.approved != '0' && inputs.dry_run != 'true'
         env:
@@ -78,7 +99,7 @@ jobs:
           "
 
       - name: 💾 Commitar queue.json atualizado
-        if: steps.check_queue.outputs.approved != '0' && inputs.dry_run != 'true'
+        if: steps.check_queue.outputs.approved != '0' && inputs.dry_run != 'true' && inputs.confirm_post == 'sim'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -95,6 +116,8 @@ jobs:
           " 2>/dev/null || echo "0")
           echo "## 📸 EBS Aprendiz — Postagem Diária" >> $GITHUB_STEP_SUMMARY
           echo "- **Data:** $(date -u '+%Y-%m-%d %H:%M UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "- **Confirmação:** ${{ inputs.confirm_post }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Dry run:** ${{ inputs.dry_run }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Carrosséis restantes:** $REMAINING" >> $GITHUB_STEP_SUMMARY
           if [ "$REMAINING" -le 2 ] 2>/dev/null; then
             echo "- **⚠️ Alerta:** Fila baixa — crie novos carrosséis em breve!" >> $GITHUB_STEP_SUMMARY
