@@ -4,7 +4,7 @@
       "id": "EDU-beneficios-musica-01",
       "title": "Benefícios da música comprovados pela ciência",
       "category": "EDU",
-      "status": "published",
+      "status": "approved",
       "scheduled_for": null,
       "caption": "A ciência já provou: aprender música transforma o cérebro. 🎸\n\nSegundo o Johns Hopkins Medicine — referência mundial em medicina por 22 anos consecutivos — praticar um instrumento estimula praticamente todas as áreas do cérebro ao mesmo tempo.\n\nNão é talento. É treino. É método. É o que fazemos no EBS Aprendiz há 14 anos.\n\nQuer começar? Fale com a gente 👇\nAv. Minas Gerais, 57 — Centro, Corbélia-PR",
       "hashtags": "#músicatransforma #aprendermusica #escolademusica #ebs #aprendizebs #corbelia #violao #guitarra #metodo #neurociencia",
@@ -18,9 +18,7 @@
         "slides/EDU-beneficios-musica-01/slide_7.png"
       ],
       "created_at": "2026-05-12",
-      "approved_at": "2026-05-12",
-      "published_at": "2026-05-12T14:27:10.399Z",
-      "meta_post_id": "18124394836715949"
+      "approved_at": "2026-05-12"
     }
   ]
 }
