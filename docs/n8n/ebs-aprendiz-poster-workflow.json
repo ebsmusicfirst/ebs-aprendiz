@@ -1,0 +1,401 @@
+{
+  "name": "EBS Aprendiz — Poster Diário @aprendiz.ebs",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "minutesInterval": 1440
+            }
+          ]
+        }
+      },
+      "id": "cron-trigger",
+      "name": "Cron Diário",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [200, 300],
+      "notes": "Dispara 1x ao dia no horário configurado"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT cb.id, cb.title, cb.caption, cb.hashtags, cb.scheduled_for, cb.client_id,\n  array_agg(cs.image_url ORDER BY cs.slide_order) as slide_urls\nFROM content_briefs cb\nJOIN carousel_slides cs ON cs.content_brief_id = cb.id\nWHERE cb.status = 'approved'\n  AND cb.client_id = 'ebs-aprendiz'\n  AND (cb.scheduled_for IS NULL OR cb.scheduled_for <= NOW())\nGROUP BY cb.id, cb.title, cb.caption, cb.hashtags, cb.scheduled_for, cb.client_id\nORDER BY cb.scheduled_for ASC NULLS LAST\nLIMIT 1;",
+        "options": {}
+      },
+      "id": "supabase-get-next",
+      "name": "Supabase — Próximo da Fila",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.3,
+      "position": [420, 300],
+      "credentials": {
+        "postgres": {
+          "name": "Supabase Postgres (sobreviver)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "check-has-content",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-has-content",
+      "name": "Tem conteúdo na fila?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [640, 300]
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $vars.RESEND_FROM_EMAIL }}",
+        "toEmail": "ebsmusicfirst@gmail.com",
+        "subject": "⚠️ EBS Aprendiz — Fila de postagem vazia!",
+        "emailType": "html",
+        "html": "<h2>Fila de postagem vazia</h2><p>O n8n tentou postar um carrossel para @aprendiz.ebs mas não encontrou conteúdo aprovado na fila.</p><p>Crie novos carrosséis com os agentes AIOX e adicione à fila no Supabase.</p>"
+      },
+      "id": "email-alert-empty",
+      "name": "Email — Alerta Fila Vazia",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [860, 460],
+      "notes": "Envia alerta quando não há carrosseis aprovados"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\nconst slideUrls = item.slide_urls;\n\n// Constrói itens para upload no Meta\nreturn slideUrls.map((url, index) => ({\n  json: {\n    content_brief_id: item.id,\n    title: item.title,\n    caption: item.caption,\n    hashtags: item.hashtags,\n    slide_url: url,\n    slide_index: index,\n    total_slides: slideUrls.length,\n    ig_user_id: '17841459660352099'\n  }\n}));"
+      },
+      "id": "prepare-slides",
+      "name": "Preparar Slides",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [860, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v21.0/{{ $json.ig_user_id }}/media",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "image_url",
+              "value": "={{ $json.slide_url }}"
+            },
+            {
+              "name": "is_carousel_item",
+              "value": "true"
+            },
+            {
+              "name": "access_token",
+              "value": "={{ $vars.EBS_META_ACCESS_TOKEN }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "meta-upload-slide",
+      "name": "Meta — Upload Slide (Container)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1080, 300],
+      "notes": "Cria container para cada slide do carrossel"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Coleta todos os container IDs dos slides processados\nconst allItems = $input.all();\nconst containerIds = allItems.map(item => item.json.id);\nconst first = allItems[0].json;\n\nreturn [{\n  json: {\n    content_brief_id: first.content_brief_id,\n    caption: first.caption,\n    hashtags: first.hashtags,\n    ig_user_id: first.ig_user_id,\n    container_ids: containerIds,\n    children: containerIds.join(',')\n  }\n}];"
+      },
+      "id": "collect-containers",
+      "name": "Coletar Container IDs",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1300, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v21.0/{{ $json.ig_user_id }}/media",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "media_type",
+              "value": "CAROUSEL"
+            },
+            {
+              "name": "children",
+              "value": "={{ $json.children }}"
+            },
+            {
+              "name": "caption",
+              "value": "={{ $json.caption + '\\n\\n' + $json.hashtags }}"
+            },
+            {
+              "name": "access_token",
+              "value": "={{ $vars.EBS_META_ACCESS_TOKEN }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "meta-create-carousel",
+      "name": "Meta — Criar Carrossel Container",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1520, 300],
+      "notes": "Cria o container de carrossel com todos os slides"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v21.0/{{ $('Coletar Container IDs').item.json.ig_user_id }}/media_publish",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "creation_id",
+              "value": "={{ $json.id }}"
+            },
+            {
+              "name": "access_token",
+              "value": "={{ $vars.EBS_META_ACCESS_TOKEN }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "meta-publish",
+      "name": "Meta — Publicar Carrossel",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1740, 300],
+      "notes": "Publica o carrossel no Instagram @aprendiz.ebs"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE content_briefs\nSET \n  status = 'published',\n  published_at = NOW(),\n  meta_post_id = '{{ $json.id }}'\nWHERE id = '{{ $('Coletar Container IDs').item.json.content_brief_id }}';\n\n-- Verificar quantos carrosseis aprovados ainda restam\nSELECT COUNT(*) as remaining\nFROM content_briefs\nWHERE status = 'approved' AND client_id = 'ebs-aprendiz';",
+        "options": {}
+      },
+      "id": "supabase-mark-published",
+      "name": "Supabase — Marcar Publicado",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.3,
+      "position": [1960, 300],
+      "credentials": {
+        "postgres": {
+          "name": "Supabase Postgres (sobreviver)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "check-low-queue",
+              "leftValue": "={{ $json.remaining }}",
+              "rightValue": "3",
+              "operator": {
+                "type": "number",
+                "operation": "lte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-low-queue",
+      "name": "Fila baixa (≤3)?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [2180, 300]
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $vars.RESEND_FROM_EMAIL }}",
+        "toEmail": "ebsmusicfirst@gmail.com",
+        "subject": "⚡ EBS Aprendiz — Fila com {{ $json.remaining }} carrossel(is) restante(s)",
+        "emailType": "html",
+        "html": "=<h2>Fila de conteúdo baixa</h2><p>Restam apenas <strong>{{ $json.remaining }}</strong> carrossel(is) aprovado(s) na fila para @aprendiz.ebs.</p><p>Crie novos carrosséis em breve para manter a consistência de postagem.</p>"
+      },
+      "id": "email-alert-low",
+      "name": "Email — Alerta Fila Baixa",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [2400, 200],
+      "notes": "Alerta quando fila tem 3 ou menos carrosseis"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "✅ Postagem EBS Aprendiz concluída com sucesso"
+      },
+      "id": "success-end",
+      "name": "Sucesso",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [2400, 400]
+    }
+  ],
+  "connections": {
+    "Cron Diário": {
+      "main": [
+        [
+          {
+            "node": "Supabase — Próximo da Fila",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase — Próximo da Fila": {
+      "main": [
+        [
+          {
+            "node": "Tem conteúdo na fila?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tem conteúdo na fila?": {
+      "main": [
+        [
+          {
+            "node": "Preparar Slides",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Email — Alerta Fila Vazia",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar Slides": {
+      "main": [
+        [
+          {
+            "node": "Meta — Upload Slide (Container)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Meta — Upload Slide (Container)": {
+      "main": [
+        [
+          {
+            "node": "Coletar Container IDs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Coletar Container IDs": {
+      "main": [
+        [
+          {
+            "node": "Meta — Criar Carrossel Container",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Meta — Criar Carrossel Container": {
+      "main": [
+        [
+          {
+            "node": "Meta — Publicar Carrossel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Meta — Publicar Carrossel": {
+      "main": [
+        [
+          {
+            "node": "Supabase — Marcar Publicado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase — Marcar Publicado": {
+      "main": [
+        [
+          {
+            "node": "Fila baixa (≤3)?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fila baixa (≤3)?": {
+      "main": [
+        [
+          {
+            "node": "Email — Alerta Fila Baixa",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Sucesso",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": ["ebs-aprendiz", "instagram", "carousel"],
+  "meta": {
+    "instanceId": "ebs-aprendiz-v1"
+  },
+  "pinData": {}
+}

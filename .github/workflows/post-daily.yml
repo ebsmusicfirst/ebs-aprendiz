@@ -1,0 +1,101 @@
+name: 📸 EBS Aprendiz — Postagem Diária
+
+on:
+  schedule:
+    # Horário: 09:00 BRT (UTC-3) = 12:00 UTC
+    # Ajuste conforme preferência: https://crontab.guru
+    - cron: '0 12 * * *'
+
+  # Permite disparo manual pelo GitHub Actions UI (para testar)
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (não posta, só valida)'
+        required: false
+        default: 'false'
+        type: boolean
+
+jobs:
+  post:
+    name: Postar próximo carrossel
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write   # Para commitar queue.json atualizado
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 🔍 Verificar fila
+        id: check_queue
+        run: |
+          APPROVED=$(node -e "
+            const q = require('./queue.json');
+            const n = q.carousels.filter(c => c.status === 'approved').length;
+            console.log(n);
+          ")
+          echo "approved=$APPROVED" >> $GITHUB_OUTPUT
+          echo "Carrosséis aprovados na fila: $APPROVED"
+
+      - name: ⚠️ Aviso fila vazia
+        if: steps.check_queue.outputs.approved == '0'
+        run: |
+          echo "::warning::Fila de postagem vazia! Nenhum carrossel aprovado encontrado."
+          echo "## ⚠️ Fila Vazia" >> $GITHUB_STEP_SUMMARY
+          echo "Nenhum carrossel aprovado na fila. Crie novos carrosséis com os agentes AIOX." >> $GITHUB_STEP_SUMMARY
+
+      - name: 🚀 Postar carrossel
+        if: steps.check_queue.outputs.approved != '0' && inputs.dry_run != 'true'
+        env:
+          META_IG_USER_ID: ${{ secrets.META_IG_USER_ID }}
+          META_ACCESS_TOKEN: ${{ secrets.META_ACCESS_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+        run: node scripts/post-carousel.js
+
+      - name: 🧪 Dry run (validação)
+        if: inputs.dry_run == 'true'
+        run: |
+          echo "🧪 DRY RUN — Validando fila sem postar"
+          node -e "
+            const q = require('./queue.json');
+            const next = q.carousels.find(c => c.status === 'approved');
+            if (next) {
+              console.log('✅ Próximo carrossel:', next.id);
+              console.log('   Slides:', next.slides.length);
+              console.log('   Caption:', next.caption.substring(0, 80) + '...');
+            } else {
+              console.log('⚠️  Nenhum carrossel aprovado');
+            }
+          "
+
+      - name: 💾 Commitar queue.json atualizado
+        if: steps.check_queue.outputs.approved != '0' && inputs.dry_run != 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add queue.json
+          git diff --staged --quiet || git commit -m "chore: marcar carrossel como publicado [bot]"
+          git push
+
+      - name: 📊 Resumo
+        if: always()
+        run: |
+          REMAINING=$(node -e "
+            const q = require('./queue.json');
+            console.log(q.carousels.filter(c => c.status === 'approved').length);
+          " 2>/dev/null || echo "0")
+          echo "## 📸 EBS Aprendiz — Postagem Diária" >> $GITHUB_STEP_SUMMARY
+          echo "- **Data:** $(date -u '+%Y-%m-%d %H:%M UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "- **Carrosséis restantes:** $REMAINING" >> $GITHUB_STEP_SUMMARY
+          if [ "$REMAINING" -le 2 ] 2>/dev/null; then
+            echo "- **⚠️ Alerta:** Fila baixa — crie novos carrosséis em breve!" >> $GITHUB_STEP_SUMMARY
+          fi

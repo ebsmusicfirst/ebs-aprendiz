@@ -1,0 +1,265 @@
+name: carousel-creation
+version: "1.0"
+description: Pipeline completo para criação de carrosséis do Instagram @aprendiz.ebs
+owner: aiox-master
+project: EBS Aprendiz
+
+# ─────────────────────────────────────────
+# CATEGORIAS DE TEMAS
+# ─────────────────────────────────────────
+theme_categories:
+  EDU:
+    name: Educação & Benefícios
+    description: Benefícios comprovados da música, neurociência, desenvolvimento humano
+    authority_required: true
+    suggested_sources:
+      - Johns Hopkins Medicine
+      - Harvard Medical School
+      - OMS (Organização Mundial da Saúde)
+      - American Psychological Association (APA)
+      - UNICEF
+    examples:
+      - Benefícios da música para o cérebro
+      - Música e desempenho escolar
+      - O que a ciência diz sobre aprender instrumento
+
+  MET:
+    name: Método EBS
+    description: Como a escola funciona, a trilha de 5 níveis, o método de 10 minutos
+    authority_required: false
+    tone: institucional + inspirador
+    examples:
+      - Os 5 níveis da trilha EBS
+      - Por que 10 minutos por dia funcionam
+      - Como funciona a entrevista inicial
+      - Do zero ao avançado — o caminho do aluno
+
+  INS:
+    name: Instrumentos
+    description: Dicas, curiosidades e orientações sobre cada instrumento ensinado
+    authority_required: false
+    instruments:
+      - Violão
+      - Guitarra
+      - Teclado
+      - Piano
+      - Contrabaixo
+      - Viola
+      - Técnica Vocal
+    examples:
+      - Violão ou guitarra — qual escolher?
+      - 5 erros de quem aprende violão sozinho
+      - Como cuidar do seu instrumento
+
+  SOC:
+    name: Prova Social
+    description: Resultados reais de alunos, depoimentos, gravações no estúdio
+    authority_required: false
+    requires_assets: true
+    asset_types:
+      - Foto do aluno (com autorização)
+      - Depoimento escrito
+      - Print de resultado (álbum gravado, conquista)
+    examples:
+      - Aluno grava primeiro álbum no EBS
+      - Depoimento de aluno (antes e depois)
+      - Resultados de X anos de método
+
+  MOT:
+    name: Motivacional
+    description: Conteúdo inspirador para quebrar objeções e motivar a começar
+    authority_required: false
+    tone: emocional + direto
+    examples:
+      - Nunca é tarde para aprender música
+      - Você não precisa de talento, precisa de método
+      - O que separa quem aprende de quem desiste
+
+  TEC:
+    name: Técnico Acessível
+    description: Conceitos de teoria musical simplificados para iniciantes
+    authority_required: false
+    tone: didático + acessível (nunca técnico demais)
+    examples:
+      - O que é cifra e como ler
+      - Ritmo para iniciantes
+      - Como afinar seu instrumento
+
+  CAP:
+    name: Captação Direta
+    description: Carrosséis focados em conversão — vagas, inscrições, início de turma
+    authority_required: false
+    cta_type: conversao
+    never_show_price: true
+    examples:
+      - Vagas abertas para violão
+      - Como se inscrever no EBS
+      - Novo turno disponível — noturno e sábados
+
+  BAS:
+    name: Bastidores
+    description: Conteúdo humanizado — estúdio, Alex Pereira, dia a dia da escola
+    authority_required: false
+    requires_assets: true
+    tone: humanizado + autêntico
+    examples:
+      - Um dia no Estúdio Black Space
+      - Como Alex Pereira criou o Método EBS
+      - Gravando o primeiro álbum
+
+# ─────────────────────────────────────────
+# PIPELINE DE EXECUÇÃO
+# ─────────────────────────────────────────
+phases:
+
+  - id: 1
+    name: Briefing de Tema
+    agent: aiox-master
+    elicit: true
+    inputs:
+      - Categoria do tema (EDU, MET, INS, SOC, MOT, TEC, CAP, BAS)
+      - Tema específico dentro da categoria
+      - Público-alvo do carrossel (pais, adolescentes, adultos)
+      - Objetivo: awareness | engajamento | conversão
+      - Assets disponíveis? (fotos, depoimentos)
+    outputs:
+      - tema_brief.yaml
+
+  - id: 2
+    name: Pesquisa & Fontes
+    agent: analyst
+    condition: theme_category.authority_required == true OR user_requested
+    inputs:
+      - tema_brief.yaml
+    tasks:
+      - Pesquisar dados e estatísticas sobre o tema
+      - Identificar fonte de autoridade adequada
+      - Validar que a fonte é reconhecida pelo público brasileiro
+      - Selecionar 1–2 fatos mais impactantes para os slides
+    outputs:
+      - research_brief.md (fatos + fonte + por que é autoridade)
+
+  - id: 3
+    name: Direção Criativa
+    agent: ux-design-expert
+    elicit: true
+    inputs:
+      - tema_brief.yaml
+      - research_brief.md (se fase 2 executada)
+    tasks:
+      - Definir formato do carrossel (standard 7, listicle, tutorial, comparação)
+      - Escrever hook do slide 1 (deve parar o scroll)
+      - Definir estrutura slide a slide (título + body + tipo de fundo)
+      - Garantir alternância claro/escuro
+      - Definir CTA do último slide
+    outputs:
+      - slide_brief.md (estrutura completa slide a slide)
+
+  - id: 4
+    name: Geração do HTML
+    agent: instagram-carousel (skill)
+    inputs:
+      - slide_brief.md
+      - ASSETS/logo-ebs-aprendiz.png (sempre embed base64)
+      - Handle: @aprendiz.ebs
+      - Endereço: Av. Minas Gerais, 57 — Centro, Corbélia-PR
+    tasks:
+      - Gerar HTML com design system EBS
+      - Embed logo como base64 no slide CTA
+      - Salvar em carrosseis/{categoria}-{tema}-{numero}.html
+      - Registrar em docs/temas-carrosseis.md
+    outputs:
+      - carrosseis/{slug}.html
+      - preview link: http://localhost:3456/{slug}.html
+
+  - id: 5
+    name: QA & Validação
+    agent: qa
+    elicit: true
+    checklist:
+      - "[ ] Copy dentro do tom EBS (sem promessas falsas, sem informalidade excessiva)"
+      - "[ ] Fonte de autoridade citada corretamente (nome + por que é autoridade)"
+      - "[ ] Handle @aprendiz.ebs presente no último slide"
+      - "[ ] Nenhum preço revelado nos slides"
+      - "[ ] CTA direciona para contato (não revela valor)"
+      - "[ ] Logo EBS presente e correta"
+      - "[ ] Progresso e seta de swipe corretos em todos os slides"
+      - "[ ] Último slide sem seta, barra 100%"
+      - "[ ] Alternância claro/escuro mantida"
+      - "[ ] Idioma: Português (BR)"
+    outputs:
+      - status: APROVADO | AJUSTES | REPROVADO
+      - ajustes_necessarios.md (se não aprovado)
+
+  - id: 6
+    name: Exportação PNG
+    agent: instagram-carousel (skill - export)
+    condition: qa.status == APROVADO
+    tasks:
+      - Exportar 7 slides como PNG 1080×1350px via Playwright
+      - Salvar em slides/{slug}/slide_1.png ... slide_7.png
+    outputs:
+      - slides/{slug}/slide_1.png até slide_7.png
+
+  - id: 7
+    name: Envio para Fila de Postagem
+    agent: aiox-master
+    condition: qa.status == APROVADO
+    description: |
+      Registra o carrossel aprovado no Supabase para postagem pelo n8n.
+      O n8n NÃO cria conteúdo — apenas posta o que está aqui.
+    tasks:
+      - Fazer upload dos PNGs para Supabase Storage (bucket ebs-aprendiz)
+      - Inserir registro em content_briefs (status: approved, client_id: ebs-aprendiz)
+      - Inserir slides em carousel_slides com image_url do Storage
+      - Inserir caption + hashtags em carousel_copy
+      - Definir scheduled_for (data/hora de postagem desejada)
+      - Atualizar docs/temas-carrosseis.md: marcar [x] exportado
+    outputs:
+      - Supabase: content_briefs.id + status approved
+      - Supabase Storage: 7 PNGs acessíveis via URL pública
+
+# ─────────────────────────────────────────
+# MODELO DE TRABALHO EM LOTE
+# ─────────────────────────────────────────
+batch_model:
+  description: |
+    Criar múltiplos carrosséis em uma sessão (7–14 por vez = 1–2 semanas de conteúdo).
+    O n8n posta 1 por dia no horário configurado enquanto a fila tiver conteúdo.
+  recommended_batch_size: 7
+  category_rotation:
+    - EDU   # Dia 1 — Educação & Benefícios
+    - MOT   # Dia 2 — Motivacional
+    - MET   # Dia 3 — Método EBS
+    - INS   # Dia 4 — Instrumentos
+    - SOC   # Dia 5 — Prova Social
+    - TEC   # Dia 6 — Técnico Acessível
+    - CAP   # Dia 7 — Captação Direta
+  alert: |
+    Resend envia email para Alex quando fila ficar com < 3 carrosséis pendentes.
+
+# ─────────────────────────────────────────
+# REGRAS GLOBAIS
+# ─────────────────────────────────────────
+global_rules:
+  - Nunca revelar preços nos slides
+  - Handle sempre @aprendiz.ebs (não @ebsmusicfirst)
+  - Endereço no CTA: Av. Minas Gerais, 57 — Centro, Corbélia-PR
+  - Logo: sempre ASSETS/logo-ebs-aprendiz.png (embed base64)
+  - Fundo preferencial: escuro (#0A0A0A) para identidade premium
+  - Idioma: Português (BR)
+  - Tom: mentor experiente + acessível (School of Rock — aprende tocando)
+  - Fontes de autoridade: citar nome + explicar por que é referência
+  - Registrar todo carrossel criado em docs/temas-carrosseis.md
+
+# ─────────────────────────────────────────
+# NAMING CONVENTION
+# ─────────────────────────────────────────
+file_naming:
+  html: "carrosseis/{categoria-sigla}-{tema-slug}-{numero:02d}.html"
+  slides: "slides/{categoria-sigla}-{tema-slug}-{numero:02d}/slide_{n}.png"
+  examples:
+    - "carrosseis/EDU-beneficios-musica-01.html"
+    - "carrosseis/MET-trilha-5-niveis-01.html"
+    - "carrosseis/MOT-nunca-tarde-01.html"
+    - "slides/EDU-beneficios-musica-01/slide_1.png"
