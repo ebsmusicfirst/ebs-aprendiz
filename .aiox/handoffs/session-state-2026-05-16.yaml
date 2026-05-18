@@ -1,0 +1,261 @@
+# ============================================
+# AIOX Session State — EBS Aprendiz
+# Saved: 2026-05-16
+# Agent: @aiox-master (Orion)
+# Models in use: Claude Opus 4.7 (default da sessão)
+# Special routing: @qa + @analyst pinados em claude-opus-4-7 nas SKILLs
+# ============================================
+
+project: EBS Aprendiz
+date: 2026-05-16
+agent: aiox-master
+session_handoff_from: 2026-05-15
+context_compaction_count: 1   # Sessão compactada uma vez no meio
+
+# ── Strategic decisions made this session ─────────────────────────────────────
+strategic_decisions:
+  - decision: "Geração de imagem via Imagen 4 (Google AI Studio) substitui Pexels"
+    rationale: "Fotos do Pexels eram repetitivas e fora de contexto. Imagen 4 Fast gera imagens fotorrealistas customizadas para o tema do carrossel a ~US$0,03/imagem."
+    action: "Adicionado painel '✦ Gerar Imagens — Imagen 4' no dashboard, 5 presets EBS, billing Pay-As-You-Go ativado no Google Cloud"
+    impact: "Imagens passam a ser exclusivas, premium e contextualizadas. Pexels mantido como fallback gratuito."
+
+  - decision: "Refresh automático do token Meta IGAA"
+    rationale: "Account type @aprendiz.ebs = MEDIA_CREATOR (Instagram Business Login). Sistema permanente via System User Token NÃO está disponível neste flow. Único caminho viável: long-lived + refresh em loop."
+    action: "Workflow .github/workflows/refresh-meta-token.yml roda dia 1 e 15 de cada mês; script scripts/refresh-meta-token.js chama refresh_access_token endpoint; secret atualizado automaticamente se META_REFRESH_PAT estiver configurado"
+    impact: "Token nunca expira na prática — desde que o cron rode. Alerta automático via Issue se falhar."
+
+  - decision: "Dashboard NUNCA é alterado sem rodar smoke tests"
+    rationale: "Bug de hoje: \\n em template literal Node.js virou newline literal no browser → JS quebrou → dashboard sem cards. Eu não testei após editar."
+    action: "Regra gravada no MEMORY.md (linha 'REGRA INEGOCIÁVEL'); fluxo correto = edit → kill-port → restart → test-dashboard.js → 30+/30+ passes"
+    impact: "Nunca mais entregar mudança não testada. Hook PostToolUse já roda smoke test automaticamente após edits em dashboard.js."
+
+  - decision: "Iris (@imagem-curator) criada como agente dedicado para QA visual"
+    rationale: "Quinn (@qa) já valida texto/estrutura via docs/qa-carousel-checklist.md. Imagens precisavam de gate separado com critérios próprios (relevância, qualidade técnica, contraste, licença, watermarks, adequação)."
+    action: "SKILL .claude/skills/AIOX/agents/imagem-curator/SKILL.md criada; script scripts/screenshot-carousel.js captura slides via Playwright; integrada à seção 10 do qa-carousel-checklist.md"
+    impact: "Gate de qualidade agora é Quinn + Iris (mais restritivo dos dois vence). Cobre carrosséis tweet E editorial."
+
+# ── Completed Tasks ───────────────────────────────────────────────────────────
+completed:
+  - task: "Fix do hook session-start-context que nunca disparava"
+    root_cause: "Hook existia em .claude/hooks/session-start-context.cjs mas settings.local.json não tinha entrada SessionStart"
+    fix: "Adicionado SessionStart hook em .claude/settings.local.json apontando pra .claude/hooks/session-start-context.cjs com timeout 15s"
+    verification: "Hook rodado manualmente, retornou INDEX.md + handoff mais recente + queue state"
+
+  - task: "Hook PostToolUse roda smoke test automaticamente após edits em dashboard.js"
+    file: ".claude/hooks/post-dashboard-test.cjs"
+    behavior: "Detecta tool_name=Edit|Write + file_path=scripts/dashboard.js → spawn node scripts/test-dashboard.js → injeta resultado como additionalContext"
+    timeout: "90s hook total, 80s test timeout interno, 88s safety global"
+
+  - task: "Verificação Instagram via browser (Playwright)"
+    file: "scripts/check-instagram-browser.js"
+    usage: "node scripts/check-instagram-browser.js [--headless] [--post N]"
+    output: "tmp/instagram/profile-TIMESTAMP.png + lista de URLs de posts"
+
+  - task: "Campo de AI Edit inline no dashboard (botão ✦ IA por card)"
+    backend: "POST /api/carousel/:id/ai-edit em dashboard.js → claude-sonnet-4-5 via Anthropic API direta"
+    strategy: "Base64 stripping: substitui data:image/...;base64,... por __B64_N__ placeholders antes de enviar (reduz payload de ~100KB para ~5-20KB), reinjeta depois"
+    backup: "carrosseis/.backups/<id>-TIMESTAMP.html antes de cada mudança"
+    note: "Funciona SEM Claude Code aberto — backend usa ANTHROPIC_API_KEY direta"
+
+  - task: "Iris (@imagem-curator) agente criado"
+    files:
+      - ".claude/skills/AIOX/agents/imagem-curator/SKILL.md"
+      - ".claude/commands/AIOX/agents/imagem-curator.md"
+      - "scripts/screenshot-carousel.js (captura Playwright dos slides)"
+      - "docs/qa-carousel-checklist.md (seção 10 atualizada com critérios de imagem)"
+    workflow: "*review-images <carouselId> → screenshot → Read multimodal → 10 critérios → veredicto PASS/CONCERNS/BLOCK"
+    integration: "Quinn (@qa) chama Iris durante gate; mais restritivo vence"
+
+  - task: "GEMINI_API_KEY adicionada ao .env, billing ativado"
+    key_format: "AIzaSy..."
+    billing_status: "Pay-As-You-Go ativado em ai.dev/projects (16/05/2026)"
+    models_disponíveis:
+      - "imagen-4.0-fast-generate-001 (~US$0,03/img) ← PADRÃO"
+      - "imagen-4.0-generate-001 (~US$0,04/img)"
+      - "imagen-4.0-ultra-generate-001 (~US$0,06/img)"
+      - "nano-banana-pro-preview = Gemini 3 Pro Image Preview (não integrado ainda)"
+      - "gemini-3.1-flash-image-preview (não integrado)"
+    safety_filter_descoberto: "Prompts com 'teenager', 'child', 'kid' retornam {} — usar 'young adult', 'adult' ou cenas sem pessoas"
+
+  - task: "Imagen 4 integrado ao dashboard"
+    panel: "✦ Gerar Imagens — Imagen 4 (logo acima dos cards)"
+    presets:
+      - "🎸 Jovem c/ guitarra"
+      - "🎹 Adulto no teclado"
+      - "🎤 Estúdio de gravação"
+      - "🎼 Aula de violão"
+      - "🎵 Banda ensaiando"
+    backend_endpoints:
+      - "POST /api/imagen/generate → chama Imagen 4 → salva em tmp/imagen/"
+      - "GET /tmp-img/:filename → serve imagens geradas"
+      - "POST /api/carousel/:id/apply-image → substitui imagem principal do carrossel (background-image ou <img src>, exceto avatares 48px)"
+    backup: "carrosseis/.backups/<id>-TIMESTAMP.html antes de cada apply-image"
+
+  - task: "Refresh automático de token Meta IGAA"
+    files:
+      - "scripts/refresh-meta-token.js (modos: default, --check, --json)"
+      - ".github/workflows/refresh-meta-token.yml (cron dia 1 e 15 de cada mês)"
+      - ".meta-token-state.json (gitignored, tracking de last_refresh + expires_at)"
+    endpoint_meta: "GET https://graph.instagram.com/refresh_access_token?grant_type=ig_refresh_token&access_token=<TOKEN>"
+    token_lifetime: "60 dias (long-lived, confirmado em 2026-05-16 — expires_in=5184000s)"
+    refresh_rules:
+      - "Token precisa ter ≥24h de idade"
+      - "Não pode estar expirado"
+      - "Cada refresh dá +60 dias a partir da data do refresh"
+    workflow_secret_required: "META_REFRESH_PAT (Fine-Grained PAT com 'Secrets: Read+Write' no repo) — sem isso, secret precisa ser atualizado manualmente"
+
+  - task: "Dashboard token badge"
+    location: "Header do dashboard (canto direito)"
+    endpoint: "GET /api/meta/token-info[?refresh=true]"
+    indicator: "Dot verde >30d / amarelo >7d / vermelho ≤7d ou inválido"
+    label: "@aprendiz.ebs · 60d"
+    interaction: "Click no badge dispara refresh manual"
+    auto_check: "checkToken() na inicialização + setInterval 5min"
+
+  - task: "Smoke test do dashboard expandido"
+    file: "scripts/test-dashboard.js"
+    novos_testes:
+      - "GET /api/meta/token-info retorna @username + days_remaining_estimate"
+    total_atual: "31 testes (era 30)"
+
+# ── Mapa atual de modelos em uso ──────────────────────────────────────────────
+models_mapping:
+  - etapa: "Conversa com usuário (criação de carrosséis, planejamento)"
+    modelo: "Claude (modelo ativo na sessão)"
+    configuração: "/model no Claude Code"
+
+  - etapa: "✦ IA Edit no dashboard (botão ✦ IA por card)"
+    modelo: "claude-sonnet-4-5"
+    configuração: "hardcoded em scripts/dashboard.js endpoint /api/carousel/:id/ai-edit"
+    custo: "~US$0,003/edit"
+
+  - etapa: "✦ Gerar Imagens no dashboard"
+    modelo: "imagen-4.0-fast-generate-001 (padrão; selecionável)"
+    configuração: "Seletor no painel + GEMINI_API_KEY no .env"
+    custo: "~US$0,03/img (Fast)"
+
+  - etapa: "@qa (Quinn) — gate de qualidade"
+    modelo: "claude-opus-4-7"
+    configuração: "frontmatter de .claude/skills/AIOX/agents/qa/SKILL.md"
+
+  - etapa: "@imagem-curator (Iris) — QA visual"
+    modelo: "claude-sonnet-4-5"
+    configuração: "frontmatter de .claude/skills/AIOX/agents/imagem-curator/SKILL.md"
+
+  - etapa: "@analyst (Atlas)"
+    modelo: "claude-opus-4-7"
+    configuração: "frontmatter de .claude/skills/AIOX/agents/analyst/SKILL.md"
+
+  - etapa: "Auto-publisher (GitHub Action a cada 15min)"
+    api: "Meta Graph API"
+    custo: "gratuito"
+
+# ── Estado da fila de carrosséis ──────────────────────────────────────────────
+queue_state:
+  total_carousels: 13
+  smoke_test_status: "31/31 ✅"
+  dashboard_url: "http://localhost:3000"
+  ports_in_use:
+    - 3000: "dashboard.js (Node)"
+
+# ── Estado do token Meta ──────────────────────────────────────────────────────
+meta_token_state:
+  username: "aprendiz.ebs"
+  ig_user_id: "36694828516783234"
+  account_type: "MEDIA_CREATOR"
+  token_format: "IGAA (Instagram Business Login)"
+  last_refresh: "2026-05-16T13:48:38.567Z"
+  expires_at: "2026-07-15T13:48:38.566Z"
+  expires_in_days: 60
+  is_long_lived: true
+
+# ── Pendências para próxima sessão ────────────────────────────────────────────
+pending:
+  - title: "PAT do usuário não tem permissão Secrets:Write"
+    blocker: true
+    descrição: "Usuário criou Fine-Grained PAT mas só com Secrets:read (falta write). Sem isso, workflow de refresh não consegue atualizar o secret META_ACCESS_TOKEN no GitHub automaticamente."
+    fix_pendente_pelo_usuario: |
+      1. github.com/settings/personal-access-tokens → editar o PAT criado em 16/05
+      2. Repository permissions → Secrets → mudar para 'Read and write'
+      3. Salvar
+      4. Confirmar com 'feito' para Claude rodar `gh secret set META_REFRESH_PAT`
+    workaround_temporário: "Workflow roda o refresh, gera novo token em log, mas não atualiza secret. Usuário precisa atualizar manualmente até o PAT ser corrigido."
+    security_note: "PAT atual apareceu no chat em texto plano. Após corrigir permissões e validar funcionamento, ROTACIONAR (criar novo e revogar atual)."
+
+  - title: "Token PAT no chat = exposto"
+    descrição: "Fine-grained PAT github_pat_11CAWG35Y0... foi colado no chat. [REVOGADO/EXPIRADO — confirmado HTTP 401 em 2026-05-18]"
+    risk_level: "baixo (Fine-Grained PAT escopado a 1 repo, só com leitura limitada)"
+    action_recomendada: "Após o secret estar funcionando, criar novo PAT e revogar este. Atualizar protocolo: usuário NUNCA mais cola tokens no chat."
+
+  - title: "queue.json talvez ainda dessincronizado do Instagram real"
+    descrição: "Herdado do handoff 2026-05-15. Não foi reconciliado nesta sessão. queue diz 6 publicados, mas Instagram real tinha só 1 (EDU-07) no histórico."
+    action_recomendada: "Rodar scripts/check-instagram-browser.js para conferir estado real e sincronizar queue.json"
+
+  - title: "Piloto MOT-talento-mito-08.html ainda com feedback 'ficou ruim'"
+    descrição: "Pendente desde 2026-05-14. Não foi iterado nesta sessão."
+
+# ── Lições aprendidas (regras gravadas no MEMORY) ─────────────────────────────
+lessons_learned:
+  - lesson: "Template literal Node.js + escape sequences quebram JS no browser"
+    detail: |
+      Dentro de `\`...\`` (DASHBOARD_HTML), `\\n` em strings vira newline real no output.
+      Mesma armadilha para `\\'`. Para evitar: usar concatenação ou `\\\\n` explícito.
+      Bug recorrente — já apareceu em 2026-05-15 e 2026-05-16.
+    fix_pattern: "node --check + node scripts/test-dashboard.js após qualquer edit"
+
+  - lesson: "Imagen 4 safety filter bloqueia 'teenager/child/kid'"
+    detail: "Resposta vem como `{}` (HTTP 200, sem predictions). Confunde com erro de billing."
+    fix_pattern: "Usar 'young adult', 'adult', ou cenas sem pessoas"
+
+  - lesson: "Dashboard server precisa de RESTART após edit"
+    detail: "DASHBOARD_HTML é construído na inicialização. Edit no arquivo não reflete até `npx kill-port 3000` + relaunch."
+    fix_pattern: "Smoke test inclui restart automático no fluxo correto"
+
+  - lesson: "Modelo de geração de imagem Gemini exige plano pago"
+    detail: |
+      Free tier do Google AI Studio tem `limit: 0` para imagen-4.0-* e nano-banana-pro-preview.
+      Erro 429 com mensagem confusa de quota. Solução: Pay-As-You-Go (~US$1-2/mês a 50 imgs).
+    confirmed_2026_05_16: true
+
+# ── Próximos passos lógicos ───────────────────────────────────────────────────
+next_session_logical_steps:
+  - "Confirmar com usuário que o PAT foi corrigido com Secrets:Read+Write"
+  - "Rodar `gh secret set META_REFRESH_PAT` para finalizar a automação completa"
+  - "Disparar workflow manual: gh workflow run refresh-meta-token.yml (com check_only=true) para confirmar que tudo está conectado"
+  - "Reconciliar queue.json com estado real do Instagram (check-instagram-browser.js)"
+  - "Iterar piloto MOT-talento-mito-08.html (pendente desde 14/05)"
+  - "Decidir: integrar nano-banana-pro-preview (Gemini 3 Pro Image) como opção premium no painel Imagen?"
+  - "Considerar: substituir window.prompt() do botão Aplicar no painel Imagen por um <select> com IDs do queue (UX melhor)"
+  - "Adicionar teste para endpoint /api/imagen/generate e /api/carousel/:id/apply-image no smoke test"
+
+# ── Como verificar tudo funcionando na próxima sessão ─────────────────────────
+verification_checklist:
+  - "node scripts/refresh-meta-token.js --check  # deve retornar @aprendiz.ebs + days_remaining"
+  - "curl http://localhost:3000/api/meta/token-info | jq  # mesmo resultado, via dashboard"
+  - "node scripts/test-dashboard.js  # 31/31 ✅"
+  - "Verificar que o badge dourado mostra '@aprendiz.ebs · NNd' no dashboard"
+  - "gh secret list --repo ebsmusicfirst/ebs-aprendiz  # deve ter META_ACCESS_TOKEN + META_REFRESH_PAT (após PAT corrigido)"
+
+# ── Arquivos criados/modificados nesta sessão ─────────────────────────────────
+files_changed:
+  created:
+    - ".claude/hooks/post-dashboard-test.cjs"
+    - ".claude/skills/AIOX/agents/imagem-curator/SKILL.md"
+    - ".claude/commands/AIOX/agents/imagem-curator.md"
+    - "scripts/check-instagram-browser.js"
+    - "scripts/screenshot-carousel.js"
+    - "scripts/test-gemini-image.js"
+    - "scripts/refresh-meta-token.js"
+    - ".github/workflows/refresh-meta-token.yml"
+    - "tmp/gemini-test/guitarra-adulto.png (sample)"
+    - "tmp/gemini-test/violao-sala-aula.png (sample)"
+    - "tmp/gemini-test/estudio-microfone.png (sample)"
+    - ".meta-token-state.json (gitignored)"
+  modified:
+    - ".claude/settings.local.json (SessionStart + PostToolUse hooks)"
+    - "scripts/dashboard.js (✦ IA Edit, ✦ Imagen 4, token badge, 3 novos endpoints)"
+    - "scripts/test-dashboard.js (+1 teste para /api/meta/token-info)"
+    - "docs/qa-carousel-checklist.md (seção 10 — Iris)"
+    - ".env (GEMINI_API_KEY adicionada, META_ACCESS_TOKEN refrescado)"
+    - ".gitignore (.meta-token-state.json + tmp/)"
+    - "C:/Users/alexr/.claude/projects/F--AIOX-PROJECTS-EBS-APRENDIZ/memory/MEMORY.md (regra de teste obrigatório + mapa de modelos)"

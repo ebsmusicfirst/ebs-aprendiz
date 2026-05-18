@@ -1,0 +1,216 @@
+# ============================================
+# AIOX Session State — EBS Aprendiz
+# Saved: 2026-05-18
+# Agent: @aiox-master (Orion)
+# Models in use: Claude Opus 4.7 (default da sessão)
+# Tipo de sessão: Decisão estratégica (sem código)
+# ============================================
+
+project: EBS Aprendiz
+date: 2026-05-18
+agent: aiox-master
+session_handoff_from: 2026-05-16
+session_type: strategic_decision   # Não houve código alterado nesta sessão
+worktree: claude/elegant-lamport-cbe9bc
+
+# ── Strategic decisions made this session ─────────────────────────────────────
+strategic_decisions:
+  - decision: "Migrar camada de publicação do pipeline de Meta Graph API direto para Buffer (free plan)"
+    decided_at: "2026-05-18"
+    rationale: |
+      Dois fatores cumulativos forçaram a decisão:
+      1. Refresh do token Meta long-lived a cada 60 dias é dor recorrente — workflow
+         refresh-meta-token.yml está 80% pronto mas trava em PAT GitHub sem Secrets:Write
+      2. EBS é piloto de produto SaaS multi-cliente — Graph API direto teria custo de
+         onboarding (30-60min/cliente) e manutenção (refresh por cliente) que escala mal
+    alternatives_evaluated:
+      - name: "Ayrshare"
+        verdict: "Descartado por preço inicial (US$149/mês) — reavaliar se atingirmos ≥10 clientes pagantes"
+      - name: "Postiz (self-hosted, open source)"
+        verdict: "Descartado por exigir VPS 24/7 (Postgres + Redis + Next.js + NestJS). GitHub Actions não serve. Reavaliar com ≥20 clientes"
+      - name: "Manter Graph API direto + finalizar refresh-meta-token.yml"
+        verdict: "Descartado por custo composto em modelo multi-cliente"
+    triggers_to_reevaluate:
+      - "≥20 clientes ativos → Postiz self-hosted provavelmente paga VPS"
+      - "Custo Buffer Agency (US$120/mês p/ 10 canais) > custo Postiz numa VPS"
+      - "Incidente grave Buffer 'enviado mas não publicado' afetando reputação"
+      - "Postiz lança MCP server oficial robusto"
+    action_required_next_session: "Implementação da integração Buffer (ver next_steps)"
+    impact: |
+      Geração de PNGs, dashboard local, queue.json, Imagen 4 e agentes permanecem
+      inalterados. Só o publicador final muda. Plano free Buffer cobre o piloto.
+
+  - decision: "Migrar geração de imagem do dashboard de Imagen 4 para gemini-2.5-flash-image"
+    decided_at: "2026-05-18"
+    rationale: |
+      A/B test (3 temas × 2 modelos) confirmou Imagen Fast inviável para EBS:
+      bloqueia "teenager"/"child" no safety filter mesmo com BLOCK_ONLY_HIGH + ALLOW_ADULT.
+      Gemini 2.5 Flash gerou todos os 3 prompts com qualidade superior. Aspect ratio
+      3:4 portrait resolvido via parâmetro generationConfig.imageConfig.aspectRatio='3:4'.
+    technical_finding: |
+      Payload correto para Gemini image API:
+      {
+        contents: [{role:'user', parts:[{text: PROMPT}]}],
+        generationConfig: {
+          responseModalities: ['IMAGE','TEXT'],
+          candidateCount: 1,
+          imageConfig: { aspectRatio: '3:4' }   # ← exatamente aqui
+        }
+      }
+      Retorna 864×1184 (~3:4 portrait). Custo $0.039/img.
+    cost_comparison:
+      imagen-4-fast: "$0.030/img — INVIÁVEL (safety filter)"
+      gemini-2.5-flash-image: "$0.039/img — DEFAULT NOVO"
+      nano-banana-pro-preview: "$0.134/img — opcional p/ premium"
+    impact: |
+      Dashboard precisa ser refatorado para:
+      1. Branch isGemini no endpoint /api/imagen/generate
+      2. Reordenar dropdown — gemini-2.5-flash-image como default
+      3. Imagen mantido como fallback/legado (raramente usável)
+
+  - decision: "Criar agente @visual-prompt (Vera) para escrever prompts cinematográficos"
+    decided_at: "2026-05-18"
+    rationale: |
+      Prompts genéricos como 'young adult playing guitar' produzem imagens genéricas.
+      Vera traduz tema/headline em prompt com linguagem de cinema (lente, iluminação,
+      mood, ângulo, cenário brasileiro). Resultado A/B mostrou qualidade visivelmente
+      superior (tabs no chão, golden hour, etc.) vs prompts genéricos.
+    location: ".claude/skills/AIOX/agents/visual-prompt/SKILL.md"
+    persona: "Vera — Diretora de Fotografia para IA, modelo claude-sonnet-4-5"
+    commands: "*prompt-imagem, *prompt-variantes, *prompt-carrossel, *help"
+    impact: "Pipeline EBS ganha um agente dedicado ao prompt visual, espelhando Hugo (headlines)"
+
+  - decision: "Reconhecer EBS Aprendiz formalmente como piloto para SaaS multi-cliente"
+    decided_at: "2026-05-18"
+    rationale: |
+      Alex explicitou que está em fase de testes para implementar para mais clientes.
+      Toda decisão técnica daqui pra frente deve considerar:
+      - Tempo de onboarding por cliente novo
+      - Manutenção composta (decisão multiplica trabalho por N?)
+      - Custo unitário por cliente/mês
+      - Isolamento de falha entre clientes
+      - Friction de white-label se aplicável
+    action: "Memória project_saas-pilot-context.md criada com framework de avaliação"
+    impact: "Critérios formais para toda recomendação técnica futura"
+
+# ── Research conducted ────────────────────────────────────────────────────────
+research:
+  - topic: "Buffer como plataforma de publicação"
+    method: "Delegado para subagent (general-purpose) via WebFetch + WebSearch"
+    key_findings:
+      - "Buffer suporta carrossel IG até 10 imagens (usamos 7, ok)"
+      - "OAuth 2.0 com refresh token rotacionado pelo SDK — sem dor de 60 dias"
+      - "MCP server oficial NÃO existe; comunitário ahernan2/buffer-mcp tem 3 stars (frágil)"
+      - "Free plan: 3 canais, 10 posts/fila/canal — cobre piloto"
+      - "Essentials: US$5/mês/canal | Agency: US$120/mês (10 canais)"
+      - "Histórico 2025 de incidentes 'post enviado mas não publicado' (status.buffer.com)"
+      - "Continua exigindo IG Business + Página FB (Meta requirement, ninguém escapa)"
+    sources:
+      - "https://support.buffer.com/article/554-using-instagram-with-buffer"
+      - "https://buffer.com/pricing"
+      - "https://buffer.com/developers/api/oauth"
+      - "https://status.buffer.com/incidents/01KCRGB1VJRVRJPFNZHQ9P74PN"
+      - "https://www.pulsemcp.com/servers/ahernan2-buffer"
+
+# ── Memory updates ────────────────────────────────────────────────────────────
+memory_changes:
+  created:
+    - file: "memory/project_publishing-platform-buffer.md"
+      type: project
+      description: "Decisão Buffer + triggers para reavaliar Postiz/Ayrshare"
+    - file: "memory/project_saas-pilot-context.md"
+      type: project
+      description: "Framing estratégico — EBS é piloto SaaS, critérios para decisões futuras"
+  updated:
+    - file: "memory/MEMORY.md"
+      sections_changed:
+        - "Adicionado bloco '📌 Memórias estratégicas' com pointers para os 2 novos arquivos"
+        - "Seção 'Pipeline de carrosséis — Estado atual' refletindo migração Buffer"
+        - "Seção 'Próxima sessão — ações imediatas' reescrita com plano Buffer"
+
+# ── State of pipeline at session end ──────────────────────────────────────────
+pipeline_state:
+  queue_json:
+    total: 13
+    published: 6
+    pending: 7
+  worktree: "claude/elegant-lamport-cbe9bc (clean)"
+  main_repo:
+    note: "Múltiplos untracked/modified no diretório principal — não é da sessão atual, herança"
+    untracked_carousels:
+      - "CAP-vagas-abertas-06.html"
+      - "EDU-musica-desempenho-escolar-07.html"
+      - "INS-violao-ou-guitarra-04.html"
+      - "MET-5-niveis-trilha-03.html"
+      - "MOT-talento-mito-08.html"
+      - "MOT-talento-vs-metodo-02.html"
+      - "TEC-o-que-e-cifra-05.html"
+      - "tweet-3-sinais-professor-amador-05.html"
+      - "tweet-aulas-online-nao-funcionam-02.html"
+      - "tweet-criancas-musicos-bons-06.html"
+      - "tweet-guitarra-sozinho-01.html"
+      - "tweet-jeito-pra-musica-04.html"
+      - "tweet-sem-tempo-sem-metodo-03.html"
+
+# ── Next steps (próxima sessão) ───────────────────────────────────────────────
+next_steps:
+  priority_1_buffer_integration:
+    - step: "Criar conta Buffer free em buffer.com"
+      owner: "Alex"
+      blocker: "Login pessoal/decisão de conta — não pode ser automatizado"
+
+    - step: "Conectar @aprendiz.ebs como canal Instagram"
+      requires:
+        - "@aprendiz.ebs precisa estar como Conta Business/Creator"
+        - "Vinculada a Página Facebook com admin (já existe)"
+
+    - step: "Obter Buffer API credentials"
+      docs: "https://buffer.com/developers/api"
+      output: "Access token OAuth + Client ID/Secret no .env"
+
+    - step: "Implementar wrapper Buffer no dashboard"
+      files_to_edit:
+        - "scripts/dashboard.js — endpoint /api/carousel/:id/publish"
+        - "Possivelmente novo scripts/publish-buffer.js"
+      decisions_pending:
+        - "Usar Buffer queue (schedule no Buffer) ou manter GitHub Action cron chamando Buffer API immediate-publish?"
+        - "Onde armazenar Buffer channel_id (queue.json item-level ou .env global)?"
+
+    - step: "Atualizar/aposentar .github/workflows/publish.yml"
+      decision: "Depende da escolha 'Buffer queue vs GitHub cron'"
+
+  priority_2_archive_meta:
+    - step: "Arquivar (não deletar) refresh-meta-token.yml e refresh-meta-token.js"
+      reason: "Manter como fallback se Buffer falhar e voltarmos a Graph API"
+      target_path: ".aiox/archived/meta-graph-fallback/"
+
+  priority_3_saas_prep:
+    - step: "Documentar runbook de onboarding de cliente novo (Buffer connect + setup IG Business + FB Page)"
+      output: "docs/runbooks/onboard-new-client.md"
+      audience: "Você mesmo daqui 6 meses + futuro técnico de suporte"
+
+  priority_4_cleanup:
+    - step: "Decidir o que fazer com os untracked HTMLs/scripts no repo principal"
+      note: "Não relacionado a esta sessão, mas pendente desde 2026-05-16"
+
+# ── Verdades inconvenientes a NÃO esquecer ────────────────────────────────────
+inconvenient_truths:
+  - "queue.json pode estar dessincronizado do Instagram real (herança 2026-05-15) — validar antes de confiar"
+  - "Migração para Buffer NÃO elimina exigência Meta de IG Business + FB Page — cliente novo ainda precisa setar isso"
+  - "Buffer free plan tem limite de 3 'unique connections' VITALÍCIAS — reconectar IG consome slot"
+  - "MOT-talento-mito-08.html piloto pendente com feedback 'ficou ruim' desde 2026-05-14 (3 sessões sem iteração)"
+
+# ── Security ──────────────────────────────────────────────────────────────────
+security_notes:
+  - "[RESOLVIDO 2026-05-18] PAT GitHub exposto em 2026-05-16 confirmado revogado/expirado (HTTP 401 ao testar). Referência textual no handoff 2026-05-16 mantida com tag [REVOGADO]."
+  - "[NOVO 2026-05-18] Buffer access token QrdNLI7j... colado em chat. Salvo em .env (gitignored). REGENERAR após validar integração — ir em publish.buffer.com/account/apps."
+  - "Buffer API token NUNCA commitar no repo — usar .env + GitHub Secret quando workflow precisar"
+  - "REGRA: usuário NUNCA mais cola tokens em chat. Próxima vez: salvar direto no .env via terminal e me dizer apenas 'token salvo'."
+
+# ── Session metadata ──────────────────────────────────────────────────────────
+metadata:
+  duration_estimate: "~30min"
+  tool_calls_count_approx: 15
+  files_modified_in_repo: 0   # Sessão apenas de decisão + memória
+  files_created_in_memory: 2
+  files_updated_in_memory: 1  # MEMORY.md
