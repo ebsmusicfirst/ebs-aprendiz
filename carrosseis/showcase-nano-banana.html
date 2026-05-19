@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Showcase — Vera × Nano Banana | EBS Aprendiz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root {
+    --bg:          #0A0A0A;
+    --bg-panel:    #141414;
+    --bg-card:     #1A1A1A;
+    --gold:        #D4A017;
+    --gold-light:  #F0C040;
+    --gold-dark:   #A07810;
+    --text:        #F5F2EC;
+    --text-muted:  rgba(245,242,236,0.55);
+    --text-dim:    rgba(245,242,236,0.35);
+    --border:      rgba(212,160,23,0.18);
+  }
+  html, body { font-family:'Inter',system-ui,sans-serif; background:var(--bg); color:var(--text); line-height:1.5; }
+  body { padding:60px 24px 80px; }
+
+  /* Hero */
+  .hero { max-width:1100px; margin:0 auto 56px; text-align:center; }
+  .hero .eyebrow {
+    display:inline-block; padding:6px 14px; border:1px solid var(--border);
+    border-radius:20px; color:var(--gold); font-size:11px; font-weight:700;
+    letter-spacing:1.5px; text-transform:uppercase; margin-bottom:24px;
+  }
+  .hero h1 {
+    font-size:clamp(34px, 5vw, 56px); font-weight:800; line-height:1.1;
+    margin-bottom:18px; letter-spacing:-0.02em;
+  }
+  .hero h1 .gold { color:var(--gold-light); }
+  .hero .sub { font-size:17px; color:var(--text-muted); max-width:680px; margin:0 auto 28px; }
+
+  .meta-grid {
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr));
+    gap:14px; max-width:880px; margin:0 auto;
+  }
+  .meta-card {
+    background:var(--bg-panel); border:1px solid rgba(255,255,255,0.06);
+    border-radius:10px; padding:16px 14px; text-align:left;
+  }
+  .meta-card .label { font-size:10px; color:var(--text-dim); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:6px; }
+  .meta-card .val { font-size:15px; font-weight:700; color:var(--text); }
+  .meta-card .val.gold { color:var(--gold); }
+
+  /* Notice de comparação */
+  .notice {
+    max-width:880px; margin:48px auto 56px; padding:18px 22px;
+    background:linear-gradient(135deg, rgba(212,160,23,0.08), rgba(212,160,23,0.02));
+    border:1px solid var(--border); border-radius:12px;
+    display:flex; gap:16px; align-items:flex-start;
+  }
+  .notice .icon { font-size:24px; line-height:1; flex-shrink:0; }
+  .notice .body { font-size:14px; color:var(--text-muted); }
+  .notice .body strong { color:var(--text); }
+
+  /* Scenes */
+  .scenes {
+    max-width:1100px; margin:0 auto;
+    display:grid; gap:48px;
+  }
+  .scene {
+    display:grid; grid-template-columns:1fr 360px; gap:36px;
+    align-items:start;
+    background:var(--bg-panel); border:1px solid rgba(255,255,255,0.05);
+    border-radius:16px; padding:32px;
+  }
+  @media (max-width:880px) {
+    .scene { grid-template-columns:1fr; gap:28px; padding:24px; }
+  }
+  .scene-text .num {
+    display:inline-block; padding:4px 10px; background:rgba(212,160,23,0.12);
+    color:var(--gold); border-radius:14px; font-size:11px; font-weight:700;
+    letter-spacing:1px; margin-bottom:14px;
+  }
+  .scene-text h2 {
+    font-size:24px; font-weight:800; line-height:1.25; margin-bottom:18px;
+    letter-spacing:-0.015em;
+  }
+  .scene-text .prompt-label {
+    font-size:10px; color:var(--text-dim); text-transform:uppercase;
+    letter-spacing:1.5px; font-weight:700; margin-bottom:8px;
+  }
+  .scene-text .prompt {
+    font-size:13px; color:var(--text-muted); line-height:1.65;
+    background:var(--bg-card); padding:14px 16px; border-left:2px solid var(--gold);
+    border-radius:4px; font-family:'JetBrains Mono','Courier New',monospace;
+  }
+  .scene-text .notes {
+    margin-top:18px; font-size:12px; color:var(--text-dim);
+  }
+  .scene-text .notes strong { color:var(--gold); }
+
+  .scene-image {
+    position:relative; border-radius:12px; overflow:hidden;
+    aspect-ratio:3/4;
+    background:#000;
+    box-shadow:0 20px 60px rgba(0,0,0,0.5);
+  }
+  .scene-image img { width:100%; height:100%; object-fit:cover; display:block; }
+  .scene-image .badge {
+    position:absolute; bottom:10px; right:10px;
+    background:rgba(10,10,10,0.85); color:var(--gold-light);
+    padding:6px 10px; border-radius:6px; font-size:10px; font-weight:700;
+    letter-spacing:1px; backdrop-filter:blur(6px);
+  }
+
+  /* Footer */
+  .footer {
+    max-width:880px; margin:80px auto 0; padding-top:32px;
+    border-top:1px solid rgba(255,255,255,0.06);
+    text-align:center; color:var(--text-dim); font-size:13px;
+  }
+  .footer .pipeline {
+    display:inline-block; padding:14px 22px; margin-top:14px;
+    background:var(--bg-panel); border-radius:10px; font-family:monospace;
+    font-size:12px; color:var(--text-muted);
+  }
+  .footer .pipeline .arrow { color:var(--gold); margin:0 8px; }
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="eyebrow">🍌 Showcase · 2026-05-19</div>
+  <h1>Pipeline visual<br><span class="gold">Vera × Nano Banana</span></h1>
+  <p class="sub">5 cenas geradas com prompts cinematográficos da agente Vera, renderizados pelo Gemini 2.5 Flash Image. Aspect 3:4 portrait nativo. Custo total: ~US$ 0,20.</p>
+
+  <div class="meta-grid">
+    <div class="meta-card">
+      <div class="label">Modelo</div>
+      <div class="val gold">gemini-2.5-flash-image</div>
+    </div>
+    <div class="meta-card">
+      <div class="label">Cenas</div>
+      <div class="val">5 · diversos temas EBS</div>
+    </div>
+    <div class="meta-card">
+      <div class="label">Resolução</div>
+      <div class="val">864 × 1184 (3:4)</div>
+    </div>
+    <div class="meta-card">
+      <div class="label">Custo por imagem</div>
+      <div class="val">~US$ 0,039</div>
+    </div>
+    <div class="meta-card">
+      <div class="label">Latência média</div>
+      <div class="val">~7,6s</div>
+    </div>
+    <div class="meta-card">
+      <div class="label">Safety filter</div>
+      <div class="val">✅ Não bloqueia</div>
+    </div>
+  </div>
+</section>
+
+<div class="notice">
+  <div class="icon">⚠️</div>
+  <div class="body">
+    <strong>Por que migramos do Imagen 4?</strong> No A/B test de 2026-05-18, Imagen 4 Fast bloqueou 2 de 3 prompts EBS por safety filter em "teenager"/"child" — mesmo com BLOCK_ONLY_HIGH + ALLOW_ADULT. Gemini Nano Banana gerou todos os prompts sem bloqueio, com qualidade cinematográfica superior e aspect 3:4 nativo via <code>generationConfig.imageConfig.aspectRatio</code>.
+  </div>
+</div>
+
+<section class="scenes">
+
+  <article class="scene">
+    <div class="scene-text">
+      <div class="num">CENA 1</div>
+      <h2>Por que você não aprende guitarra sozinho</h2>
+      <div class="prompt-label">Prompt da Vera</div>
+      <div class="prompt">Close-up portrait, 3:4 vertical. Teenager around 16, alone in dimly-lit suburban bedroom in Brazil, electric guitar in lap, frustrated expression, scattered guitar tabs and phone showing paused YouTube tutorial. Single warm desk lamp, blue evening light through window. 50mm lens, f/2.0, photorealistic film grain, melancholic mood.</div>
+      <div class="notes"><strong>Vera:</strong> Emoção isolada. Subtexto: sozinho com tutorial vs com método/professor.</div>
+    </div>
+    <div class="scene-image">
+      <img src="../slides/nano-banana-showcase/01-guitarra-sozinho.png" alt="Adolescente sozinho com guitarra elétrica em quarto suburbano">
+      <div class="badge">3:4 · 864×1184</div>
+    </div>
+  </article>
+
+  <article class="scene">
+    <div class="scene-text">
+      <div class="num">CENA 2</div>
+      <h2>Música e desempenho escolar</h2>
+      <div class="prompt-label">Prompt da Vera</div>
+      <div class="prompt">Medium shot, 3:4 vertical. Brazilian girl around 9 at wooden kitchen table after school, school notebook open, small classical guitar nearby, looking at guitar with quiet curiosity. Late golden hour through window. 35mm lens, documentary style, Fuji film palette, warm hopeful mood.</div>
+      <div class="notes"><strong>Vera:</strong> Descoberta calma. Amarra escola (caderno) e música (violão) sem forçar palco.</div>
+    </div>
+    <div class="scene-image">
+      <img src="../slides/nano-banana-showcase/02-desempenho-escolar.png" alt="Criança brasileira de 9 anos com violão e caderno escolar em mesa de cozinha">
+      <div class="badge">3:4 · 864×1184</div>
+    </div>
+  </article>
+
+  <article class="scene">
+    <div class="scene-text">
+      <div class="num">CENA 3</div>
+      <h2>Como saber se meu filho leva jeito pra música</h2>
+      <div class="prompt-label">Prompt da Vera</div>
+      <div class="prompt">Wide shot from doorway, 3:4 vertical. Brazilian mother around 38 in foreground out of focus at doorway, watching her son around 7 cross-legged on living room floor absorbed playing keyboard, head tilted listening. Brazilian living room, late golden hour. 50mm lens, shallow DOF on child, observational documentary mood.</div>
+      <div class="notes"><strong>Vera:</strong> Plano observacional. Conta a história do pai/mãe testando o jeito antes da escola.</div>
+    </div>
+    <div class="scene-image">
+      <img src="../slides/nano-banana-showcase/03-jeito-pra-musica.png" alt="Mãe observando filho criança tocando teclado na sala">
+      <div class="badge">3:4 · 864×1184</div>
+    </div>
+  </article>
+
+  <article class="scene">
+    <div class="scene-text">
+      <div class="num">CENA 4</div>
+      <h2>Aulas online não funcionam pra iniciante</h2>
+      <div class="prompt-label">Prompt da Vera</div>
+      <div class="prompt">Medium two-shot, 3:4 vertical. Brazilian guitar teacher around 35 beside adult student around 28 in small Corbélia home studio, both with acoustic guitars, teacher reaching to adjust student's hand position with patient focus. Warm window light from left. 50mm lens, photorealistic documentary, intimate teaching moment.</div>
+      <div class="notes"><strong>Vera:</strong> Mostra o gesto físico que YouTube não consegue ensinar — correção de posicionamento.</div>
+    </div>
+    <div class="scene-image">
+      <img src="../slides/nano-banana-showcase/04-aula-particular.png" alt="Professor de violão ajustando a mão do aluno em aula particular">
+      <div class="badge">3:4 · 864×1184</div>
+    </div>
+  </article>
+
+  <article class="scene">
+    <div class="scene-text">
+      <div class="num">CENA 5</div>
+      <h2>10 minutos por dia vencem 2h no fim de semana</h2>
+      <div class="prompt-label">Prompt da Vera</div>
+      <div class="prompt">Macro detail shot, 3:4 vertical. Close-up of adult hand pressing chord on acoustic guitar fretboard, fingers slightly worn, simple watch on wrist, guitar on jeans-clad legs in domestic setting. Soft morning side window light, shallow DOF on fingertips. 85mm macro f/2.8, photorealistic, focused calm dedication.</div>
+      <div class="notes"><strong>Vera:</strong> Macro de dedos amarra prática deliberada. O relógio é dica de "tempo" sem ser literal.</div>
+    </div>
+    <div class="scene-image">
+      <img src="../slides/nano-banana-showcase/05-pratica-10min.png" alt="Macro de dedos adultos pressionando acorde no violão">
+      <div class="badge">3:4 · 864×1184</div>
+    </div>
+  </article>
+
+</section>
+
+<div class="footer">
+  <div>Pipeline EBS Aprendiz · 2026-05-19</div>
+  <div class="pipeline">
+    Tema/Headline <span class="arrow">→</span> Vera (@visual-prompt) <span class="arrow">→</span> Gemini Nano Banana <span class="arrow">→</span> Iris (@imagem-curator) <span class="arrow">→</span> Carrossel IG
+  </div>
+</div>
+
+</body>
+</html>

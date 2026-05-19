@@ -1,0 +1,146 @@
+name: 🔄 EBS Aprendiz — Refresh Meta Token
+
+# Renova o token IGAA do Instagram a cada ~30 dias.
+# Token tem validade de 60 dias; refresh antecipado mantém ele permanentemente vivo.
+
+on:
+  schedule:
+    # Dia 1 e dia 15 de cada mês, 06:00 UTC (03:00 BRT)
+    # Dupla execução = redundância caso o primeiro falhe
+    - cron: '0 6 1,15 * *'
+
+  workflow_dispatch:
+    inputs:
+      check_only:
+        description: '🔍 Só verifica validade, sem refrescar'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  refresh:
+    name: Refresh Token
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write   # para criar Issue em caso de falha
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 🔄 Executar refresh
+        id: refresh
+        env:
+          META_ACCESS_TOKEN: ${{ secrets.META_ACCESS_TOKEN }}
+        run: |
+          FLAG=""
+          if [ "${{ inputs.check_only }}" = "true" ]; then
+            FLAG="--check"
+          fi
+          OUTPUT=$(node scripts/refresh-meta-token.js --json $FLAG)
+          EXIT=$?
+          echo "Raw output: $OUTPUT"
+          echo "Exit code: $EXIT"
+
+          # Parse JSON usando jq (disponível por padrão no runner)
+          OK=$(echo "$OUTPUT" | jq -r '.ok // false')
+          ACTION=$(echo "$OUTPUT" | jq -r '.action // "unknown"')
+          REASON=$(echo "$OUTPUT" | jq -r '.reason // ""')
+          NEW_TOKEN=$(echo "$OUTPUT" | jq -r '.new_token // ""')
+          EXPIRES_AT=$(echo "$OUTPUT" | jq -r '.expires_at // ""')
+          USERNAME=$(echo "$OUTPUT" | jq -r '.username // ""')
+
+          # Mask token in logs (4 first chars + ... + 4 last chars)
+          if [ -n "$NEW_TOKEN" ]; then
+            echo "::add-mask::$NEW_TOKEN"
+          fi
+
+          {
+            echo "ok=$OK"
+            echo "action=$ACTION"
+            echo "reason=$REASON"
+            echo "expires_at=$EXPIRES_AT"
+            echo "username=$USERNAME"
+            echo "has_new_token=$([ -n "$NEW_TOKEN" ] && echo true || echo false)"
+          } >> $GITHUB_OUTPUT
+
+          # Persist token in env file for next step (encrypted by runner)
+          if [ -n "$NEW_TOKEN" ]; then
+            echo "NEW_META_TOKEN=$NEW_TOKEN" >> $GITHUB_ENV
+          fi
+
+          if [ "$OK" != "true" ]; then
+            echo "❌ Refresh falhou: $REASON"
+            exit 1
+          fi
+
+      - name: 🔐 Atualizar GitHub Secret META_ACCESS_TOKEN
+        if: |
+          steps.refresh.outputs.ok == 'true' &&
+          steps.refresh.outputs.has_new_token == 'true' &&
+          inputs.check_only != true
+        env:
+          # Requer PAT com permissão "secrets:write" no repo.
+          # Crie em https://github.com/settings/personal-access-tokens
+          # e salve como secret META_REFRESH_PAT
+          GH_TOKEN: ${{ secrets.META_REFRESH_PAT }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "⚠️  META_REFRESH_PAT não configurada — não é possível atualizar o secret automaticamente."
+            echo "   O auto-publisher seguirá funcionando com o token atual até a próxima execução manual."
+            echo "   Para automação total, crie um Fine-Grained PAT com 'Secrets: Read+Write' e salve como META_REFRESH_PAT."
+            exit 0
+          fi
+          echo "$NEW_META_TOKEN" | gh secret set META_ACCESS_TOKEN --repo "$GITHUB_REPOSITORY"
+          echo "✅ Secret META_ACCESS_TOKEN atualizado."
+
+      - name: 📊 Resumo
+        if: always()
+        run: |
+          {
+            echo "## 🔄 Refresh Meta Token"
+            echo "- **Conta:** @${{ steps.refresh.outputs.username }}"
+            echo "- **Ação:** ${{ steps.refresh.outputs.action }}"
+            echo "- **Expira em:** ${{ steps.refresh.outputs.expires_at }}"
+            if [ "${{ steps.refresh.outputs.ok }}" = "true" ]; then
+              echo "- **Status:** ✅ Sucesso"
+            else
+              echo "- **Status:** ❌ Falhou (${{ steps.refresh.outputs.reason }})"
+            fi
+          } >> $GITHUB_STEP_SUMMARY
+
+      - name: 🚨 Criar Issue se falhar
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const reason = '${{ steps.refresh.outputs.reason }}' || 'unknown';
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🚨 Meta token refresh FAILED — ${reason}`,
+              body: [
+                '## Refresh do token Meta/Instagram falhou',
+                '',
+                `**Motivo:** \`${reason}\``,
+                `**Workflow run:** ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+                '',
+                '### Ação necessária',
+                'O token Meta expira em até 60 dias. Sem refresh, o auto-publisher vai parar.',
+                '',
+                '**Como recuperar:**',
+                '1. Verifique o log do workflow acima',
+                '2. Se o token ainda for válido (`reason: too_recent`): aguarde 24h e re-rode manualmente',
+                '3. Se o token expirou: gere um novo via Graph Explorer e atualize o secret `META_ACCESS_TOKEN`',
+                '4. Re-rode o workflow em **Actions → Refresh Meta Token → Run workflow**',
+                '',
+                '_Esta issue foi criada automaticamente pelo workflow `refresh-meta-token.yml`._',
+              ].join('\n'),
+              labels: ['bug', 'meta-token', 'urgent'],
+            });

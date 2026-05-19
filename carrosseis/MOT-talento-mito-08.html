@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Talento musical é um mito — EBS Aprendiz (Piloto)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-light:    #F5F2EC;
+      --bg-dark:     #0A0A0A;
+      --text-dark:   #1A1A1A;
+      --text-muted:  #6B6560;
+      --text-mutedDark: rgba(255,255,255,0.6);
+      --accent:      #D4A017;
+      --accent-light:#F0C040;
+    }
+
+    body {
+      background: #1a1a1a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 40px 20px;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    .ig-frame {
+      width: 420px;
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+      overflow: hidden;
+    }
+
+    /* ===== IG mock header (oculto no export) ===== */
+    .ig-header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 16px;
+      border-bottom: 1px solid #eee;
+    }
+    .ig-avatar-mini {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #D4A017, #F0C040);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; color: #0A0A0A;
+      flex-shrink: 0;
+    }
+    .ig-handle { font-size: 13px; font-weight: 600; color: #0A0A0A; line-height: 1.2; }
+    .ig-subtitle { font-size: 11px; color: #999; }
+
+    /* ===== Carousel viewport ===== */
+    .carousel-viewport {
+      width: 420px;
+      height: 525px;
+      overflow: hidden;
+      cursor: grab;
+      position: relative;
+      user-select: none;
+    }
+    .carousel-viewport:active { cursor: grabbing; }
+    .carousel-track {
+      display: flex;
+      height: 100%;
+      transition: transform 0.4s cubic-bezier(0.25,0.46,0.45,0.94);
+    }
+
+    /* ===== SLIDE ===== */
+    .slide {
+      min-width: 420px;
+      width: 420px;
+      height: 525px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      padding: 16px 20px 14px;
+    }
+    .slide.light { background: var(--bg-light); color: var(--text-dark); }
+    .slide.dark  { background: var(--bg-dark);  color: #fff; }
+
+    /* Indicador "1/11" */
+    .slide-indicator {
+      position: absolute;
+      top: 14px;
+      right: 16px;
+      background: rgba(0,0,0,0.78);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 5px 11px;
+      border-radius: 14px;
+      letter-spacing: 0.4px;
+      z-index: 5;
+    }
+    .slide.dark .slide-indicator {
+      background: rgba(255,255,255,0.18);
+      backdrop-filter: blur(8px);
+    }
+
+    /* Author */
+    .author {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 2px;
+      margin-bottom: 12px;
+    }
+    .author .avatar {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #B8860B 0%, #D4A017 50%, #F0C040 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700; color: #0A0A0A;
+      flex-shrink: 0;
+      box-shadow: 0 2px 10px rgba(212,160,23,0.35);
+    }
+    .author-info { line-height: 1.15; }
+    .author-name {
+      font-size: 14px; font-weight: 600;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .verified-badge {
+      width: 14px; height: 14px;
+      flex-shrink: 0;
+    }
+    .author-handle {
+      font-size: 12px; color: var(--text-muted);
+      margin-top: 1px;
+    }
+    .slide.dark .author-handle { color: var(--text-mutedDark); }
+
+    /* Headline */
+    .headline {
+      font-weight: 700;
+      font-size: 20px;
+      line-height: 1.20;
+      letter-spacing: -0.4px;
+      margin-bottom: 12px;
+    }
+    .headline.large {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.6px;
+    }
+    .headline em, .headline .gold {
+      color: var(--accent);
+      font-style: normal;
+    }
+    .slide.dark .headline .gold { color: var(--accent-light); }
+
+    /* Hero image */
+    .hero-image {
+      width: 100%;
+      flex: 1;
+      object-fit: cover;
+      border-radius: 12px;
+      background: #222;
+      min-height: 0;
+    }
+
+    /* Visual element (sem imagem - gradient + ícone) */
+    .visual-block {
+      width: 100%;
+      flex: 1;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 0;
+      overflow: hidden;
+      position: relative;
+    }
+    .visual-block.gradient-dark {
+      background: linear-gradient(135deg, #0A0A0A 0%, #1f1f1f 60%, #D4A017 200%);
+    }
+    .visual-block.gradient-gold {
+      background: linear-gradient(135deg, #B8860B 0%, #D4A017 50%, #F0C040 100%);
+    }
+    .visual-block svg.icon-large {
+      width: 50%;
+      height: 50%;
+      opacity: 0.92;
+    }
+    .visual-block .visual-overlay {
+      position: absolute;
+      bottom: 14px;
+      left: 16px;
+      right: 16px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.7);
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    /* Stat / Big number */
+    .big-stat {
+      font-size: 76px;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -3px;
+      color: var(--accent);
+      margin: 10px 0;
+    }
+
+    /* Footer */
+    .footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 10px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .slide.dark .footer { color: var(--text-mutedDark); }
+    .footer .powered strong { color: var(--accent); font-weight: 600; }
+    .footer .mute-icon { width: 20px; height: 20px; opacity: 0.55; }
+
+    /* CTA slide */
+    .slide.cta {
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 30px 28px;
+    }
+    .slide.cta .logo {
+      width: 110px;
+      height: auto;
+      margin-bottom: 18px;
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.6));
+    }
+    .slide.cta .cta-title {
+      font-size: 24px;
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 12px;
+      letter-spacing: -0.4px;
+    }
+    .slide.cta .cta-subtitle {
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--text-mutedDark);
+      margin-bottom: 22px;
+      max-width: 320px;
+    }
+    .slide.cta .cta-handle {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 10px;
+      letter-spacing: -0.2px;
+    }
+    .slide.cta .cta-address {
+      font-size: 12px;
+      color: var(--text-mutedDark);
+      line-height: 1.55;
+    }
+
+    /* IG dots/actions mock */
+    .ig-dots {
+      display: flex; justify-content: center; gap: 4px;
+      padding: 8px 0;
+    }
+    .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #ddd;
+    }
+    .dot.active { background: var(--accent); transform: scale(1.2); }
+    .ig-actions {
+      display: flex; gap: 14px;
+      padding: 8px 16px 4px;
+      align-items: center;
+    }
+    .ig-actions svg { width: 22px; height: 22px; cursor: pointer; }
+    .ig-caption {
+      padding: 4px 16px 14px;
+      font-size: 12px;
+      color: #333;
+      line-height: 1.5;
+    }
+    .ig-caption strong { font-weight: 700; }
+    .ig-caption .time {
+      color: #bbb;
+      font-size: 10px;
+      display: block;
+      margin-top: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="ig-frame">
+
+  <!-- ===== IG mock header ===== -->
+  <div class="ig-header">
+    <div class="ig-avatar-mini">EBS</div>
+    <div>
+      <div class="ig-handle">aprendiz.ebs</div>
+      <div class="ig-subtitle">Escola de Música · Corbélia, PR</div>
+    </div>
+  </div>
+
+  <!-- ===== Carousel ===== -->
+  <div class="carousel-viewport" id="viewport">
+    <div class="carousel-track" id="track">
+
+      <!-- ╔═══════════════════════════════════
+           SLIDE 1 — HERO (HOOK)
+      ═══════════════════════════════════╗ -->
+      <div class="slide dark">
+        <div class="slide-indicator">1/11</div>
+
+        <div class="author">
+          <div class="avatar">AP</div>
+          <div class="author-info">
+            <div class="author-name">
+              Alex Pereira
+              <svg class="verified-badge" viewBox="0 0 24 24" fill="#1DA1F2">
+                <path d="M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.71-3.998-3.818-3.998-.47 0-.92.084-1.336.25C14.818 2.415 13.51 1.5 12 1.5s-2.816.917-3.437 2.25c-.415-.165-.866-.25-1.336-.25-2.11 0-3.818 1.79-3.818 4 0 .494.083.964.237 1.4-1.272.65-2.147 2.018-2.147 3.6 0 1.495.782 2.798 1.942 3.486-.02.17-.032.34-.032.514 0 2.21 1.708 4 3.818 4 .47 0 .92-.086 1.335-.25.62 1.334 1.926 2.25 3.437 2.25 1.512 0 2.818-.916 3.437-2.25.415.163.866.25 1.336.25 2.11 0 3.818-1.79 3.818-4 0-.174-.012-.344-.033-.513 1.158-.687 1.943-1.99 1.943-3.484zm-6.616-3.334l-4.334 6.5c-.145.217-.382.334-.625.334-.143 0-.288-.04-.416-.126l-.115-.094-2.415-2.415c-.293-.293-.293-.768 0-1.06s.768-.294 1.06 0l1.77 1.767 3.825-5.74c.23-.345.696-.436 1.04-.207.346.23.44.696.21 1.04z"/>
+              </svg>
+            </div>
+            <div class="author-handle">@aprendiz.ebs</div>
+          </div>
+        </div>
+
+        <h1 class="headline large">"Talento musical" não existe. <span class="gold">E acreditar nisso</span> está roubando o futuro do seu filho.</h1>
+
+        <div class="visual-block" style="background:linear-gradient(135deg,#1a1a1a 0%,#0a0a0a 50%,#2d1f0b 100%);">
+          <svg class="icon-large" viewBox="0 0 24 24" fill="none" stroke="#D4A017" stroke-width="1.2">
+            <path d="M9 18V5l12-2v13" stroke-linecap="round"/>
+            <circle cx="6" cy="18" r="3"/>
+            <circle cx="18" cy="16" r="3"/>
+          </svg>
+          <div class="visual-overlay">Mito desmontado em 11 slides →</div>
+        </div>
+
+        <div class="footer">
+          <span class="powered">Powered by <strong>EBS Aprendiz</strong></span>
+          <svg class="mute-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M11 5L6 9H2v6h4l5 4V5z"/>
+            <line x1="23" y1="9" x2="17" y2="15"/>
+            <line x1="17" y1="9" x2="23" y2="15"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- ╔═══════════════════════════════════
+           SLIDE 2 — DADO/PROVA (Mozart)
+      ═══════════════════════════════════╗ -->
+      <div class="slide light">
+        <div class="slide-indicator">2/11</div>
+
+        <div class="author">
+          <div class="avatar">AP</div>
+          <div class="author-info">
+            <div class="author-name">
+              Alex Pereira
+              <svg class="verified-badge" viewBox="0 0 24 24" fill="#1DA1F2"><path d="M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.71-3.998-3.818-3.998-.47 0-.92.084-1.336.25C14.818 2.415 13.51 1.5 12 1.5s-2.816.917-3.437 2.25c-.415-.165-.866-.25-1.336-.25-2.11 0-3.818 1.79-3.818 4 0 .494.083.964.237 1.4-1.272.65-2.147 2.018-2.147 3.6 0 1.495.782 2.798 1.942 3.486-.02.17-.032.34-.032.514 0 2.21 1.708 4 3.818 4 .47 0 .92-.086 1.335-.25.62 1.334 1.926 2.25 3.437 2.25 1.512 0 2.818-.916 3.437-2.25.415.163.866.25 1.336.25 2.11 0 3.818-1.79 3.818-4 0-.174-.012-.344-.033-.513 1.158-.687 1.943-1.99 1.943-3.484zm-6.616-3.334l-4.334 6.5c-.145.217-.382.334-.625.334-.143 0-.288-.04-.416-.126l-.115-.094-2.415-2.415c-.293-.293-.293-.768 0-1.06s.768-.294 1.06 0l1.77 1.767 3.825-5.74c.23-.345.696-.436 1.04-.207.346.23.44.696.21 1.04z"/></svg>
+            </div>
+            <div class="author-handle">@aprendiz.ebs</div>
+          </div>
+        </div>
+
+        <h2 class="headline">Mozart não nasceu Mozart. Ele teve <span class="gold">6 horas de prática diária</span> aos 5 anos, com um pai professor obcecado.</h2>
+
+        <div class="visual-block" style="background:linear-gradient(135deg,#2c1810 0%,#4a2c1a 100%);">
+          <svg class="icon-large" viewBox="0 0 24 24" fill="none" stroke="#F0C040" stroke-width="1.2">
+            <rect x="3" y="6" width="18" height="12" rx="2"/>
+            <line x1="7" y1="6" x2="7" y2="18"/>
+            <line x1="11" y1="6" x2="11" y2="18"/>
+            <line x1="15" y1="6" x2="15" y2="18"/>
+            <line x1="19" y1="6" x2="19" y2="18"/>
+            <rect x="5" y="6" width="2" height="6" fill="#0A0A0A"/>
+            <rect x="9" y="6" width="2" height="6" fill="#0A0A0A"/>
+            <rect x="13" y="6" width="2" height="6" fill="#0A0A0A"/>
+            <rect x="17" y="6" width="2" height="6" fill="#0A0A0A"/>
+          </svg>
+          <div class="visual-overlay" style="color:rgba(255,255,255,0.85)">FONTE: Mozart Biography, Maynard Solomon</div>
+        </div>
+
+        <div class="footer">
+          <span class="powered">Powered by <strong>EBS Aprendiz</strong></span>
+          <svg class="mute-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+        </div>
+      </div>
+
+      <!-- ╔═══════════════════════════════════
+           SLIDE 3 — HENDRIX
+      ═══════════════════════════════════╗ -->
+      <div class="slide dark">
+        <div class="slide-indicator">3/11</div>
+
+        <div class="author">
+          <div class="avatar">AP</div>
+          <div class="author-info">
+            <div class="author-name">Alex Pereira <svg class="verified-badge" viewBox="0 0 24 24" fill="#1DA1F2"><path d="M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.71-3.998-3.818-3.998-.47 0-.92.084-1.336.25C14.818 2.415 13.51 1.5 12 1.5s-2.816.917-3.437 2.25c-.415-.165-.866-.25-1.336-.25-2.11 0-3.818 1.79-3.818 4 0 .494.083.964.237 1.4-1.272.65-2.147 2.018-2.147 3.6 0 1.495.782 2.798 1.942 3.486-.02.17-.032.34-.032.514 0 2.21 1.708 4 3.818 4 .47 0 .92-.086 1.335-.25.62 1.334 1.926 2.25 3.437 2.25 1.512 0 2.818-.916 3.437-2.25.415.163.866.25 1.336.25 2.11 0 3.818-1.79 3.818-4 0-.174-.012-.344-.033-.513 1.158-.687 1.943-1.99 1.943-3.484zm-6.616-3.334l-4.334 6.5c-.145.217-.382.334-.625.334-.143 0-.288-.04-.416-.126l-.115-.094-2.415-2.415c-.293-.293-.293-.768 0-1.06s.768-.294 1.06 0l1.77 1.767 3.825-5.74c.23-.345.696-.436 1.04-.207.346.23.44.696.21 1.04z"/></svg></div>
+            <div class="author-handle">@aprendiz.ebs</div>
+          </div>
+        </div>
+
+        <h2 class="headline">Hendrix dormia abraçado com a guitarra. Praticava <span class="gold">8 horas por dia</span>. Estudava cada disco que ouvia.</h2>
+
+        <div class="visual-block" style="background:linear-gradient(135deg,#0a0a0a 0%,#1a0a0a 50%,#3d1f10 100%);">
+          <svg class="icon-large" viewBox="0 0 24 24" fill="none" stroke="#F0C040" stroke-width="1.2">
+            <path d="M18.5 2L21 4.5 19 6l-7 7-3 3-3-1-1-3 3-3 7-7L18.5 2z"/>
+            <circle cx="6" cy="18" r="3"/>
+            <line x1="14" y1="6" x2="18" y2="10"/>
+          </svg>
+          <div class="visual-overlay">FONTE: Becoming Jimi Hendrix, S. Roby</div>
+        </div>
+
+        <div class="footer">
+          <span class="powered">Powered by <strong>EBS Aprendiz</strong></span>
+          <svg class="mute-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+        </div>
+      </div>
+
+      <!-- ╔═══════════════════════════════════
+           SLIDE 4 — DADO BIG (Princeton)
+      ═══════════════════════════════════╗ -->
+      <div class="slide light">
+        <div class="slide-indicator">4/11</div>
+
+        <div class="author">
+          <div class="avatar">AP</div>
+          <div class="author-info">
+            <div class="author-name">Alex Pereira <svg class="verified-badge" viewBox="0 0 24 24" fill="#1DA1F2"><path d="M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.71-3.998-3.818-3.998-.47 0-.92.084-1.336.25C14.818 2.415 13.51 1.5 12 1.5s-2.816.917-3.437 2.25c-.415-.165-.866-.25-1.336-.25-2.11 0-3.818 1.79-3.818 4 0 .494.083.964.237 1.4-1.272.65-2.147 2.018-2.147 3.6 0 1.495.782 2.798 1.942 3.486-.02.17-.032.34-.032.514 0 2.21 1.708 4 3.818 4 .47 0 .92-.086 1.335-.25.62 1.334 1.926 2.25 3.437 2.25 1.512 0 2.818-.916 3.437-2.25.415.163.866.25 1.336.25 2.11 0 3.818-1.79 3.818-4 0-.174-.012-.344-.033-.513 1.158-.687 1.943-1.99 1.943-3.484zm-6.616-3.334l-4.334 6.5c-.145.217-.382.334-.625.334-.143 0-.288-.04-.416-.126l-.115-.094-2.415-2.415c-.293-.293-.293-.768 0-1.06s.768-.294 1.06 0l1.77 1.767 3.825-5.74c.23-.345.696-.436 1.04-.207.346.23.44.696.21 1.04z"/></svg></div>
+            <div class="author-handle">@aprendiz.ebs</div>
+          </div>
+        </div>
+
+        <h2 class="headline">A neurociência é categórica: o cérebro aprende com <span class="gold">repetição</span>, não com dom divino.</h2>
+
+        <div style="text-align:center; margin:14px 0;">
+          <div class="big-stat">26.000</div>
+          <div style="font-size:13px;color:#6B6560;font-weight:500;letter-spacing:0.3px;">horas de prática separam<br>amador de virtuose</div>
+        </div>
+
+        <div style="text-align:center; font-size:10px; color:#aaa; text-transform:uppercase; letter-spacing:1.5px; margin-top:auto; font-weight:600;">
+          Fonte: K. Anders Ericsson — Princeton<br>"The Role of Deliberate Practice"
+        </div>
+
+        <div class="footer">
+          <span class="powered">Powered by <strong>EBS Aprendiz</strong></span>
+          <svg class="mute-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+        </div>
+      </div>
+
+      <!-- ╔═══════════════════════════════════
+           SLIDE 5 — VERDADE (método)
+      ═══════════════════════════════════╗ -->
+      <div class="slide dark">
+        <div class="slide-indicator">5/11</div>
+
+        <div class="author">
+          <div class="avatar">AP</div>
+          <div class="author-info">
+            <div class="author-name">Alex Pereira <svg class="verified-badge" viewBox="0 0 24 24" fill="#1DA1F2"><path d="M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.71-3.998-3.818-3.998-.47 0-.92.084-1.336.25C14.818 2.415 13.51 1.5 12 1.5s-2.816.917-3.437 2.25c-.415-.165-.866-.25-1.336-.25-2.11 0-3.818 1.79-3.818 4 0 .494.083.964.237 1.4-1.272.65-2.147 2.018-2.147 3.6 0 1.495.782 2.798 1.942 3.486-.02.17-.032.34-.032.514 0 2.21 1.708 4 3.818 4 .47 0 .92-.086 1.335-.25.62 1.334 1.926 2.25 3.437 2.25 1.512 0 2.818-.916 3.437-2.25.415.163.866.25 1.336.25 2.11 0 3.818-1.79 3.818-4 0-.174-.012-.344-.033-.513 1.158-.687 1.943-1.99 1.943-3.484zm-6.616-3.334l-4.334 6.5c-.145.217-.382.334-.625.334-.143 0-.288-.04-.416-.126l-.115-.094-2.415-2.415c-.293-.293-.293-.768 0-1.06s.768-.294 1.06 0l1.77 1.767 3.825-5.74c.23-.345.696-.436 1.04-.207.346.23.44.696.21 1.04z"/></svg></div>
+            <div class="author-handle">@aprendiz.ebs</div>
+          </div>
+        </div>
+
+        <h2 class="headline">O que separa quem aprende de quem desiste <span class="gold">não é talento.</span> É método.</h2>
+
+        <div class="visual-block" style="background:linear-gradient(135deg,#0a0a0a 0%,#1f1408 50%,#3d2810 100%);">
+          <svg class="icon-large" viewBox="0 0 24 24" fill="none" stroke="#F0C040" stroke-width="1.2">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+          <div class="visual-overlay">10 minutos por dia &gt; 2h aos sábados</div>
+        </div>
+
+        <div class="footer">
+          <span class="powered">Powered by <strong>EBS Aprendiz</strong></span>
+          <svg class="mute-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+        </div>
+      </div>
+
+      <!-- ╔═══════════════════════════════════
+           SLIDE 6 — CIÊNCIA (cérebro)
+      ═══════════════════════════════════╗ -->
+      <div class="slide light">
+        <div class="slide-indicator">6/11</div>
+
+        <div class="author">
+          <div class="avatar">AP</div>
+          <div class="author-info">
+            <div class="author-name">Alex Pereira <svg class="verified-badge" viewBox="0 0 24 24" fill="#1DA1F2"><path d="M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.71-3.998-3.818-3.998-.47 0-.92.084-1.336.25C14.818 2.415 13.51 1.5 12 1.5s-2.816.917-3.437 2.25c-.415-.165-.866-.25-1.336-.25-2.11 0-3.818 1.79-3.818 4 0 .494.083.964.237 1.4-1.272.65-2.147 2.018-2.147 3.6 0 1.495.782 2.798 1.942 3.486-.02.17-.032.34-.032.514 0 2.21 1.708 4 3.818 4 .47 0 .92-.086 1.335-.25.62 1.334 1.926 2.25 3.437 2.25 1.512 0 2.818-.916 3.437-2.25.415.163.866.25 1.336.25 2.11 0 3.818-1.79 3.818-4 0-.174-.012-.344-.033-.513 1.158-.687 1.943-1.99 1.943-3.484zm-6.616-3.334l-4.334 6.5c-.145.217-.382.334-.625.334-.143 0-.288-.04-.416-.126l-.115-.094-2.415-2.415c-.293-.293-.293-.768 0-1.06s.768-.294 1.06 0l1.77 1.767 3.825-5.74c.23-.345.696-.436 1.04-.207.346.23.44.696.21 1.04z"/></svg></div>
+            <div class="author-handle">@aprendiz.ebs</div>
+          </div>
+        </div>
+
+        <h2 class="headline">Praticar 10min/dia consistente <span class="gold">vence 2h no fim de semana.</span> A ciência confirma.</h2>
+
+        <div class="visual-block" style="background:linear-gradient(135deg,#1a1a1a 0%,#2a1f0f 100%);">
+          <svg class="icon-large" viewBox="0 0 24 24" fill="none" stroke="#D4A017" stroke-width="1.2">
+            <path d="M9.5 2a4.5 4.5 0 0 0-4.5 4.5c0 .54.11 1.05.3 1.52A4.49 4.49 0 0 0 2 12.5c0 1.54.79 2.9 1.98 3.69A4.5 4.5 0 0 0 5.5 22h.5"/>
+            <path d="M14.5 2a4.5 4.5 0 0 1 4.5 4.5c0 .54-.11 1.05-.3 1.52A4.49 4.49 0 0 1 22 12.5a4.5 4.5 0 0 1-1.98 3.69A4.5 4.5 0 0 1 18.5 22H18"/>
+            <path d="M12 2v20"/>
+          </svg>
+          <div class="visual-overlay">NEUROPLASTICIDADE EM AÇÃO</div>
+        </div>
+
+        <div class="footer">
+          <span class="powered">Powered by <strong>EBS Aprendiz</strong></span>
+          <svg class="mute-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+        </div>
+      </div>
+
+      <!-- ╔═══════════════════════════════════
+           SLIDE 7 — DADO BIG (10min)
+      ═══════════════════════════════════╗ -->
+      <div class="slide dark">
+        <div class="slide-indicator">7/11</div>
+
+        <div class="author">
+          <div class="avatar">AP</div>
+          <div class="author-info">
+            <div class="author-name">Alex Pereira <svg class="verified-badge" viewBox="0 0 24 24" fill="#1DA1F2"><path d="M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.71-3.998-3.818-3.998-.47 0-.92.084-1.336.25C14.818 2.415 13.51 1.5 12 1.5s-2.816.917-3.437 2.25c-.415-.165-.866-.25-1.336-.25-2.11 0-3.818 1.79-3.818 4 0 .494.083.964.237 1.4-1.272.65-2.147 2.018-2.147 3.6 0 1.495.782 2.798 1.942 3.486-.02.17-.032.34-.032.514 0 2.21 1.708 4 3.818 4 .47 0 .92-.086 1.335-.25.62 1.334 1.926 2.25 3.437 2.25 1.512 0 2.818-.916 3.437-2.25.415.163.866.25 1.336.25 2.11 0 3.818-1.79 3.818-4 0-.174-.012-.344-.033-.513 1.158-.687 1.943-1.99 1.943-3.484zm-6.616-3.334l-4.334 6.5c-.145.217-.382.334-.625.334-.143 0-.288-.04-.416-.126l-.115-.094-2.415-2.415c-.293-.293-.293-.768 0-1.06s.768-.294 1.06 0l1.77 1.767 3.825-5.74c.23-.345.696-.436 1.04-.207.346.23.44.696.21 1.04z"/></svg></div>
+            <div class="author-handle">@aprendiz.ebs</div>
+          </div>
+        </div>
+
+        <h2 class="headline">Você não precisa de talento. Precisa de método. E <span class="gold">10 minutos por dia.</span></h2>
+
+        <div style="text-align:center; margin:18px 0;">
+          <div class="big-stat" style="color:#F0C040;">10<span style="font-size:42px;">min</span></div>
+          <div style="font-size:13px;color:rgba(255,255,255,0.6);font-weight:500;letter-spacing:0.3px;line-height:1.5;">é tudo que separa<br><span style="color:#F0C040;font-weight:600;">você do método EBS</span></div>
+        </div>
+
+        <div style="margin-top:auto; padding:14px; background:rgba(212,160,23,0.1); border:1px solid rgba(212,160,23,0.25); border-radius:10px;">
+          <p style="font-size:11px;color:#F0C040;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:4px;">Método EBS</p>
+          <p style="font-size:12px;color:rgba(255,255,255,0.75);line-height:1.5;">Construído sobre o princípio da prática deliberada, validado por 14 anos de resultados.</p>
+        </div>
+
+        <div class="footer">
+          <span class="powered">Powered by <strong>EBS Aprendiz</strong></span>
+          <svg class="mute-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+        </div>
+      </div>
+
+      <!-- ╔═══════════════════════════════════
+           SLIDE 8 — PROVA EBS
+      ═══════════════════════════════════╗ -->
+      <div class="slide light">
+        <div class="slide-indicator">8/11</div>
+
+        <div class="author">
+          <div class="avatar">AP</div>
+          <div class="author-info">
+            <div class="author-name">Alex Pereira <svg class="verified-badge" viewBox="0 0 24 24" fill="#1DA1F2"><path d="M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.71-3.998-3.818-3.998-.47 0-.92.084-1.336.25C14.818 2.415 13.51 1.5 12 1.5s-2.816.917-3.437 2.25c-.415-.165-.866-.25-1.336-.25-2.11 0-3.818 1.79-3.818 4 0 .494.083.964.237 1.4-1.272.65-2.147 2.018-2.147 3.6 0 1.495.782 2.798 1.942 3.486-.02.17-.032.34-.032.514 0 2.21 1.708 4 3.818 4 .47 0 .92-.086 1.335-.25.62 1.334 1.926 2.25 3.437 2.25 1.512 0 2.818-.916 3.437-2.25.415.163.866.25 1.336.25 2.11 0 3.818-1.79 3.818-4 0-.174-.012-.344-.033-.513 1.158-.687 1.943-1.99 1.943-3.484zm-6.616-3.334l-4.334 6.5c-.145.217-.382.334-.625.334-.143 0-.288-.04-.416-.126l-.115-.094-2.415-2.415c-.293-.293-.293-.768 0-1.06s.768-.294 1.06 0l1.77 1.767 3.825-5.74c.23-.345.696-.436 1.04-.207.346.23.44.696.21 1.04z"/></svg></div>
+            <div class="author-handle">@aprendiz.ebs</div>
+          </div>
+        </div>
+
+        <h2 class="headline">No EBS Aprendiz, alunos sem "talento" tocam profissionalmente em <span class="gold">até 18 meses.</span></h2>
+
+        <div style="display:flex; flex-direction:column; gap:8px; margin-top:6px;">
+          <div style="display:flex;align-items:center;gap:10px;padding:10px;background:#fff;border-radius:8px;border:1px solid #E8E4DC;">
+            <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#D4A017,#F0C040);display:flex;align-items:center;justify-content:center;color:#0a0a0a;font-weight:700;font-size:12px;flex-shrink:0;">1</div>
+            <div>
+              <div style="font-size:12px;font-weight:600;color:#1a1a1a;">Pré-Iniciante (semanas)</div>
+              <div style="font-size:11px;color:#9A9590;">Primeiros acordes, ritmo</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:10px;background:#fff;border-radius:8px;border:1px solid #E8E4DC;">
+            <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#D4A017,#F0C040);display:flex;align-items:center;justify-content:center;color:#0a0a0a;font-weight:700;font-size:12px;flex-shrink:0;">3</div>
+            <div>
+              <div style="font-size:12px;font-weight:600;color:#1a1a1a;">Pré-Intermediário (6-12 meses)</div>
+              <div style="font-size:11px;color:#9A9590;">Tocando músicas completas</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:10px;background:linear-gradient(135deg,#D4A017,#F0C040);border-radius:8px;">
+            <div style="width:32px;height:32px;border-radius:50%;background:#0a0a0a;display:flex;align-items:center;justify-content:center;color:#F0C040;font-weight:700;font-size:12px;flex-shrink:0;">5</div>
+            <div>
+              <div style="font-size:12px;font-weight:700;color:#0a0a0a;">Avançado (18+ meses)</div>
+              <div style="font-size:11px;color:rgba(10,10,10,0.7);">Repertório livre, gravando</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer">
+          <span class="powered">Powered by <strong>EBS Aprendiz</strong></span>
+          <svg class="mute-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+        </div>
+      </div>
+
+      <!-- ╔═══════════════════════════════════
+           SLIDE 9 — HISTÓRIA REAL
+      ═══════════════════════════════════╗ -->
+      <div class="slide dark">
+        <div class="slide-indicator">9/11</div>
+
+        <div class="author">
+          <div class="avatar">AP</div>
+          <div class="author-info">
+            <div class="author-name">Alex Pereira <svg class="verified-badge" viewBox="0 0 24 24" fill="#1DA1F2"><path d="M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.71-3.998-3.818-3.998-.47 0-.92.084-1.336.25C14.818 2.415 13.51 1.5 12 1.5s-2.816.917-3.437 2.25c-.415-.165-.866-.25-1.336-.25-2.11 0-3.818 1.79-3.818 4 0 .494.083.964.237 1.4-1.272.65-2.147 2.018-2.147 3.6 0 1.495.782 2.798 1.942 3.486-.02.17-.032.34-.032.514 0 2.21 1.708 4 3.818 4 .47 0 .92-.086 1.335-.25.62 1.334 1.926 2.25 3.437 2.25 1.512 0 2.818-.916 3.437-2.25.415.163.866.25 1.336.25 2.11 0 3.818-1.79 3.818-4 0-.174-.012-.344-.033-.513 1.158-.687 1.943-1.99 1.943-3.484zm-6.616-3.334l-4.334 6.5c-.145.217-.382.334-.625.334-.143 0-.288-.04-.416-.126l-.115-.094-2.415-2.415c-.293-.293-.293-.768 0-1.06s.768-.294 1.06 0l1.77 1.767 3.825-5.74c.23-.345.696-.436 1.04-.207.346.23.44.696.21 1.04z"/></svg></div>
+            <div class="author-handle">@aprendiz.ebs</div>
+          </div>
+        </div>
+
+        <h2 class="headline">Em 14 anos, vi <span class="gold">centenas de "não-talentosos"</span> gravarem álbuns no nosso estúdio.</h2>
+
+        <div style="padding:16px;background:rgba(212,160,23,0.08);border-left:3px solid #D4A017;border-radius:8px;margin-top:4px;">
+          <p style="font-size:13px;color:rgba(255,255,255,0.85);line-height:1.55;font-style:italic;margin-bottom:10px;">"Comecei aos 38 anos achando que era tarde demais. Hoje gravo meus próprios álbuns no Black Space."</p>
+          <p style="font-size:10px;color:#F0C040;font-weight:600;letter-spacing:1px;">— ALUNO EBS · CORBÉLIA</p>
+        </div>
+
+        <div style="margin-top:auto;font-size:11px;color:rgba(255,255,255,0.5);text-align:center;letter-spacing:0.4px;">
+          Resultado real do Método EBS desde 2011.
+        </div>
+
+        <div class="footer">
+          <span class="powered">Powered by <strong>EBS Aprendiz</strong></span>
+          <svg class="mute-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+        </div>
+      </div>
+
+      <!-- ╔═══════════════════════════════════
+           SLIDE 10 — PROVOCAÇÃO FINAL
+      ═══════════════════════════════════╗ -->
+      <div class="slide light">
+        <div class="slide-indicator">10/11</div>
+
+        <div class="author">
+          <div class="avatar">AP</div>
+          <div class="author-info">
+            <div class="author-name">Alex Pereira <svg class="verified-badge" viewBox="0 0 24 24" fill="#1DA1F2"><path d="M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.71-3.998-3.818-3.998-.47 0-.92.084-1.336.25C14.818 2.415 13.51 1.5 12 1.5s-2.816.917-3.437 2.25c-.415-.165-.866-.25-1.336-.25-2.11 0-3.818 1.79-3.818 4 0 .494.083.964.237 1.4-1.272.65-2.147 2.018-2.147 3.6 0 1.495.782 2.798 1.942 3.486-.02.17-.032.34-.032.514 0 2.21 1.708 4 3.818 4 .47 0 .92-.086 1.335-.25.62 1.334 1.926 2.25 3.437 2.25 1.512 0 2.818-.916 3.437-2.25.415.163.866.25 1.336.25 2.11 0 3.818-1.79 3.818-4 0-.174-.012-.344-.033-.513 1.158-.687 1.943-1.99 1.943-3.484zm-6.616-3.334l-4.334 6.5c-.145.217-.382.334-.625.334-.143 0-.288-.04-.416-.126l-.115-.094-2.415-2.415c-.293-.293-.293-.768 0-1.06s.768-.294 1.06 0l1.77 1.767 3.825-5.74c.23-.345.696-.436 1.04-.207.346.23.44.696.21 1.04z"/></svg></div>
+            <div class="author-handle">@aprendiz.ebs</div>
+          </div>
+        </div>
+
+        <h2 class="headline large" style="margin-top:auto;margin-bottom:auto;">Pare de esperar pelo talento que <span class="gold">nunca virá.</span><br><br>Comece pelo método que <span class="gold">funciona.</span></h2>
+
+        <div style="text-align:center; padding:12px 0; font-size:12px; color:#9A9590; letter-spacing:1.5px; text-transform:uppercase; font-weight:600;">
+          Arraste →
+        </div>
+
+        <div class="footer">
+          <span class="powered">Powered by <strong>EBS Aprendiz</strong></span>
+          <svg class="mute-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+        </div>
+      </div>
+
+      <!-- ╔═══════════════════════════════════
+           SLIDE 11 — CTA
+      ═══════════════════════════════════╗ -->
+      <div class="slide dark cta" style="background:linear-gradient(135deg,#0a0a0a 0%,#1a1408 50%,#2d1f0a 100%);">
+        <div class="slide-indicator">11/11</div>
+
+        <img class="logo" src="ASSETS/logo-ebs-aprendiz.png" alt="EBS Aprendiz" id="logo-cta"/>
+
+        <h2 class="cta-title">Quer aprender música<br><span style="color:#F0C040;">com método?</span></h2>
+        <p class="cta-subtitle">
+          14 anos transformando vidas pela música em Corbélia.<br>
+          Crianças, adolescentes e adultos. Vagas limitadas.
+        </p>
+
+        <div class="cta-handle">@aprendiz.ebs</div>
+        <div class="cta-address">
+          Av. Minas Gerais, 57 — Centro<br>
+          Corbélia-PR · próximo ao semáforo
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== IG dots ===== -->
+  <div class="ig-dots">
+    <div class="dot active"></div><div class="dot"></div><div class="dot"></div>
+    <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+    <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+    <div class="dot"></div><div class="dot"></div>
+  </div>
+
+  <div class="ig-actions">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    <svg style="margin-left:auto" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+  </div>
+
+  <div class="ig-caption">
+    <strong>aprendiz.ebs</strong> Você acha que talento musical existe? A ciência discorda. E os dados são contundentes. 🎸
+
+    Mozart praticou 6h por dia aos 5 anos. Hendrix dormia abraçado com a guitarra. A neurociência é clara: o cérebro aprende com repetição, não com dom divino.
+
+    No EBS Aprendiz, ensinamos exatamente isso há 14 anos. Pare de esperar pelo talento que nunca virá. Comece pelo método que funciona. 👇
+
+    Av. Minas Gerais, 57 — Centro, Corbélia-PR.
+
+    #talentoémito #aprendermusica #escolademusica #ebs #aprendizebs #corbelia #violao #guitarra #metodoebs #neurociencia
+    <span class="time">AGORA</span>
+  </div>
+
+</div>
+
+<script>
+  const track = document.getElementById('track');
+  const dots = document.querySelectorAll('.dot');
+  let current = 0;
+  const total = document.querySelectorAll('.slide').length;
+
+  function goTo(i) {
+    current = Math.max(0, Math.min(i, total - 1));
+    track.style.transform = `translateX(-${current * 420}px)`;
+    dots.forEach((d, idx) => d.classList.toggle('active', idx === current));
+  }
+
+  document.getElementById('viewport').addEventListener('click', e => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    if (x < rect.width / 3) goTo(current - 1);
+    else goTo(current + 1);
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight') goTo(current + 1);
+    if (e.key === 'ArrowLeft')  goTo(current - 1);
+  });
+
+  // Touch swipe
+  let startX = 0;
+  document.getElementById('viewport').addEventListener('touchstart', e => startX = e.touches[0].clientX);
+  document.getElementById('viewport').addEventListener('touchend', e => {
+    const diff = e.changedTouches[0].clientX - startX;
+    if (diff > 50) goTo(current - 1);
+    if (diff < -50) goTo(current + 1);
+  });
+</script>
+
+</body>
+</html>
