@@ -3,7 +3,8 @@ const fs = require('fs');
 const path = require('path');
 const cp = require('child_process');
 
-const meta = require('./meta-api');
+const meta   = require('./meta-api');
+const buffer = require('./buffer-api');
 
 const PORT = 3000;
 const BASE_DIR = path.resolve(__dirname, '..');
@@ -35,6 +36,9 @@ const IG_USER_ID = ENV.META_IG_USER_ID || '';
 const ACCESS_TOKEN = ENV.META_ACCESS_TOKEN || '';
 const GEMINI_KEY = ENV.GEMINI_API_KEY || '';
 const PEXELS_KEY = ENV.PEXELS_API_KEY || '';
+const BUFFER_TOKEN     = ENV.BUFFER_ACCESS_TOKEN || '';
+const BUFFER_CHANNEL_ID = ENV.BUFFER_CHANNEL_ID || '6a0b6029090476fb99338257';  // @aprendiz.ebs (default)
+const BUFFER_ORG_ID     = ENV.BUFFER_ORG_ID     || '6a0b5f0a0a1190a848db82b1';  // My Organization
 
 function getGitInfo() {
   try {
@@ -1008,7 +1012,79 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // POST /api/carousel/:id/publish  — publish to Instagram via Meta Graph API
+  // ────────────────────────────────────────────────────────────────────────────
+  // POST /api/carousel/:id/publish-buffer  — publish via Buffer GraphQL API
+  // Query params: ?draft=true|false (default true, p/ segurança)
+  //               ?dueAt=ISO timestamp (opcional, p/ schedule)
+  // ────────────────────────────────────────────────────────────────────────────
+  if (req.url.startsWith('/api/carousel/') && req.url.includes('/publish-buffer') && req.method === 'POST') {
+    const urlObj = new URL(req.url, `http://localhost:${PORT}`);
+    const id     = decodeURIComponent(urlObj.pathname.substring(14).replace('/publish-buffer', ''));
+    const draft  = urlObj.searchParams.get('draft') !== 'false';   // default true
+    const dueAt  = urlObj.searchParams.get('dueAt') || null;
+
+    if (!BUFFER_TOKEN) {
+      jsonRes(res, { error: 'BUFFER_ACCESS_TOKEN não configurado no .env' }, 400);
+      return;
+    }
+
+    (async () => {
+      try {
+        const queue    = readQueue();
+        const carousel = queue.carousels.find(c => c.id === id);
+        if (!carousel) { jsonRes(res, { error: 'Carrossel não encontrado' }, 404); return; }
+
+        const logs = [];
+        const log  = msg => { console.log(msg); logs.push(msg); };
+
+        log(`🔵 [Buffer] ${draft ? 'DRAFT' : (dueAt ? 'SCHEDULED' : 'QUEUE')}: ${carousel.id}`);
+
+        // Construir URLs públicas das imagens via raw.githubusercontent.com
+        const imageUrls = (carousel.slides || []).map(slidePath =>
+          `https://raw.githubusercontent.com/${GIT.repo}/${GIT.ref}/${slidePath}`
+        );
+        if (!imageUrls.length) throw new Error('Carrossel não tem slides — verifique queue.json');
+        log(`📤 ${imageUrls.length} imagens via raw.githubusercontent.com`);
+
+        // Buffer aceita até 10 imagens em carrossel IG
+        if (imageUrls.length > 10) {
+          throw new Error(`Buffer/Instagram aceitam até 10 imagens (carrossel tem ${imageUrls.length}). Reduza no queue.json.`);
+        }
+
+        const text = `${carousel.caption || ''}\n\n${carousel.hashtags || ''}`.trim();
+
+        const post = await buffer.createPost({
+          token:     BUFFER_TOKEN,
+          channelId: BUFFER_CHANNEL_ID,
+          text,
+          imageUrls,
+          draft,
+          ...(dueAt && !draft ? { dueAt } : {})
+        });
+
+        // Atualizar queue.json
+        carousel.buffer_post_id = post.id;
+        carousel.buffer_status  = post.status;
+        if (!draft) {
+          carousel.status        = 'scheduled';
+          carousel.scheduled_at  = post.dueAt || dueAt;
+        } else {
+          carousel.status = carousel.status || 'pending';
+        }
+        writeQueue(queue);
+
+        log(`✅ Buffer post ${post.id} criado (status: ${post.status})`);
+        log(`📱 Ver em: https://publish.buffer.com/drafts`);
+        jsonRes(res, { ok: true, postId: post.id, status: post.status, draft, dueAt: post.dueAt, logs });
+      } catch (err) {
+        console.error(err);
+        jsonRes(res, { error: err.message, logs: [err.message] }, 500);
+      }
+    })();
+    return;
+  }
+
+  // POST /api/carousel/:id/publish  — publish to Instagram via Meta Graph API (legado)
   if (req.url.startsWith('/api/carousel/') && req.url.endsWith('/publish') && req.method === 'POST') {
     const id = decodeURIComponent(req.url.substring(14, req.url.length - 8));
 
