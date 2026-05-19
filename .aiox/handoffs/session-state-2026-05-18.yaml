@@ -214,7 +214,43 @@ continuation_2026_05_19:
     - "carrosseis/MOT-talento-mito-08.html — handle @alexpereira.ebs → @aprendiz.ebs (regra inegociável)"
     - "scripts/generate-showcase-images.js — gerador reutilizável de showcase"
     - "PEXELS_KEY extraído de source hardcoded para .env (segurança)"
-  blockers_descobertos:
+  reversao_2026_05_19_session_2:
+    title: "BLOQUEADOR Buffer NUNCA EXISTIU — diagnóstico anterior estava errado"
+    descoberta: |
+      Login no Buffer via Chrome MCP revelou que o token "QrdNLI7j...8FRx" no .env
+      é a Personal API Key real (visível em publish.buffer.com/settings/api como
+      "EBSMUSICFIRST SAAS"). O sufixo bateu exato com o .env.
+      Erro anterior: testei contra v1 REST legado (api.bufferapp.com/1/...) que
+      rejeita Personal Keys novas com mensagem enganosa "OIDC tokens are not accepted".
+      Endpoint correto sempre foi: https://api.buffer.com/2/graphql (GraphQL).
+    deliverables_finais:
+      - "scripts/buffer-api.js — wrapper completo (getAccount, listChannels, createPost, editPost, deletePost, listPosts)"
+      - "scripts/test-buffer-draft.js — smoke test que cria draft com 5 nano-banana imgs"
+      - "scripts/dashboard.js — novo endpoint POST /api/carousel/:id/publish-buffer?draft=true"
+      - "queue.json — tweet-guitarra-sozinho-01 marcado com buffer_post_id (teste validado)"
+      - "Commit pushado: bcaa973"
+    drafts_criados_no_buffer:
+      - id: "6a0cab254054ff7577b230f3"
+        descricao: "Showcase manual com 5 nano-banana imgs"
+        criado_via: "scripts/test-buffer-draft.js"
+      - id: "6a0cabf388c84a0885f26555"
+        descricao: "tweet-guitarra-sozinho-01 (7 slides reais)"
+        criado_via: "POST /api/carousel/tweet-guitarra-sozinho-01/publish-buffer?draft=true"
+    coordenadas_buffer:
+      account_id: "6a0b5f0a0a1190a848db82af"
+      org_id: "6a0b5f0a0a1190a848db82b1 (My Organization)"
+      channel_id_aprendiz_ebs: "6a0b6029090476fb99338257"
+      service_id_instagram: "17841459660352099"
+    constraints_aprendidos:
+      - "Buffer Free Plan NÃO permite firstComment (erro 400). Mover hashtags pro fim do caption."
+      - "Instagram via Buffer GraphQL aceita type='post'|'story'|'reel' (NÃO 'carousel'). Carrossel é auto-detectado pela qtd de assets."
+      - "Buffer IG aceita até 10 imagens por carrossel."
+    proxima_sessao:
+      - "Botão UI no dashboard para chamar /publish-buffer (atualmente só via curl/code)"
+      - "Decidir se queue.json deve ter campo schedule diferente quando for Buffer-driven"
+      - "Atualizar GitHub Action post-daily.yml para usar Buffer endpoint (ou aposentar — Buffer queue pode resolver)"
+
+  blockers_descobertos_INVALIDADOS:
     - title: "Buffer access token recebido é OIDC, não API"
       detail: |
         Token QrdNLI7j... testado em todos endpoints Buffer:
