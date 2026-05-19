@@ -201,6 +201,41 @@ inconvenient_truths:
   - "MOT-talento-mito-08.html piloto pendente com feedback 'ficou ruim' desde 2026-05-14 (3 sessões sem iteração)"
 
 # ── Security ──────────────────────────────────────────────────────────────────
+# ── Continuação 2026-05-19 (sessão retomada após interrupção) ────────────────
+continuation_2026_05_19:
+  commits_pushed:
+    - "e24b4dc — feat(dashboard): integração Gemini Nano Banana + catch-up + security PEXELS_KEY→.env"
+    - "2b99c5c — feat: showcase nano-banana + runbook SaaS + archive Meta fallback"
+  deliverables:
+    - "carrosseis/showcase-nano-banana.html — página visual com 5 cenas EBS geradas via Vera + Gemini"
+    - "slides/nano-banana-showcase/*.png — 5 PNGs 864×1184 (3:4), ~7.5MB total, custo US$0,20"
+    - "docs/runbooks/onboard-new-client.md — guia 8 etapas onboarding cliente SaaS"
+    - ".aiox/archived/meta-graph-fallback/ — refresh-meta-token.yml+js arquivados com README"
+    - "carrosseis/MOT-talento-mito-08.html — handle @alexpereira.ebs → @aprendiz.ebs (regra inegociável)"
+    - "scripts/generate-showcase-images.js — gerador reutilizável de showcase"
+    - "PEXELS_KEY extraído de source hardcoded para .env (segurança)"
+  blockers_descobertos:
+    - title: "Buffer access token recebido é OIDC, não API"
+      detail: |
+        Token QrdNLI7j... testado em todos endpoints Buffer:
+        - api.bufferapp.com/1 (v1): HTTP 401 "OIDC tokens are not accepted for direct API access"
+        - api.buffer.com/2 (v2): HTTP 400 (Unsupported Content-Type — endpoint não aceita)
+        - graph.buffer.com (GraphQL): "Please use api.buffer.com" + UNAUTHENTICATED
+      conclusion: |
+        OIDC = OpenID Connect (token de sessão da UI Buffer), NÃO access token API.
+        Para uso programático precisa OAuth flow real via developers.buffer.com:
+        1. Criar app em https://developers.buffer.com/
+        2. Implementar /oauth2/authorize → exchange code por access_token
+        3. Token resultante funciona em Authorization: Bearer <token>
+      next_steps: |
+        Próxima sessão: criar app Buffer em developers.buffer.com,
+        completar OAuth flow, obter token real, validar com /1/profiles.json.
+        Só então implementar wrapper Buffer no dashboard.
+  pendencias_documentadas:
+    - "MOT-talento-mito-08: 11 slides (IG max 10) — precisa decisão editorial qual cortar (NÃO mecânico)"
+    - "MOT-talento-mito-08: visual usa SVG icons em vez de fotos — candidato a regenerar c/ nano-banana"
+    - "Runbook v1.0 escrito mas TODOs do produto identificados (CLI new-client, multi-tenant, white-label)"
+
 security_notes:
   - "[RESOLVIDO 2026-05-18] PAT GitHub exposto em 2026-05-16 confirmado revogado/expirado (HTTP 401 ao testar). Referência textual no handoff 2026-05-16 mantida com tag [REVOGADO]."
   - "[NOVO 2026-05-18] Buffer access token QrdNLI7j... colado em chat. Salvo em .env (gitignored). REGENERAR após validar integração — ir em publish.buffer.com/account/apps."
