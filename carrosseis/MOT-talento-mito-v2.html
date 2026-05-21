@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Talento é Mito — EBS Aprendiz v2 (texto)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-dark:    #0A0A0A;
+      --bg-light:   #F5F2EC;
+      --gold:       #D4A017;
+      --gold-lt:    #F0C040;
+      --text-dark:  #1A1A1A;
+      --text-mid:   #4A4540;
+      --text-muted: #6B6560;
+      --border:     #E8E4DC;
+    }
+
+    body {
+      background: #1a1a1a;
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh; padding: 40px 20px;
+      font-family: 'Inter', system-ui, sans-serif;
+    }
+
+    /* ── IG Frame ── */
+    .ig-frame {
+      width: 420px; background: #fff;
+      border-radius: 14px; box-shadow: 0 24px 64px rgba(0,0,0,0.55);
+      overflow: hidden;
+    }
+
+    /* ── Header ── */
+    .ig-header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 16px; border-bottom: 1px solid #eee;
+    }
+    .avatar-mini {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold), var(--gold-lt));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; color: #0A0A0A; flex-shrink: 0;
+    }
+    .ig-handle { font-size: 13px; font-weight: 600; color: #0A0A0A; }
+    .ig-sub    { font-size: 11px; color: #999; }
+
+    /* ── Carousel ── */
+    .carousel-viewport {
+      width: 420px; height: 525px;
+      overflow: hidden; cursor: grab; position: relative; user-select: none;
+    }
+    .carousel-viewport:active { cursor: grabbing; }
+    .carousel-track {
+      display: flex; height: 100%;
+      transition: transform 0.4s cubic-bezier(0.25,0.46,0.45,0.94);
+    }
+
+    /* ── Slide base ── */
+    .slide {
+      min-width: 420px; width: 420px; height: 525px;
+      position: relative; display: flex; flex-direction: column;
+      padding: 30px 32px 22px;
+    }
+    .slide.dark  { background: var(--bg-dark); color: #fff; }
+    .slide.light { background: var(--bg-light); color: var(--text-dark); }
+
+    /* slide number badge */
+    .sn {
+      position: absolute; top: 20px; right: 22px;
+      font-size: 10px; font-weight: 700; letter-spacing: 2.5px;
+      text-transform: uppercase; opacity: 0.3;
+    }
+    .dark  .sn { color: #fff; }
+    .light .sn { color: var(--text-dark); }
+
+    /* gold top bar */
+    .gbar {
+      width: 36px; height: 3px; border-radius: 2px;
+      background: var(--gold); margin-bottom: 18px; flex-shrink: 0;
+    }
+
+    /* bottom handle */
+    .bh {
+      margin-top: auto; padding-top: 14px;
+      font-size: 11px; font-weight: 600; letter-spacing: 0.5px;
+    }
+    .dark  .bh { color: var(--gold); opacity: 0.7; }
+    .light .bh { color: var(--text-muted); }
+
+    /* ── Shared components ── */
+
+    /* Big number */
+    .bignum {
+      font-size: 88px; font-weight: 900; letter-spacing: -4px; line-height: 1;
+    }
+    .dark  .bignum { color: var(--gold); }
+    .light .bignum { color: var(--text-dark); }
+    .bignum-unit {
+      font-size: 36px; font-weight: 700; letter-spacing: -1px; vertical-align: middle;
+    }
+
+    .stat-tag {
+      font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-top: 4px;
+    }
+    .dark  .stat-tag { color: rgba(255,255,255,0.35); }
+    .light .stat-tag { color: var(--text-muted); }
+
+    .stat-desc {
+      font-size: 15px; font-weight: 600; line-height: 1.45; margin-top: 18px;
+    }
+    .dark  .stat-desc { color: rgba(255,255,255,0.8); }
+    .light .stat-desc { color: var(--text-dark); }
+
+    .source-tag {
+      font-size: 10px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
+      margin-top: 8px; opacity: 0.3;
+    }
+
+    /* Highlight box */
+    .hbox {
+      padding: 12px 14px; border-radius: 8px; margin-top: 14px;
+    }
+    .dark  .hbox { background: rgba(212,160,23,0.09); border: 1px solid rgba(212,160,23,0.2); }
+    .light .hbox { background: #fff; border: 1px solid var(--border); border-left: 3px solid var(--gold); }
+    .hbox-title {
+      font-size: 13px; font-weight: 700; line-height: 1.4;
+    }
+    .dark  .hbox-title { color: var(--gold-lt); }
+    .light .hbox-title { color: var(--text-dark); }
+    .hbox-body {
+      font-size: 12px; margin-top: 4px; line-height: 1.45;
+    }
+    .dark  .hbox-body { color: rgba(255,255,255,0.6); }
+    .light .hbox-body { color: var(--text-muted); }
+
+    /* Label */
+    .label {
+      font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px;
+    }
+    .dark  .label { color: rgba(255,255,255,0.35); }
+    .light .label { color: var(--text-muted); }
+    .label.gold   { color: var(--gold) !important; }
+
+    /* Headline */
+    .h1 {
+      font-size: 26px; font-weight: 900; line-height: 1.2;
+    }
+    .dark  .h1 { color: #fff; }
+    .light .h1 { color: var(--text-dark); }
+    .h1 .g { color: var(--gold-lt); }
+    .light .h1 .g { color: var(--gold); }
+
+    /* divider */
+    .div-line { height: 1px; margin: 14px 0; }
+    .dark  .div-line { background: rgba(255,255,255,0.08); }
+    .light .div-line { background: var(--border); }
+
+    /* ── Slide 1 (cover) specific ── */
+    .cover-quote {
+      font-size: 20px; font-style: italic; font-weight: 500; line-height: 1.5;
+      color: rgba(255,255,255,0.48);
+    }
+    .cover-openquote {
+      font-size: 68px; line-height: 0.6; color: var(--gold); font-weight: 900;
+      font-style: normal; display: block; margin-bottom: 8px;
+    }
+    .cover-reframe {
+      font-size: 25px; font-weight: 900; line-height: 1.2; color: #fff; margin-top: 24px;
+    }
+    .cover-reframe .g { color: var(--gold-lt); }
+    .cover-nudge {
+      font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.38);
+      letter-spacing: 0.3px; margin-top: 16px; line-height: 1.5;
+    }
+
+    /* ── Slide 5 — Compare table ── */
+    .compare {
+      width: 100%; border-collapse: collapse; margin-top: 8px;
+    }
+    .compare th {
+      font-size: 10px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase;
+      padding: 0 0 10px; text-align: left;
+    }
+    .compare th.myth-col { color: rgba(255,255,255,0.3); width: 48%; }
+    .compare th.real-col { color: var(--gold); padding-left: 16px; }
+    .compare td {
+      font-size: 14px; font-weight: 600; padding: 10px 0;
+      border-top: 1px solid rgba(255,255,255,0.06); line-height: 1.3; vertical-align: top;
+    }
+    .compare td.myth-col {
+      color: rgba(255,255,255,0.32); text-decoration: line-through;
+      text-decoration-color: rgba(255,255,255,0.25);
+    }
+    .compare td.real-col {
+      color: rgba(255,255,255,0.88); padding-left: 16px;
+      border-left: 1px solid rgba(212,160,23,0.25);
+    }
+    .save-pill {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: rgba(212,160,23,0.12); border: 1px solid rgba(212,160,23,0.3);
+      border-radius: 20px; padding: 4px 12px; margin-bottom: 14px;
+      font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    /* ── Slide 8 — Levels ── */
+    .level {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; border-radius: 8px; margin-bottom: 7px;
+    }
+    .level.off { background: #fff; border: 1px solid var(--border); }
+    .level.on  { background: linear-gradient(135deg, var(--gold), var(--gold-lt)); }
+    .lnum {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 800; flex-shrink: 0;
+    }
+    .level.off .lnum { background: linear-gradient(135deg,var(--gold),var(--gold-lt)); color: #0A0A0A; }
+    .level.on  .lnum { background: #0A0A0A; color: var(--gold-lt); }
+    .lname { font-size: 12px; font-weight: 700; }
+    .ltime { font-size: 11px; margin-top: 2px; }
+    .level.off .lname { color: var(--text-dark); }
+    .level.off .ltime { color: var(--text-muted); }
+    .level.on  .lname { color: #0A0A0A; }
+    .level.on  .ltime { color: rgba(10,10,10,0.6); }
+
+    /* ── Slide 10 — CTA ── */
+    .cta-wrap { text-align: center; }
+    .cta-eyebrow {
+      font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--gold); opacity: 0.8; margin-bottom: 14px;
+    }
+    .cta-title {
+      font-size: 26px; font-weight: 900; line-height: 1.2; color: #fff;
+    }
+    .cta-title .g { color: var(--gold-lt); }
+    .cta-divider { width: 36px; height: 2px; background: var(--gold); border-radius: 2px; margin: 16px auto; }
+    .cta-sub { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.5); line-height: 1.55; }
+    .cta-handle { font-size: 22px; font-weight: 900; color: var(--gold); letter-spacing: -0.5px; margin-top: 16px; }
+    .cta-addr { font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 10px; line-height: 1.7; letter-spacing: 0.3px; }
+
+    /* ── IG chrome ── */
+    .ig-dots {
+      display: flex; justify-content: center; gap: 5px; padding: 10px 0;
+    }
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: #ddd; transition: background .2s; }
+    .dot.active { background: #0A0A0A; }
+    .ig-actions {
+      display: flex; align-items: center; gap: 14px; padding: 8px 16px;
+    }
+    .ig-actions svg { width: 22px; height: 22px; }
+    .ig-caption {
+      padding: 10px 16px 20px; font-size: 13px; color: #1a1a1a; line-height: 1.5;
+    }
+    .ig-caption strong { font-weight: 700; }
+    .time { display: block; margin-top: 8px; font-size: 10px; color: #bbb; text-transform: uppercase; letter-spacing: 1px; }
+  </style>
+</head>
+<body>
+
+<div class="ig-frame">
+
+  <!-- Header -->
+  <div class="ig-header">
+    <div class="avatar-mini">EBS</div>
+    <div>
+      <div class="ig-handle">aprendiz.ebs</div>
+      <div class="ig-sub">Escola de Música · Corbélia, PR</div>
+    </div>
+  </div>
+
+  <!-- Carousel -->
+  <div class="carousel-viewport" id="viewport">
+    <div class="carousel-track" id="track">
+
+      <!-- ══════════════════════════════════════
+           S1 — CAPA · STOP SCROLL
+      ══════════════════════════════════════ -->
+      <div class="slide dark">
+        <div class="sn">1 / 10</div>
+
+        <div style="margin-top:18px;">
+          <div style="font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:14px;">O mito que destrói potenciais</div>
+          <span class="cover-openquote">"</span>
+          <div class="cover-quote">Meu filho não<br>tem jeito pra<br>música."</div>
+        </div>
+
+        <div style="height:1px;background:rgba(212,160,23,0.25);margin:22px 0;"></div>
+
+        <div class="cover-reframe">
+          E se esse<br>pensamento estiver<br><span class="g">destruindo o maior<br>dom do seu filho?</span>
+        </div>
+
+        <div class="cover-nudge">
+          A neurociência desmontou esse mito.<br>
+          Dados reais. Arraste para ver. →
+        </div>
+
+        <div class="bh">@aprendiz.ebs</div>
+      </div>
+
+      <!-- ══════════════════════════════════════
+           S2 — O MITO NOMEADO
+      ══════════════════════════════════════ -->
+      <div class="slide light">
+        <div class="sn">2 / 10</div>
+        <div class="gbar"></div>
+
+        <div class="label">O que te ensinaram</div>
+        <div class="h1">
+          "Quem tem talento,<br>toca. Quem não tem,<br><span class="g">não tem jeito."</span>
+        </div>
+
+        <div class="div-line"></div>
+
+        <div class="label gold">A realidade</div>
+        <div class="h1">
+          Nenhum músico<br>nasceu sabendo.<br><span class="g">Todos aprenderam.</span>
+        </div>
+
+        <div style="margin-top:16px;font-size:13px;color:var(--text-muted);font-weight:500;line-height:1.5;">
+          O talento é a narrativa que criamos depois,<br>não o que aconteceu antes.
+        </div>
+
+        <div class="bh">@aprendiz.ebs</div>
+      </div>
+
+      <!-- ══════════════════════════════════════
+           S3 — MOZART · DADO
+      ══════════════════════════════════════ -->
+      <div class="slide dark">
+        <div class="sn">3 / 10</div>
+        <div class="gbar"></div>
+
+        <div class="bignum">6<span class="bignum-unit">h</span></div>
+        <div class="stat-tag">por dia · desde os 5 anos</div>
+
+        <div class="stat-desc">
+          Mozart praticava isso sob orientação do pai — professor de música obcecado com método e repetição.
+        </div>
+
+        <div class="hbox">
+          <div class="hbox-title">Não nasceu genial.</div>
+          <div class="hbox-body">Foi construído por prática deliberada com método — exatamente igual ao seu filho pode ser.</div>
+        </div>
+
+        <div class="source-tag" style="color:rgba(255,255,255,0.3)">Fonte: Mozart — Maynard Solomon (Princeton)</div>
+
+        <div class="bh">@aprendiz.ebs</div>
+      </div>
+
+      <!-- ══════════════════════════════════════
+           S4 — 26.000H · CIÊNCIA
+      ══════════════════════════════════════ -->
+      <div class="slide light">
+        <div class="sn">4 / 10</div>
+        <div class="gbar"></div>
+
+        <div class="bignum" style="font-size:68px;letter-spacing:-3px;">26.000</div>
+        <div class="stat-tag">horas de prática deliberada</div>
+
+        <div class="stat-desc">
+          É o que separa um amador de um virtuose, segundo a pesquisa de K. Anders Ericsson (Princeton).
+        </div>
+
+        <div class="hbox">
+          <div class="hbox-title">Não é talento. É repetição.</div>
+          <div class="hbox-body">O cérebro não distingue "dom" de prática. Ele só reconhece padrões reforçados com método.</div>
+        </div>
+
+        <div class="source-tag" style="color:var(--text-muted)">K. Anders Ericsson — The Role of Deliberate Practice</div>
+
+        <div class="bh">@aprendiz.ebs</div>
+      </div>
+
+      <!-- ══════════════════════════════════════
+           S5 — MITO vs REALIDADE · SAVE SLIDE
+      ══════════════════════════════════════ -->
+      <div class="slide dark">
+        <div class="sn">5 / 10</div>
+
+        <div style="margin-top:8px;">
+          <div class="save-pill">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+            Salve este slide
+          </div>
+        </div>
+
+        <div style="font-size:13px;font-weight:800;color:#fff;letter-spacing:0.5px;margin-bottom:4px;">Mostre para quem ainda acredita no mito.</div>
+
+        <table class="compare">
+          <thead>
+            <tr>
+              <th class="myth-col">O que te disseram</th>
+              <th class="real-col">A realidade</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="myth-col">Talento nato</td>
+              <td class="real-col">Método + tempo</td>
+            </tr>
+            <tr>
+              <td class="myth-col">"Dom divino"</td>
+              <td class="real-col">Repetição estruturada</td>
+            </tr>
+            <tr>
+              <td class="myth-col">Nasce sabendo</td>
+              <td class="real-col">Aprende com orientação</td>
+            </tr>
+            <tr>
+              <td class="myth-col">"Não tem jeito"</td>
+              <td class="real-col">Ainda não começou</td>
+            </tr>
+            <tr>
+              <td class="myth-col">Hora certa para começar</td>
+              <td class="real-col">A hora é agora</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="bh">@aprendiz.ebs</div>
+      </div>
+
+      <!-- ══════════════════════════════════════
+           S6 — 10 MINUTOS
+      ══════════════════════════════════════ -->
+      <div class="slide light">
+        <div class="sn">6 / 10</div>
+        <div class="gbar"></div>
+
+        <div class="bignum" style="font-size:88px;">10</div>
+        <div style="font-size:30px;font-weight:900;letter-spacing:-1px;color:var(--gold);margin-top:-4px;">minutos</div>
+        <div class="stat-tag">por dia · todo dia</div>
+
+        <div style="margin-top:20px;font-size:17px;font-weight:700;line-height:1.4;color:var(--text-dark);">
+          Vence 2 horas num<br>sábado à tarde.
+        </div>
+        <div style="font-size:14px;font-weight:600;color:var(--gold);margin-top:4px;">A consistência bate o volume.</div>
+
+        <div style="margin-top:16px;font-size:12px;color:var(--text-muted);line-height:1.55;font-weight:500;">
+          O cérebro consolida memória muscular durante o sono. Sessões curtas e diárias ativam esse processo melhor do que treinos longos e esporádicos.
+        </div>
+
+        <div class="bh">@aprendiz.ebs</div>
+      </div>
+
+      <!-- ══════════════════════════════════════
+           S7 — EMOCIONAL / PERSONALIZAR
+      ══════════════════════════════════════ -->
+      <div class="slide dark">
+        <div class="sn">7 / 10</div>
+        <div class="gbar"></div>
+
+        <div class="h1" style="margin-top:8px;">
+          Ele não tocou<br>ainda porque<br>ninguém ensinou<br>com <span class="g">método.</span>
+        </div>
+
+        <div style="margin-top:20px;font-size:15px;font-weight:500;color:rgba(255,255,255,0.58);line-height:1.65;">
+          Não porque falta jeito.<br>
+          Não porque não é cedo o suficiente.<br>
+          Não porque ele "não é o tipo musical".
+        </div>
+
+        <div style="margin-top:16px;padding:12px 14px;border:1px solid rgba(212,160,23,0.28);border-radius:8px;">
+          <div style="font-size:13px;font-weight:700;color:var(--gold);line-height:1.45;text-align:center;letter-spacing:0.3px;">
+            Todo aluno que veio aqui duvidando<br>saiu tocando.
+          </div>
+        </div>
+
+        <div class="bh">@aprendiz.ebs</div>
+      </div>
+
+      <!-- ══════════════════════════════════════
+           S8 — TRILHA EBS
+      ══════════════════════════════════════ -->
+      <div class="slide light">
+        <div class="sn">8 / 10</div>
+        <div class="gbar"></div>
+
+        <div class="label">A trilha do aluno EBS</div>
+
+        <div class="level off">
+          <div class="lnum">1</div>
+          <div>
+            <div class="lname">Pré-Iniciante</div>
+            <div class="ltime">Primeiros acordes e ritmo</div>
+          </div>
+        </div>
+        <div class="level off">
+          <div class="lnum">2</div>
+          <div>
+            <div class="lname">Iniciante</div>
+            <div class="ltime">Repertório básico e leitura</div>
+          </div>
+        </div>
+        <div class="level off">
+          <div class="lnum">3</div>
+          <div>
+            <div class="lname">Pré-Intermediário</div>
+            <div class="ltime">Músicas completas · 6–12 meses</div>
+          </div>
+        </div>
+        <div class="level on">
+          <div class="lnum">5</div>
+          <div>
+            <div class="lname">Avançado → Gravando no estúdio</div>
+            <div class="ltime">Repertório livre · 18+ meses</div>
+          </div>
+        </div>
+
+        <div style="margin-top:10px;font-size:11px;color:var(--text-muted);text-align:center;letter-spacing:0.3px;font-weight:500;">
+          Sem talento. Com método. 14 anos de resultados.
+        </div>
+
+        <div class="bh">@aprendiz.ebs</div>
+      </div>
+
+      <!-- ══════════════════════════════════════
+           S9 — DEPOIMENTO REAL
+      ══════════════════════════════════════ -->
+      <div class="slide dark">
+        <div class="sn">9 / 10</div>
+        <div class="gbar"></div>
+
+        <div style="font-size:60px;line-height:0.7;color:var(--gold);font-weight:900;margin-bottom:14px;">"</div>
+
+        <div style="font-size:18px;font-weight:600;font-style:italic;line-height:1.55;color:rgba(255,255,255,0.88);">
+          Comecei aos 38 anos achando que era tarde demais. Hoje gravo meus próprios álbuns no Black Space.
+        </div>
+
+        <div style="margin-top:18px;padding-top:16px;border-top:1px solid rgba(212,160,23,0.2);">
+          <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:var(--gold);text-transform:uppercase;">Aluno EBS · Corbélia</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:4px;letter-spacing:0.3px;">Resultado real. Método EBS desde 2011.</div>
+        </div>
+
+        <div style="margin-top:auto;padding:12px;background:rgba(255,255,255,0.03);border-radius:8px;text-align:center;">
+          <div style="font-size:15px;font-weight:800;color:rgba(255,255,255,0.18);letter-spacing:1.5px;text-transform:uppercase;line-height:1.4;">
+            Próximo pode ser<br>o seu filho.
+          </div>
+        </div>
+
+        <div class="bh">@aprendiz.ebs</div>
+      </div>
+
+      <!-- ══════════════════════════════════════
+           S10 — CTA
+      ══════════════════════════════════════ -->
+      <div class="slide dark" style="background:linear-gradient(160deg,#0a0a0a 0%,#1a1408 60%,#2d1f0a 100%);align-items:center;">
+        <div class="sn">10 / 10</div>
+
+        <div class="cta-wrap" style="margin-top:24px;width:100%;">
+          <div class="cta-eyebrow">EBS Aprendiz · desde 2011</div>
+          <div class="cta-title">
+            Quer aprender música<br>
+            <span class="g">com método?</span>
+          </div>
+          <div class="cta-divider"></div>
+          <div class="cta-sub">
+            14 anos transformando vidas pela música<br>
+            em Corbélia. Crianças, adolescentes e adultos.<br>
+            <strong style="color:rgba(255,255,255,0.75);">Vagas limitadas.</strong>
+          </div>
+          <div class="cta-divider"></div>
+          <div class="cta-handle">@aprendiz.ebs</div>
+          <div class="cta-addr">
+            Av. Minas Gerais, 57 — Centro<br>
+            Corbélia-PR · próximo ao semáforo
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /track -->
+  </div><!-- /viewport -->
+
+  <!-- Dots -->
+  <div class="ig-dots">
+    <div class="dot active"></div>
+    <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+    <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+    <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+  </div>
+
+  <!-- Actions -->
+  <div class="ig-actions">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    <svg style="margin-left:auto" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+  </div>
+
+  <!-- Caption -->
+  <div class="ig-caption">
+    <strong>aprendiz.ebs</strong> "Meu filho não tem jeito pra música." Se você já pensou isso, precisa ver o que a ciência diz. 🎸
+
+Mozart praticou 6h por dia desde os 5 anos. A diferença entre amador e virtuose são 26.000 horas de prática — não dom divino.
+
+O talento é a narrativa que criamos depois do fato. Não o que aconteceu antes.
+
+No EBS Aprendiz, há 14 anos alunos que chegaram duvidando saíram tocando. Crianças, adolescentes e adultos.
+
+✦ Vagas limitadas — Av. Minas Gerais, 57, Centro, Corbélia-PR.
+
+.
+.
+.
+#talentoémito #aprendermusica #escolademusica #ebsaprendiz #corbeliapr #metodoebs #violao #guitarra #aprendizadomusical #neurociencia #musicaparafilhos
+    <span class="time">AGORA</span>
+  </div>
+
+</div><!-- /ig-frame -->
+
+<script>
+  const track = document.getElementById('track');
+  const dots  = document.querySelectorAll('.dot');
+  let cur = 0;
+  const total = document.querySelectorAll('.slide').length;
+
+  function goTo(i) {
+    cur = Math.max(0, Math.min(i, total - 1));
+    track.style.transform = `translateX(-${cur * 420}px)`;
+    dots.forEach((d, idx) => d.classList.toggle('active', idx === cur));
+  }
+
+  document.getElementById('viewport').addEventListener('click', e => {
+    const r = e.currentTarget.getBoundingClientRect();
+    if (e.clientX - r.left < r.width / 3) goTo(cur - 1);
+    else goTo(cur + 1);
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight') goTo(cur + 1);
+    if (e.key === 'ArrowLeft')  goTo(cur - 1);
+  });
+
+  let sx = 0;
+  document.getElementById('viewport').addEventListener('touchstart', e => sx = e.touches[0].clientX);
+  document.getElementById('viewport').addEventListener('touchend', e => {
+    const d = e.changedTouches[0].clientX - sx;
+    if (d > 50) goTo(cur - 1);
+    if (d < -50) goTo(cur + 1);
+  });
+</script>
+</body>
+</html>
