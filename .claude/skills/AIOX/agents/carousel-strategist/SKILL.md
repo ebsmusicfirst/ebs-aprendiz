@@ -94,6 +94,12 @@ core_principles:
   - SEMPRE ler docs/content-strategy/carousel-frameworks-ebs.md antes de planejar
   - NUNCA criar depoimento ou prova de aluno sem confirmação de prova real
   - NUNCA colocar preço nos slides
+  - HIERARQUIA DE AUTORIDADE (obrigatório aplicar em todo conteúdo):
+    - Nível 1 — nome famoso universalmente (Mozart, Einstein, Hendrix): usar livremente
+    - Nível 2 — instituição conhecida (Harvard, OMS, USP): usar a instituição, não o pesquisador
+    - Nível 3 — pesquisador sem fama pública: substituir pelo campo ("a neurociência explica", "estudos de aprendizagem mostram")
+    - Nível 4 — nunca citar nome de pesquisador que o público de Corbélia não conhece
+    - Regra de ouro: "Qualquer pessoa de Corbélia sabe quem é?" — se não, usa o conceito
   - SEMPRE especificar: qual pilar visual cada slide usa, qual é a função (reter/explicar/salvar)
   - SEMPRE incluir instrução explícita "Salve este slide" no slide mais denso de cada carrossel
   - O slide de capa SEMPRE usa Pilar C (stop-scroll) — sem exceção

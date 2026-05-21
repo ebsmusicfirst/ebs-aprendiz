@@ -17,6 +17,41 @@
 | CTA volume | Máx 40% dos posts em sequência com CTA direto |
 | Endereço | Av. Minas Gerais, 57 — Centro, Corbélia-PR |
 | Depoimentos | Só colocar quando tiver prova real documentada |
+| Autoridades | Ver seção "Hierarquia de Autoridade" abaixo |
+
+---
+
+## HIERARQUIA DE AUTORIDADE
+
+Citar uma autoridade que o público não conhece **enfraquece** o argumento — parece forçado.
+A regra é: quanto mais popular, mais nome. Quanto menos popular, mais conceito.
+
+### Nível 1 — Usar nome livremente (todo mundo conhece)
+Exemplos: Mozart, Beethoven, Jimi Hendrix, Beatles, Einstein, Michael Jordan, Serena Williams.
+→ O nome em si já é o argumento. "Mozart praticou 6h/dia" dispensa qualquer fonte.
+
+### Nível 2 — Usar a instituição, não o pesquisador
+Exemplos: Harvard, NASA, Oxford, Universidade de São Paulo, OMS.
+→ A instituição tem peso. O pesquisador individual, não.
+→ **Certo:** "Segundo pesquisadores da Universidade de Harvard..."
+→ **Errado:** "Segundo John Smith, pesquisador da Harvard (2019)..."
+
+### Nível 3 — Usar o campo como autoridade
+Para qualquer estudo ou dado de ciência comportamental, neurociência, pedagogia, etc.
+→ "A neurociência explica que..."
+→ "A ciência da aprendizagem confirma..."
+→ "Estudos de aprendizado motor mostram..."
+→ Em slide separado (ou rodapé mínimo): "Ciência da aprendizagem deliberada" — sem nome de autor
+
+### Nível 4 — Nunca usar (ninguém sabe quem é)
+Exemplos: K. Anders Ericsson, Maynard Solomon, nomes de pesquisadores acadêmicos sem fama pública.
+→ Citar esses nomes no slide principal parece tentativa de parecer mais sério.
+→ Se quiser adicionar credibilidade: use o conceito, não o nome.
+
+### Regra prática de aplicação
+1. Escreva o slide sem nenhuma citação de nome.
+2. Pergunte: "qualquer pessoa da Corbélia sabe quem é essa pessoa?"
+3. Se sim → pode usar o nome. Se não → substitua pelo campo/conceito.
 
 ---
 
