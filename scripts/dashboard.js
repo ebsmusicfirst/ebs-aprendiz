@@ -209,6 +209,7 @@ const DASHBOARD_HTML = `<!DOCTYPE html>
     .card-title { font-size:12px; font-weight:600; line-height:1.45; color:#F0EDE8; }
     .card-status { font-size:9px; padding:3px 9px; border-radius:20px; width:fit-content; font-weight:700; }
     .status-pending { background:rgba(212,160,23,0.15); color:#D4A017; }
+    .status-pending_approval { background:rgba(239,68,68,0.12); color:#f87171; }
     .status-published { background:rgba(96,165,250,0.15); color:#60a5fa; }
     .status-approved { background:rgba(34,197,94,0.15); color:#22c55e; }
     .status-scheduled { background:rgba(167,139,250,0.15); color:#a78bfa; }
@@ -227,6 +228,13 @@ const DASHBOARD_HTML = `<!DOCTYPE html>
     .slides-info { font-size:8px; color:rgba(240,237,232,0.4); margin-top:2px; }
     .slides-info.missing { color:#F59E0B; }
     .card-date { font-size:9px; color:rgba(240,237,232,0.3); margin-top:2px; }
+
+    /* ── Approval deadline warning ───────────────────── */
+    .approval-warn { font-size:9px; padding:4px 9px; border-radius:6px; background:rgba(239,68,68,0.12); color:#f87171; border:1px solid rgba(239,68,68,0.2); margin-top:4px; display:flex; align-items:center; gap:5px; }
+    .approval-warn.ok { background:rgba(250,204,21,0.12); color:#fbbf24; border-color:rgba(250,204,21,0.2); }
+    .approval-warn.urgent { background:rgba(239,68,68,0.18); color:#f87171; border-color:rgba(239,68,68,0.35); }
+    .action-btn.unpost { background:rgba(107,114,128,0.1); color:#9ca3af; border-color:rgba(107,114,128,0.18); }
+    .action-btn.unpost:hover { background:rgba(107,114,128,0.2); }
 
     /* ── Modal ───────────────────────────────────── */
     .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:1000; align-items:center; justify-content:center; }
@@ -463,11 +471,12 @@ function loadQueue() {
 }
 
 function updateStats() {
-  var total = carousels.length;
-  var pending  = carousels.filter(function(c) { return !c.status || c.status === 'pending'; }).length;
-  var approved = carousels.filter(function(c) { return c.status === 'approved'; }).length;
-  var scheduled= carousels.filter(function(c) { return c.status === 'scheduled'; }).length;
-  var published= carousels.filter(function(c) { return c.status === 'published'; }).length;
+  var v5 = carousels.filter(function(c) { return c.format === 'tweet-v5'; });
+  var total = v5.length;
+  var pending  = v5.filter(function(c) { return !c.status || c.status === 'pending' || c.status === 'pending_approval'; }).length;
+  var approved = v5.filter(function(c) { return c.status === 'approved'; }).length;
+  var scheduled= v5.filter(function(c) { return c.status === 'scheduled'; }).length;
+  var published= v5.filter(function(c) { return c.status === 'published'; }).length;
   document.getElementById('sTotal').textContent    = total;
   document.getElementById('sPending').textContent  = pending;
   document.getElementById('sApproved').textContent = approved;
@@ -477,10 +486,48 @@ function updateStats() {
 
 // ── Render ────────────────────────────────────────────────────────────────────
 
+// Formata ISO date para exibição local BRT
+function fmtDate(iso) {
+  if (!iso) return '';
+  var d = new Date(iso);
+  var pad = function(n) { return n < 10 ? '0' + n : '' + n; };
+  return pad(d.getDate()) + '/' + pad(d.getMonth()+1) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+}
+
+// Gera HTML do aviso de prazo de aprovação
+function approvalWarnHtml(c) {
+  if (c.status !== 'pending_approval') return '';
+  var deadline = c.approval_deadline || c.scheduled_for;
+  if (!deadline) return '';
+  var now = Date.now();
+  var ms  = new Date(deadline).getTime() - now;
+  var hours = ms / 3600000;
+  var cls = hours < 2 ? 'approval-warn urgent' : hours < 6 ? 'approval-warn' : 'approval-warn ok';
+  var label;
+  if (ms < 0) {
+    label = '⚠️ Prazo expirado — altere o horário';
+    cls = 'approval-warn urgent';
+  } else if (hours < 1) {
+    label = '🔴 Aprovar agora! Menos de 1h';
+  } else if (hours < 6) {
+    label = '🟡 Aprovar até ' + fmtDate(deadline) + ' (' + Math.round(hours) + 'h restantes)';
+  } else {
+    label = '🟢 Agendar para ' + fmtDate(c.scheduled_for) + ' — aprovar até ' + fmtDate(deadline);
+  }
+  return '<div class="' + cls + '">' + label + '</div>';
+}
+
 function renderGrid() {
+  // Filtrar apenas tweet-v5
+  var v5 = carousels.filter(function(c) { return c.format === 'tweet-v5'; });
+
   var list = filter === 'all'
-    ? carousels
-    : carousels.filter(function(c) { return (c.status || 'pending') === filter; });
+    ? v5
+    : v5.filter(function(c) {
+        var s = c.status || 'pending';
+        if (filter === 'pending') return s === 'pending' || s === 'pending_approval';
+        return s === filter;
+      });
 
   var grid = document.getElementById('grid');
   if (!list.length) {
@@ -490,42 +537,54 @@ function renderGrid() {
 
   grid.innerHTML = list.map(function(c) {
     var status = c.status || 'pending';
-    var type   = c.type   || 'editorial';
 
-    var typeBadge = type === 'tweet'
-      ? '<span class="card-type type-tweet">Tweet</span>'
-      : '<span class="card-type type-editorial">Editorial</span>';
+    var statusLabel = {
+      'pending': 'pendente',
+      'pending_approval': 'aguardando aprovação',
+      'approved': 'aprovado',
+      'scheduled': 'agendado',
+      'published': 'publicado'
+    }[status] || status;
 
     var dateStr = c.scheduled_for
-      ? '📅 ' + c.scheduled_for.substring(0,16).replace('T', ' ')
+      ? '📅 ' + fmtDate(c.scheduled_for) + ' BRT'
       : (c.published_at ? '✅ ' + c.published_at.substring(0,10) : (c.created_at || ''));
 
-    // Slides info — crítico para QA antes de agendar/publicar
+    // Slides info
     var slideCount = (c.slides && c.slides.length) || 0;
     var slidesInfo = slideCount > 0
-      ? '<div class="slides-info">📦 ' + slideCount + ' PNGs exportados</div>'
-      : '<div class="slides-info missing">⚠️ Sem PNGs — exporte antes de agendar/publicar</div>';
+      ? '<div class="slides-info">📦 ' + slideCount + ' PNGs</div>'
+      : '<div class="slides-info missing">⚠️ Sem PNGs</div>';
 
-    // Action buttons — context-aware (event delegation via data-* attrs, no escape hell)
+    var viewBtn = '<button class="action-btn" data-action="view" data-id="' + c.id + '">👁 Ver</button>';
+
     var exportClass = slideCount > 0 ? 'action-btn export has-slides' : 'action-btn export';
-    var exportLabel = slideCount > 0 ? '📦 Re-export' : '📦 Exportar';
+    var exportLabel = slideCount > 0 ? '↻ Re-export' : '📦 Exportar';
     var exportBtn = status !== 'published'
       ? '<button class="' + exportClass + '" data-action="export" data-id="' + c.id + '">' + exportLabel + '</button>'
       : '<div></div>';
 
-    var approveBtn = status === 'pending'
-      ? '<button class="action-btn approve" data-action="approve" data-id="' + c.id + '">✓ Aprovar</button>'
+    // pending_approval → "Aprovar" agenda no Buffer automaticamente
+    var approveBtn = (status === 'pending_approval')
+      ? '<button class="action-btn approve" data-action="approve-buffer" data-id="' + c.id + '">✓ Aprovar</button>'
+      : (status === 'pending'
+          ? '<button class="action-btn approve" data-action="approve" data-id="' + c.id + '">✓ Aprovar</button>'
+          : '<div></div>');
+
+    // published → "Desmarcar" reverte para pending_approval
+    var unpostBtn = status === 'published'
+      ? '<button class="action-btn unpost" data-action="unpost" data-id="' + c.id + '">↩ Desmarcar</button>'
       : '<div></div>';
 
-    var schedBtn = ['pending','approved','scheduled'].indexOf(status) !== -1
+    var schedBtn = ['pending','approved'].indexOf(status) !== -1
       ? '<button class="action-btn sched" data-action="schedule" data-id="' + c.id + '">📅 Agendar</button>'
       : '<div></div>';
-
-    var viewBtn = '<button class="action-btn" data-action="view" data-id="' + c.id + '">👁 Ver</button>';
 
     var publishBtn = ['pending','approved','scheduled'].indexOf(status) !== -1
       ? '<button class="action-btn publish" data-action="publish" data-id="' + c.id + '">🚀 Publicar</button>'
       : '<div></div>';
+
+    var warnHtml = approvalWarnHtml(c);
 
     return '<div class="card">'
       + '<div class="card-preview">'
@@ -534,16 +593,17 @@ function renderGrid() {
       + '<div class="card-body">'
       +   '<div class="card-meta">'
       +     '<span class="card-id">' + c.id + '</span>'
-      +     typeBadge
+      +     '<span class="card-type type-tweet">Tweet V5</span>'
       +   '</div>'
       +   '<div class="card-title">' + escapeHtml(c.title) + '</div>'
-      +   '<div class="card-status status-' + status + '">' + status + '</div>'
+      +   '<div class="card-status status-' + status + '">' + statusLabel + '</div>'
+      +   warnHtml
       +   slidesInfo
-      +   '<div class="card-actions">' + exportBtn + viewBtn + approveBtn + schedBtn + publishBtn + '<div></div>' + '</div>'
+      +   '<div class="card-actions">' + exportBtn + viewBtn + approveBtn + schedBtn + publishBtn + unpostBtn + '</div>'
       +   '<div class="card-date">' + dateStr + '</div>'
       + '</div>'
       + '<div class="ai-edit-row">'
-      +   '<textarea class="ai-textarea" data-ai-id="' + c.id + '" placeholder="O que mudar? Ex: muda o título, adiciona slide sobre prática diária..." rows="2"></textarea>'
+      +   '<textarea class="ai-textarea" data-ai-id="' + c.id + '" placeholder="O que mudar? Ex: muda o título, troca o texto do slide 3..." rows="2"></textarea>'
       +   '<button class="ai-btn" data-action="ai-edit" data-id="' + c.id + '">✦ IA</button>'
       + '</div>'
       + '</div>';
@@ -566,12 +626,14 @@ document.addEventListener('click', function(e) {
   var id     = btn.getAttribute('data-id');
   var action = btn.getAttribute('data-action');
   if (!id || !action) return;
-  if (action === 'approve')       openApprove(id);
-  else if (action === 'schedule') openSchedule(id);
-  else if (action === 'view')     openPreview(id);
-  else if (action === 'publish')  openPublish(id);
-  else if (action === 'export')   exportPNGs(id, btn);
-  else if (action === 'ai-edit')  requestAIEdit(id, btn);
+  if (action === 'approve')        openApprove(id);
+  else if (action === 'approve-buffer') openApproveBuffer(id);
+  else if (action === 'schedule')  openSchedule(id);
+  else if (action === 'view')      openPreview(id);
+  else if (action === 'publish')   openPublish(id);
+  else if (action === 'export')    exportPNGs(id, btn);
+  else if (action === 'ai-edit')   requestAIEdit(id, btn);
+  else if (action === 'unpost')    openUnpost(id);
 });
 
 // ── Export PNGs ───────────────────────────────────────────────────────────────
@@ -657,6 +719,61 @@ function openPublish(id) {
   document.getElementById('confirmTitle').textContent = '🚀 Publicar Agora';
   document.getElementById('confirmDesc').textContent  = 'Publicar: ' + c.title + '\\n\\n⚠️ O carrossel será enviado ao Instagram imediatamente.';
   confirmAction = function() { publishToInstagram(); };
+  document.getElementById('modalConfirm').classList.add('open');
+}
+
+function openApproveBuffer(id) {
+  currentId = id;
+  var c = carousels.find(function(x) { return x.id === id; });
+  if (!c) return;
+  var schedFor = c.scheduled_for;
+  var schedStr = schedFor ? fmtDate(schedFor) + ' BRT' : '(sem horário)';
+  document.getElementById('confirmTitle').textContent = '✓ Aprovar e Agendar no Buffer';
+  document.getElementById('confirmDesc').textContent  =
+    'Carrossel: ' + c.title +
+    '\\n\\nData de publicação: ' + schedStr +
+    '\\n\\nAo confirmar, o post será agendado no Buffer para @aprendiz.ebs.\\nVocê poderá ver e editar em publish.buffer.com antes da hora.';
+  confirmAction = function() { scheduleToBuffer(id, schedFor); };
+  document.getElementById('modalConfirm').classList.add('open');
+}
+
+function scheduleToBuffer(id, dueAt) {
+  showToast('📤 Enviando para Buffer…');
+  var url = '/api/carousel/' + encodeURIComponent(id) + '/publish-buffer?draft=false' + (dueAt ? '&dueAt=' + encodeURIComponent(dueAt) : '');
+  fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.error) throw new Error(d.error);
+      var idx = carousels.findIndex(function(c) { return c.id === id; });
+      if (idx !== -1) { carousels[idx].status = 'scheduled'; carousels[idx].buffer_post_id = d.postId; }
+      updateStats(); renderGrid();
+      showToast('✅ Agendado no Buffer! Post: ' + d.postId, 'success');
+    })
+    .catch(function(e) { showToast('❌ ' + e.message, 'error'); });
+}
+
+function openUnpost(id) {
+  currentId = id;
+  var c = carousels.find(function(x) { return x.id === id; });
+  document.getElementById('confirmTitle').textContent = '↩ Desmarcar como Postado';
+  document.getElementById('confirmDesc').textContent  =
+    'Isso reverterá "' + c.title + '" para o status pendente.\\n\\nUse quando deletar o post do Instagram e precisar reagendar.';
+  confirmAction = function() {
+    fetch('/api/carousel/' + encodeURIComponent(currentId), {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'pending_approval' })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.error) throw new Error(d.error);
+      var idx = carousels.findIndex(function(c) { return c.id === currentId; });
+      if (idx !== -1) carousels[idx] = d.carousel;
+      updateStats(); renderGrid();
+      showToast('↩ Desmarcado — agora aguarda aprovação', 'success');
+    })
+    .catch(function(e) { showToast('❌ ' + e.message, 'error'); });
+  };
   document.getElementById('modalConfirm').classList.add('open');
 }
 

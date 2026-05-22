@@ -265,6 +265,312 @@
         "slides/tweet-criancas-musicos-bons-06/slide_7.png"
       ],
       "created_at": "2026-05-15"
+    },
+    {
+      "id": "tweet-v5-guitarra-sozinho-01",
+      "title": "Pratiquei guitarra sozinho por dois anos",
+      "category": "EDU",
+      "format": "tweet-v5",
+      "type": "tweet",
+      "status": "published",
+      "published_at": "2026-05-22T18:21:25.236Z",
+      "buffer_post_id": "6a109a7433262db6110104c9",
+      "buffer_status": "draft",
+      "caption": "Dois anos praticando guitarra sozinho e eu travei no mesmo acorde por seis meses.",
+      "hashtags": "#guitarra #autodidata #metodo #aprendizebs #ebs #corbelia",
+      "slides": [
+        "slides/tweet-v5-guitarra-sozinho-01/slide_1.png",
+        "slides/tweet-v5-guitarra-sozinho-01/slide_2.png",
+        "slides/tweet-v5-guitarra-sozinho-01/slide_3.png",
+        "slides/tweet-v5-guitarra-sozinho-01/slide_4.png"
+      ],
+      "created_at": "2026-05-22",
+      "approved_at": "2026-05-22"
+    },
+    {
+      "id": "tweet-v5-tocar-de-ouvido-02",
+      "title": "Por que tocar de ouvido é uma armadilha",
+      "category": "EDU",
+      "format": "tweet-v5",
+      "type": "tweet",
+      "status": "pending_approval",
+      "scheduled_for": "2026-05-23T22:00:00.000Z",
+      "approval_deadline": "2026-05-23T20:00:00.000Z",
+      "caption": "Aprendi a primeira posição de Dm sozinho. Uma semana. Achei que tinha descoberto o jeito certo de aprender guitarra.\n\nNão tinha.\n\nTocar de ouvido vai te levar até certo ponto. Depois para. E a culpa não é sua.\n\n14 anos ensinando em Corbélia. O aluno que chega travado no mesmo ponto há meses — a primeira coisa que fazemos é olhar de fora.\n\nAv. Minas Gerais, 57 — Centro, Corbélia-PR\n@aprendiz.ebs",
+      "hashtags": "#guitarra #violao #autodidata #aprendermusica #aprendizebs #ebs #corbelia #metodologia",
+      "slides": [
+        "slides/tweet-v5-tocar-de-ouvido-02/slide_1.png",
+        "slides/tweet-v5-tocar-de-ouvido-02/slide_2.png",
+        "slides/tweet-v5-tocar-de-ouvido-02/slide_3.png",
+        "slides/tweet-v5-tocar-de-ouvido-02/slide_4.png"
+      ],
+      "created_at": "2026-05-22"
+    },
+    {
+      "id": "tweet-v5-pratica-10min-03",
+      "title": "A prática de 10 minutos que muda tudo",
+      "category": "EDU",
+      "format": "tweet-v5",
+      "type": "tweet",
+      "status": "pending_approval",
+      "scheduled_for": "2026-05-24T22:00:00.000Z",
+      "approval_deadline": "2026-05-24T20:00:00.000Z",
+      "caption": "A maioria das pessoas acha que precisa de uma hora por dia para aprender instrumento.\n\nNão precisa.\n\nDez minutos focados, todo dia, com um objetivo específico. Isso supera uma hora de \"vou ver no que dá\".\n\nO problema não é o tempo. É saber o que praticar.\n\nAv. Minas Gerais, 57 — Centro, Corbélia-PR\n@aprendiz.ebs",
+      "hashtags": "#pratica #metodologia #aprendermusica #violao #guitarra #aprendizebs #ebs #corbelia",
+      "slides": [
+        "slides/tweet-v5-pratica-10min-03/slide_1.png",
+        "slides/tweet-v5-pratica-10min-03/slide_2.png",
+        "slides/tweet-v5-pratica-10min-03/slide_3.png",
+        "slides/tweet-v5-pratica-10min-03/slide_4.png"
+      ],
+      "created_at": "2026-05-22"
+    },
+    {
+      "id": "tweet-v5-quanto-tempo-04",
+      "title": "Quanto tempo leva para tocar a música que você quer",
+      "category": "EDU",
+      "format": "tweet-v5",
+      "type": "tweet",
+      "status": "pending_approval",
+      "scheduled_for": "2026-05-25T22:00:00.000Z",
+      "approval_deadline": "2026-05-25T20:00:00.000Z",
+      "caption": "Essa é a pergunta que mais recebo: quanto tempo para tocar a música que eu quero?\n\nDepende da música. Mas com método e 10 minutos por dia: 4 a 8 semanas para a primeira música completa.\n\nSem método? Pode ser 6 meses para a mesma coisa. Ou não acontecer nunca.\n\nAv. Minas Gerais, 57 — Centro, Corbélia-PR\n@aprendiz.ebs",
+      "hashtags": "#aprendermusica #tempo #metodo #violao #guitarra #aprendizebs #ebs #corbelia",
+      "slides": [
+        "slides/tweet-v5-quanto-tempo-04/slide_1.png",
+        "slides/tweet-v5-quanto-tempo-04/slide_2.png",
+        "slides/tweet-v5-quanto-tempo-04/slide_3.png",
+        "slides/tweet-v5-quanto-tempo-04/slide_4.png"
+      ],
+      "created_at": "2026-05-22"
+    },
+    {
+      "id": "tweet-v5-violao-ou-guitarra-05",
+      "title": "Violão ou guitarra — qual é mais fácil de aprender",
+      "category": "EDU",
+      "format": "tweet-v5",
+      "type": "tweet",
+      "status": "pending_approval",
+      "scheduled_for": "2026-05-26T22:00:00.000Z",
+      "approval_deadline": "2026-05-26T20:00:00.000Z",
+      "caption": "Todo mês alguém me pergunta: qual é mais fácil, violão ou guitarra?\n\nA resposta honesta: são instrumentos com dificuldades diferentes. O que importa é qual dos dois te motiva.\n\nInstrumento que motiva é instrumento que você pratica. Instrumento que você pratica é instrumento que você aprende.\n\nAv. Minas Gerais, 57 — Centro, Corbélia-PR\n@aprendiz.ebs",
+      "hashtags": "#violao #guitarra #aprendermusica #escoladeinstrumento #aprendizebs #ebs #corbelia",
+      "slides": [
+        "slides/tweet-v5-violao-ou-guitarra-05/slide_1.png",
+        "slides/tweet-v5-violao-ou-guitarra-05/slide_2.png",
+        "slides/tweet-v5-violao-ou-guitarra-05/slide_3.png",
+        "slides/tweet-v5-violao-ou-guitarra-05/slide_4.png"
+      ],
+      "created_at": "2026-05-22"
+    },
+    {
+      "id": "tweet-v5-criancas-musicos-06",
+      "title": "O que toda criança que virou bom músico tinha em casa",
+      "category": "EDU",
+      "format": "tweet-v5",
+      "type": "tweet",
+      "status": "pending_approval",
+      "scheduled_for": "2026-05-27T22:00:00.000Z",
+      "approval_deadline": "2026-05-27T20:00:00.000Z",
+      "caption": "Décadas de pesquisa em educação musical concordam: o fator decisivo não é talento. É o ambiente familiar.\n\nCriança cujos pais param o que estão fazendo para ouvir: \"mostra o que você aprendeu\".\n\nEsse gesto pesa mais do que horas extras de prática.\n\nNo EBS a gente faz a parte que depende da escola. A parte de vocês, pais, é insubstituível.\n\n@aprendiz.ebs — Corbélia-PR",
+      "hashtags": "#criancas #musica #educacaomusical #pais #aprendizebs #ebs #corbelia #musicainfantil",
+      "slides": [
+        "slides/tweet-v5-criancas-musicos-06/slide_1.png",
+        "slides/tweet-v5-criancas-musicos-06/slide_2.png",
+        "slides/tweet-v5-criancas-musicos-06/slide_3.png",
+        "slides/tweet-v5-criancas-musicos-06/slide_4.png"
+      ],
+      "created_at": "2026-05-22"
+    },
+    {
+      "id": "tweet-v5-escola-vs-youtube-07",
+      "title": "Aprendi mais em 3 meses de aula do que em 2 anos de YouTube",
+      "category": "EDU",
+      "format": "tweet-v5",
+      "type": "tweet",
+      "status": "pending_approval",
+      "scheduled_for": "2026-05-28T22:00:00.000Z",
+      "approval_deadline": "2026-05-28T20:00:00.000Z",
+      "caption": "Aprendi mais guitarra em 3 meses de aula do que em 2 anos de YouTube. Não estou exagerando.\n\nO problema do YouTube não é o conteúdo. É que ninguém vê o que você está fazendo errado.\n\nYouTube te ensina músicas. Professor te ensina a tocar. São coisas diferentes.\n\n@aprendiz.ebs — Av. Minas Gerais, 57, Corbélia-PR",
+      "hashtags": "#youtube #aulademusica #presencial #violao #guitarra #aprendizebs #ebs #corbelia",
+      "slides": [
+        "slides/tweet-v5-escola-vs-youtube-07/slide_1.png",
+        "slides/tweet-v5-escola-vs-youtube-07/slide_2.png",
+        "slides/tweet-v5-escola-vs-youtube-07/slide_3.png",
+        "slides/tweet-v5-escola-vs-youtube-07/slide_4.png"
+      ],
+      "created_at": "2026-05-22"
+    },
+    {
+      "id": "tweet-v5-aluno-travado-08",
+      "title": "Ficou 3 anos sozinho. Desbloqueou em 6 meses.",
+      "category": "EDU",
+      "format": "tweet-v5",
+      "type": "tweet",
+      "status": "pending_approval",
+      "scheduled_for": "2026-05-29T22:00:00.000Z",
+      "approval_deadline": "2026-05-29T20:00:00.000Z",
+      "caption": "Tivemos um aluno que ficou três anos praticando sozinho. Tocava bem algumas coisas. Mas travou.\n\nEm seis meses de aula ele tocou o que não conseguia nem imaginar antes.\n\nO que mudou não foi a dedicação. Essa ele sempre teve. Mudou a estrutura.\n\n@aprendiz.ebs — Av. Minas Gerais, 57, Corbélia-PR",
+      "hashtags": "#metodologia #aprendermusica #guitarra #violao #aprendizebs #ebs #corbelia #desbloqueio",
+      "slides": [
+        "slides/tweet-v5-aluno-travado-08/slide_1.png",
+        "slides/tweet-v5-aluno-travado-08/slide_2.png",
+        "slides/tweet-v5-aluno-travado-08/slide_3.png",
+        "slides/tweet-v5-aluno-travado-08/slide_4.png"
+      ],
+      "created_at": "2026-05-22"
+    },
+    {
+      "id": "tweet-v5-teoria-musical-09",
+      "title": "Preciso aprender teoria musical para tocar?",
+      "category": "EDU",
+      "format": "tweet-v5",
+      "type": "tweet",
+      "status": "pending_approval",
+      "scheduled_for": "2026-05-30T22:00:00.000Z",
+      "approval_deadline": "2026-05-30T20:00:00.000Z",
+      "caption": "Preciso aprender teoria musical para tocar?\n\nDepende do que você quer. Se quer tocar músicas que gosta: não. Se quer compor, improvisar, entender o que está tocando: sim.\n\nA maioria dos alunos absorve teoria naturalmente durante as aulas. Não é um obstáculo.\n\n@aprendiz.ebs — Corbélia-PR",
+      "hashtags": "#teorialmusical #aprendermusica #violao #guitarra #aprendizebs #ebs #corbelia #musica",
+      "slides": [
+        "slides/tweet-v5-teoria-musical-09/slide_1.png",
+        "slides/tweet-v5-teoria-musical-09/slide_2.png",
+        "slides/tweet-v5-teoria-musical-09/slide_3.png",
+        "slides/tweet-v5-teoria-musical-09/slide_4.png"
+      ],
+      "created_at": "2026-05-22"
+    },
+    {
+      "id": "tweet-v5-talento-mito-10",
+      "title": "Músicos que parecem ter nascido sabendo não nasceram",
+      "category": "EDU",
+      "format": "tweet-v5",
+      "type": "tweet",
+      "status": "pending_approval",
+      "scheduled_for": "2026-05-31T22:00:00.000Z",
+      "approval_deadline": "2026-05-31T20:00:00.000Z",
+      "caption": "Músicos que parecem ter nascido sabendo não nasceram. Você só não viu as 10.000 horas antes.\n\nO que existe é: quem começou mais cedo, quem teve melhor método, quem teve mais estrutura em casa.\n\nEntão não venha me dizer que seu filho não tem jeito pra música. Isso não existe.\n\n@aprendiz.ebs",
+      "hashtags": "#talento #mito #aprendermusica #musica #violao #guitarra #aprendizebs #ebs #corbelia",
+      "slides": [
+        "slides/tweet-v5-talento-mito-10/slide_1.png",
+        "slides/tweet-v5-talento-mito-10/slide_2.png",
+        "slides/tweet-v5-talento-mito-10/slide_3.png",
+        "slides/tweet-v5-talento-mito-10/slide_4.png"
+      ],
+      "created_at": "2026-05-22"
+    },
+    {
+      "id": "tweet-v5-adultos-aprendem-11",
+      "title": "A crença de que adulto não aprende instrumento está errada",
+      "category": "EDU",
+      "format": "tweet-v5",
+      "type": "tweet",
+      "status": "pending_approval",
+      "scheduled_for": "2026-06-01T22:00:00.000Z",
+      "approval_deadline": "2026-06-01T20:00:00.000Z",
+      "caption": "A crença de que adulto não aprende instrumento é antiga e está errada.\n\nAdulto tem vantagens que criança não tem: foco, autonomia, sabe o que quer tocar, pratica com mais consistência.\n\nTemos alunos adultos que aprenderam guitarra do zero depois dos 40. Não é exceção. É regra quando tem método.\n\n@aprendiz.ebs — Corbélia-PR",
+      "hashtags": "#adultos #aprendermusica #guitarra #violao #aprendizebs #ebs #corbelia #nuncelatardedemais",
+      "slides": [
+        "slides/tweet-v5-adultos-aprendem-11/slide_1.png",
+        "slides/tweet-v5-adultos-aprendem-11/slide_2.png",
+        "slides/tweet-v5-adultos-aprendem-11/slide_3.png",
+        "slides/tweet-v5-adultos-aprendem-11/slide_4.png"
+      ],
+      "created_at": "2026-05-22"
+    },
+    {
+      "id": "tweet-v5-postura-tendinite-12",
+      "title": "A tendinite do guitarrista não aparece do dia para a noite",
+      "category": "EDU",
+      "format": "tweet-v5",
+      "type": "tweet",
+      "status": "pending_approval",
+      "scheduled_for": "2026-06-02T22:00:00.000Z",
+      "approval_deadline": "2026-06-02T20:00:00.000Z",
+      "caption": "A tendinite do guitarrista não aparece do dia para a noite. Vem acumulando durante meses de postura errada.\n\nEm aula presencial isso aparece na primeira semana. Corrigimos antes de virar hábito.\n\nJá atendi alunos com dor crônica nos pulsos por terem aprendido sozinhos. Isso não precisava acontecer.\n\n@aprendiz.ebs — Corbélia-PR",
+      "hashtags": "#tendinite #postura #guitarra #violao #saude #aprendizebs #ebs #corbelia #aulaspresenciais",
+      "slides": [
+        "slides/tweet-v5-postura-tendinite-12/slide_1.png",
+        "slides/tweet-v5-postura-tendinite-12/slide_2.png",
+        "slides/tweet-v5-postura-tendinite-12/slide_3.png",
+        "slides/tweet-v5-postura-tendinite-12/slide_4.png"
+      ],
+      "created_at": "2026-05-22"
+    },
+    {
+      "id": "tweet-v5-plano-de-estudo-13",
+      "title": "Você sai da sua aula sabendo o que fazer nos próximos 7 dias?",
+      "category": "EDU",
+      "format": "tweet-v5",
+      "type": "tweet",
+      "status": "pending_approval",
+      "scheduled_for": "2026-06-03T22:00:00.000Z",
+      "approval_deadline": "2026-06-03T20:00:00.000Z",
+      "caption": "Você sai da sua aula sabendo o que fazer nos próximos 7 dias?\n\nSe não, você está improvisando a própria evolução. Talvez praticando o que já sabe. Talvez evitando o que é difícil.\n\nTodo aluno do EBS sai de cada aula com um plano para a semana. Específico.\n\n@aprendiz.ebs — Corbélia-PR",
+      "hashtags": "#planode estudo #metodologia #aprendermusica #violao #guitarra #aprendizebs #ebs #corbelia",
+      "slides": [
+        "slides/tweet-v5-plano-de-estudo-13/slide_1.png",
+        "slides/tweet-v5-plano-de-estudo-13/slide_2.png",
+        "slides/tweet-v5-plano-de-estudo-13/slide_3.png",
+        "slides/tweet-v5-plano-de-estudo-13/slide_4.png"
+      ],
+      "created_at": "2026-05-22"
+    },
+    {
+      "id": "tweet-v5-aulas-online-14",
+      "title": "Tentei 3 cursos online antes de entrar numa escola presencial",
+      "category": "EDU",
+      "format": "tweet-v5",
+      "type": "tweet",
+      "status": "pending_approval",
+      "scheduled_for": "2026-06-04T22:00:00.000Z",
+      "approval_deadline": "2026-06-04T20:00:00.000Z",
+      "caption": "Tentei três cursos online de guitarra antes de entrar numa escola presencial. Aprendi músicas. Não aprendi a tocar.\n\nA diferença é sutil no começo e brutal depois de um ano.\n\nSem feedback em tempo real, você pratica os erros até eles virarem hábito.\n\n@aprendiz.ebs — Av. Minas Gerais, 57, Corbélia-PR",
+      "hashtags": "#cursoonline #presencial #guitarra #violao #aprendizebs #ebs #corbelia #aulasdemusica",
+      "slides": [
+        "slides/tweet-v5-aulas-online-14/slide_1.png",
+        "slides/tweet-v5-aulas-online-14/slide_2.png",
+        "slides/tweet-v5-aulas-online-14/slide_3.png",
+        "slides/tweet-v5-aulas-online-14/slide_4.png"
+      ],
+      "created_at": "2026-05-22"
+    },
+    {
+      "id": "tweet-v5-formacao-filhos-15",
+      "title": "Aprender música não é uma atividade extra",
+      "category": "EDU",
+      "format": "tweet-v5",
+      "type": "tweet",
+      "status": "pending_approval",
+      "scheduled_for": "2026-06-05T22:00:00.000Z",
+      "approval_deadline": "2026-06-05T20:00:00.000Z",
+      "caption": "Aprender música não é uma atividade extra. É uma das poucas que desenvolve foco, disciplina e sensibilidade ao mesmo tempo.\n\nCriança que aprende instrumento com método aprende a lidar com frustração de forma saudável.\n\nTemos vagas aqui em Corbélia.\n\n@aprendiz.ebs — Av. Minas Gerais, 57",
+      "hashtags": "#criancas #musicaparafilhos #educacao #aprendizebs #ebs #corbelia #desenvolvimentoinfantil #musica",
+      "slides": [
+        "slides/tweet-v5-formacao-filhos-15/slide_1.png",
+        "slides/tweet-v5-formacao-filhos-15/slide_2.png",
+        "slides/tweet-v5-formacao-filhos-15/slide_3.png",
+        "slides/tweet-v5-formacao-filhos-15/slide_4.png"
+      ],
+      "created_at": "2026-05-22"
+    },
+    {
+      "id": "tweet-v5-14-anos-corbelia-16",
+      "title": "14 anos ensinando em Corbélia — o que aprendi sobre aprender",
+      "category": "EDU",
+      "format": "tweet-v5",
+      "type": "tweet",
+      "status": "pending_approval",
+      "scheduled_for": "2026-06-06T22:00:00.000Z",
+      "approval_deadline": "2026-06-06T20:00:00.000Z",
+      "caption": "Abri o EBS Aprendiz em 2011 sem ter certeza de que ia durar um ano. 14 anos depois, ainda aqui.\n\nO que aprendi nesses 14 anos: música não é sobre talento. Nunca foi.\n\nÉ sobre ter alguém do lado certo na hora certa.\n\n@aprendiz.ebs — Av. Minas Gerais, 57, Centro, Corbélia-PR",
+      "hashtags": "#14anos #ebsaprendiz #corbelia #aprendizebs #ebs #escolademusica #musica #historia",
+      "slides": [
+        "slides/tweet-v5-14-anos-corbelia-16/slide_1.png",
+        "slides/tweet-v5-14-anos-corbelia-16/slide_2.png",
+        "slides/tweet-v5-14-anos-corbelia-16/slide_3.png",
+        "slides/tweet-v5-14-anos-corbelia-16/slide_4.png"
+      ],
+      "created_at": "2026-05-22"
     }
   ]
 }
