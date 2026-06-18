@@ -54,6 +54,20 @@
   - **Token IGAA falhou no primeiro teste real de publicação hoje** (Cannot parse access token)
 - **Erro de processo identificado:** Não li `docs/handoff-2026-05-14.md`. Adicionei este INDEX para evitar repetição.
 
+### 2026-06-18 — Housekeeping + Diagnóstico ClickUp + Arquitetura do Loop ← MAIS RECENTE
+- **Arquivo:** `.aiox/handoffs/session-state-2026-06-18.yaml`
+- **Highlights:**
+  - **P1 concluído:** Logo base64 injetado nos 3 tweet-v4 HTMLs
+  - **P2 concluído:** 9 commits + push (690718d → f3da99e) — todo backlog de arquivos commitado
+  - **P4 concluído:** .env limpo (26 vars CLICKUP_* obsoletas removidas)
+  - **P9 parcial:** 24 PNGs exportados (8 slides × 3 carrosséis tweet-v4)
+  - **export-carousel.js:** corrigido para suportar `.x-slide` (tweet-v4) além de `.slide`
+  - **clickup-check.js:** script de diagnóstico criado — `npm run check`
+  - **ClickUp space:** nome estava `null`, corrigido via API para "EBS Aprendiz"
+  - **Loop arquitetado:** doutrina Loops/Goals aplicada ao pipeline EBS (NÃO implementado)
+  - **Pendência principal:** implementar loop (Fases 1+2+3) — estimativa 1 sessão
+  - 2 carrosséis tweet-v4 ainda não registrados no ClickUp (guitarra-sozinho, sem-tempo)
+
 ### 2026-06-11 — ClickUp Syncra L0/L1/L2 + carrosséis tweet-v4 (fundo branco)
 - **Arquivo:** `.aiox/handoffs/session-state-2026-06-11.yaml`
 - **Highlights:**

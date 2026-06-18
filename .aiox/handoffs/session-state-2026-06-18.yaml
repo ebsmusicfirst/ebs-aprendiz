@@ -1,0 +1,202 @@
+# ============================================
+# AIOX Session State — EBS Aprendiz
+# Saved: 2026-06-18
+# Agent: @aiox-master (Orion)
+# Model: Claude Sonnet 4.6 (sessão com /model claude-sonnet-4-6)
+# Tipo de sessão: Housekeeping + Diagnóstico + Arquitetura de Loop
+# ============================================
+
+project: EBS Aprendiz
+date: 2026-06-18
+agent: aiox-master
+session_handoff_from: 2026-06-11
+
+# ── Sumário executivo ─────────────────────────────────────────────────────────
+summary: |
+  Sessão de housekeeping e arquitetura estratégica.
+
+  Bloco 1 — Pendências da sessão 2026-06-11:
+    - P1: Logo base64 injetado nos 3 tweet-v4 HTMLs ({{LOGO_B64}} substituído)
+    - P2: 9 commits criados e pushed (690718d → f3da99e) — ~200+ arquivos commitados
+    - P4: .env limpo (26 vars CLICKUP_* obsoletas removidas)
+    - P9 (parcial): PNGs exportados (24 PNGs, 8 slides × 3 carrosséis tweet-v4)
+
+  Bloco 2 — Infraestrutura e diagnóstico:
+    - export-carousel.js: suporte a .x-slide (tweet-v4) além de .slide (formatos anteriores)
+    - clickup-check.js: script de diagnóstico completo do ClickUp (npm run check)
+    - ClickUp space "EBS Aprendiz": nome estava null — corrigido via API
+    - package.json: atalho `npm run check` adicionado
+
+  Bloco 3 — Arquitetura do Loop (apenas desenho, NÃO implementado):
+    - Leu documento "sistema_de_loops_opus.txt" (doutrina Opus como estrategista)
+    - Definiu arquitetura de loop autônomo para o pipeline de conteúdo EBS
+    - Alex só entra no loop para aprovar/dar feedback; agendamento no Buffer é automático
+    - Temas passam pelo ClickUp (Pautas) e podem ser refinados por Alex antes de gerar
+
+# ── Commits desta sessão ──────────────────────────────────────────────────────
+commits:
+  range: "690718d → f3da99e"
+  lista:
+    - "4495c66 feat(carrosséis): tweet-v4 com logo EBS injetado + 12 carrosséis legados"
+    - "31d8ddc feat(clickup): integração Syncra L0/L1/L2 — pipeline de conteúdo"
+    - "88f32f1 chore(scripts+docs): utilitários, assets e documentação acumulados"
+    - "a29f509 chore(config): handoffs, queue, workflows e config atualizados"
+    - "7362e98 feat(aiox): skills, commands, rules e config do framework Claude Code"
+    - "9060722 feat(aiox-core): framework AIOX completo — agents, tasks, workflows, templates"
+    - "bd23984 chore: agentes GitHub Copilot + slides style exploration"
+    - "f4debb2 fix: remover worktrees do tracking + gitignore .claude/worktrees/"
+    - "f3da99e chore(gitignore): ignorar configs de ferramentas AI e scripts tmp"
+
+# ── Estado dos carrosséis tweet-v4 ────────────────────────────────────────────
+carrosseis_tweet_v4:
+  status_geral: "PNGs exportados, 1 de 3 registrado no ClickUp"
+
+  arquivos:
+    - file: "carrosseis/tweet-v4-3-sinais-professor-05.html"
+      logo_injetado: true
+      pngs_exportados: true
+      pasta_slides: "slides/tweet-v4-3-sinais-professor-05/"
+      clickup_id: "86e1th45d"
+      clickup_status: "Gerado"
+      caption_issue: "\"e amador\" em vez de \"é amador\" — acento perdido na criação"
+
+    - file: "carrosseis/tweet-v4-guitarra-sozinho-01.html"
+      logo_injetado: true
+      pngs_exportados: true
+      pasta_slides: "slides/tweet-v4-guitarra-sozinho-01/"
+      clickup_id: null
+      clickup_status: "não registrado ainda"
+
+    - file: "carrosseis/tweet-v4-sem-tempo-03.html"
+      logo_injetado: true
+      pngs_exportados: true
+      pasta_slides: "slides/tweet-v4-sem-tempo-03/"
+      clickup_id: null
+      clickup_status: "não registrado ainda"
+
+# ── Estado do ClickUp ─────────────────────────────────────────────────────────
+clickup_state:
+  diagnostico_rodado: true
+  script: "npm run check"
+  estado_geral: "🟡 AVISOS (sem problemas críticos)"
+
+  estrutura:
+    space_id: "90176003844"
+    space_name: "EBS Aprendiz"  # estava null, corrigido via API nesta sessão
+
+  L1_campanhas:
+    - id: "86e1th44r"
+      nome: "Desconstrucao de Mitos Musicais"
+      framework: "Desconstrução de Mito"
+      status: "Ativa"
+      cta: "Garanta sua vaga"
+      hashtags: "#ebsaprendiz #escolademusica #corbeliapr #metodoebs #aprendermusica"
+
+  L2_criativos:
+    - id: "86e1th45d"
+      nome: "tweet-v4-3-sinais-professor-05"
+      status_pipeline: "Gerado"
+      campanha: "Desconstrucao de Mitos Musicais"
+      caption: "3 sinais de que seu professor e amador."  # encoding bug
+      obs: "Os outros 2 tweet-v4 ainda não foram criados no ClickUp"
+
+  L0_estrategico: "vazio — DNA, ICP, Ofertas sem conteúdo"
+  pautas: "vazio — backlog não populado"
+  journey_log: "sem registros recentes (IDs antigos na sessão anterior)"
+
+# ── Arquitetura do Loop (desenhada, NÃO implementada) ─────────────────────────
+loop_arquitetura:
+  documento_base: "C:/Users/alexr/Downloads/sistema_de_loops_opus.txt"
+  status: "DESENHADO — não implementado"
+
+  papeis:
+    estrategista: "Opus (planeja, audita)"
+    executor: "Sonnet (gera carrosséis em loop)"
+
+  touchpoints_humanos:
+    - "Refinar temas no ClickUp (Pautas) — opcional, antes da geração"
+    - "Aprovar ou dar feedback no ClickUp (Criativos) — obrigatório"
+
+  totalmente_automatico:
+    - "Polling de pautas aprovadas"
+    - "Geração de HTML + export de PNGs"
+    - "Registro no ClickUp como Em Aprovação"
+    - "Agendamento no Buffer após aprovação"
+    - "Atualização do status no ClickUp para Agendado/Postado"
+
+  o_que_falta_construir:
+    fase_1_clickup:
+      - "Status 'Em Revisão' nos Criativos"
+      - "Campo 'Notas de Revisão' nos Criativos"
+      - "Status 'Aprovada p/ Criar' nas Pautas"
+
+    fase_2_scripts:
+      - "scripts/loop-gerar.js — pauta → HTML → PNGs → ClickUp"
+      - "scripts/loop-publicar.js — aprovado → Buffer → ClickUp"
+
+    fase_3_state_schedule:
+      - "STATE.md — memória persistente do loop"
+      - "Schedule — GitHub Actions ou Task Scheduler"
+
+# ── Pendências para próxima sessão ────────────────────────────────────────────
+next_steps:
+  PRIORIDADE_1_loop:
+    descricao: "Implementar o loop completo (Fases 1, 2, 3)"
+    estimativa: "1 sessão (~2-3h)"
+    ordem: |
+      1. Fase 1: ajustar ClickUp (novos status + campo Notas)
+      2. Fase 2: loop-gerar.js + loop-publicar.js
+      3. Fase 3: STATE.md + schedule
+
+  PRIORIDADE_2_criativos_cu:
+    descricao: "Registrar tweet-v4-guitarra-sozinho-01 e tweet-v4-sem-tempo-03 no ClickUp"
+    obs: "Evitar duplicata — tweet-v4-3-sinais já existe como 86e1th45d"
+
+  PRIORIDADE_3_caption_fix:
+    descricao: "Corrigir caption do 86e1th45d: 'e amador' → 'é amador'"
+    como: |
+      node -e "
+        const cu = require('./scripts/clickup.js');
+        cu.updateCaption('86e1th45d', '3 sinais de que seu professor é amador.')
+      "
+
+  PRIORIDADE_4_token:
+    descricao: "Rotacionar CLICKUP_API_KEY (exposta no chat da sessão 2026-06-11)"
+    decisao: "Alex decidiu NÃO rotacionar enquanto estiver funcionando (2026-06-18)"
+    reavalie: "Se começar a dar erro de autenticação"
+
+  PRIORIDADE_5_L0:
+    descricao: "Popular L0 Estratégico (DNA, ICP, Ofertas) no ClickUp"
+    porque: "Estrutura existe mas vazia — base da metodologia Syncra"
+
+# ── Verdades inconvenientes a NÃO esquecer ────────────────────────────────────
+inconvenient_truths:
+  - "CLICKUP_API_KEY no .env é o token exposto no chat de 2026-06-11 — decisão consciente de não rotacionar"
+  - "tweet-v4-guitarra-sozinho-01 e tweet-v4-sem-tempo-03 têm PNGs exportados mas NÃO estão no ClickUp"
+  - "Caption do 86e1th45d tem encoding bug ('e amador' sem acento)"
+  - "Loop de geração NÃO existe ainda — é só arquitetura no papel"
+  - "L0 (DNA/ICP/Ofertas) vazio — Syncra incompleta sem isso"
+  - "queue.json ainda é o 'source of truth' do dashboard — migração para ClickUp é futuro (P5 do handoff anterior)"
+
+# ── Security ──────────────────────────────────────────────────────────────────
+security_notes:
+  - "[RISCO ACEITO] CLICKUP_API_KEY pk_216113415_* exposta em chat 2026-06-11. Usuário decidiu manter enquanto funcionar."
+  - "[OK] .env está em .gitignore — não commitado"
+  - "[OK] tmp-save-env.js não commitado (estava excluído do gitignore como tmp-*.js)"
+
+# ── Session metadata ──────────────────────────────────────────────────────────
+metadata:
+  duration_estimate: "~2h"
+  model: "claude-sonnet-4-6"
+  arquivos_modificados:
+    - "carrosseis/tweet-v4-*.html (logo injetado)"
+    - "scripts/export-carousel.js (suporte .x-slide)"
+    - "scripts/package.json (npm run check)"
+    - ".gitignore (worktrees + AI tools)"
+  arquivos_criados:
+    - "scripts/clickup-check.js"
+    - "slides/tweet-v4-3-sinais-professor-05/ (8 PNGs)"
+    - "slides/tweet-v4-guitarra-sozinho-01/ (8 PNGs)"
+    - "slides/tweet-v4-sem-tempo-03/ (8 PNGs)"
+  commits_desta_sessao: 9
+  push: true

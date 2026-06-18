@@ -31,7 +31,7 @@ const TARGET_HEIGHT = 1350; // 1080 × (5/4)
 const SCALE = TARGET_WIDTH / DESIGN_WIDTH;
 
 // CSS injetado para transformar preview em export-mode
-// Mantemos o layout original; apenas removemos o chrome do mock.
+// Suporta dois formatos: ig-frame/.slide (v1-v3) e x-frame/.x-slide (tweet-v4+)
 const EXPORT_CSS = `
   /* Reset do body — remove fundo preto e centralização */
   body {
@@ -42,18 +42,25 @@ const EXPORT_CSS = `
     min-height: unset !important;
   }
 
-  /* ig-frame fica sem arredondamento e sem sombra */
-  .ig-frame {
+  /* Frame sem arredondamento e sem sombra (ambos os formatos) */
+  .ig-frame, .x-frame {
     border-radius: 0 !important;
     box-shadow: none !important;
     width: ${DESIGN_WIDTH}px !important;
   }
 
-  /* Ocultar chrome do mock Instagram */
+  /* Ocultar chrome do mock Instagram (formato v1-v3) */
   .ig-header,
   .ig-dots,
   .ig-actions,
   .ig-caption {
+    display: none !important;
+  }
+
+  /* Ocultar chrome do formato tweet (v4+) */
+  .x-header,
+  .x-dots,
+  .x-nav {
     display: none !important;
   }
 
@@ -64,8 +71,8 @@ const EXPORT_CSS = `
     aspect-ratio: unset !important;
   }
 
-  /* Cada slide = dimensões do design */
-  .slide {
+  /* Cada slide = dimensões do design (ambos os formatos) */
+  .slide, .x-slide {
     min-width: ${DESIGN_WIDTH}px !important;
     width: ${DESIGN_WIDTH}px !important;
     height: ${DESIGN_HEIGHT}px !important;
@@ -111,9 +118,11 @@ async function exportCarousel(slug) {
   // Aguarda fontes (Google Fonts via network)
   await page.waitForTimeout(2000);
 
-  // Detecta quantos slides existem
+  // Detecta quantos slides existem (suporta .slide e .x-slide)
   const slideCount = await page.evaluate(() => {
-    return document.querySelectorAll('.slide').length;
+    const s = document.querySelectorAll('.slide').length;
+    const x = document.querySelectorAll('.x-slide').length;
+    return s > 0 ? s : x;
   });
 
   console.log(`   Slides detectados: ${slideCount}`);
