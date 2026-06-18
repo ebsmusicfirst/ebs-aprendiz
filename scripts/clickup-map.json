@@ -1,0 +1,202 @@
+{
+  "team": "90171305838",
+  "space": "90176003844",
+  "folders": {
+    "L0": "90179269525",
+    "L1": "90179269530",
+    "L2": "90179269535"
+  },
+  "lists": {
+    "dna": "901714407552",
+    "icp": "901714407554",
+    "ofertas": "901714407556",
+    "campanhas": "901714407567",
+    "pautas": "901714407576",
+    "criativos": "901714407579",
+    "journeyLog": "901714407581"
+  },
+  "fields": {
+    "dna": {
+      "tipo": {
+        "id": "2f4b2d07-e6b7-4f0a-9e6f-fbe63cd90d04",
+        "type": "drop_down",
+        "options": {
+          "Missão": "3c3205c6-9acf-4654-bff0-e690caad928f",
+          "Tom de Voz": "4060d6ab-b789-45be-a9cd-6782747b0755",
+          "Invariante": "ecefb647-7717-4644-8d64-5c73b1461a81",
+          "Diferencial": "35ba31b1-a5ce-414b-8dd0-11dd2b9d5a68",
+          "Credencial": "4d00fb90-2fef-4e25-9aae-9c26038e8f0e"
+        }
+      }
+    },
+    "icp": {
+      "faixa": {
+        "id": "1e0075f9-60d8-47d5-a09b-b7c19f5b6a69",
+        "type": "drop_down",
+        "options": {
+          "Criança (7-12)": "dbb93296-4ba5-4fd1-9274-78922979dea9",
+          "Adolescente": "c9516987-6dd5-4a27-9a8e-d4cec25f8c5e",
+          "Adulto": "a8641a18-6571-4b09-ba9e-42f298f43f04",
+          "Pais/Responsáveis": "29ab731f-6258-4dd6-873b-c06a3e71b28a"
+        }
+      }
+    },
+    "ofertas": {
+      "periodicidade": {
+        "id": "afa06c64-d79a-438d-ae8b-82c63d7f19ce",
+        "type": "drop_down",
+        "options": {
+          "Mensal": "f9ad813b-1081-496e-9e3c-16894a96bb86",
+          "Semestral": "c06c55fc-779d-400a-aa7e-4b25cc39940a",
+          "Anual": "3e8c4d54-1dd8-4fc1-b2e7-561cea8964c0"
+        }
+      }
+    },
+    "campanhas": {
+      "statusCampanha": {
+        "id": "4e7cb1b8-d589-4a42-b3d3-ef9f6ae05903",
+        "type": "drop_down",
+        "options": {
+          "Planejada": "45ff9dc2-c4a8-4d13-b734-e6ead33bf0bc",
+          "Ativa": "5fb4bae2-c5d8-4bf1-8c6b-4515d85f4a7e",
+          "Encerrada": "d585e484-4bba-4435-ab68-5845fdad2434"
+        }
+      },
+      "framework": {
+        "id": "4eb21cfa-dfae-4bfc-a8a2-a93708cdb229",
+        "type": "drop_down",
+        "options": {
+          "Cheat Sheet / Checklist": "c48425c5-e31d-4ff4-967b-24781eb9882d",
+          "Desconstrução de Mito": "a75aec17-cfbc-45e3-af18-0b6db16e8cc4",
+          "Passo a Passo": "1cc0ffcd-6dab-48de-b07a-db463c2579ff",
+          "Estudo de Caso": "da6349f3-d665-4013-8e02-e1ab815391cd",
+          "Amador vs Pro": "7043d454-df35-45ec-bdc9-cab181c98815"
+        }
+      },
+      "regrasCaption": {
+        "id": "58fd5777-a1c4-436b-9e02-4b1c7d0904d3",
+        "type": "text"
+      },
+      "hashtagsBase": {
+        "id": "97476dfc-cf42-47bd-9fab-d3228c59faf9",
+        "type": "text"
+      },
+      "cta": {
+        "id": "ade2a529-4902-4124-b377-2b317def4269",
+        "type": "drop_down",
+        "options": {
+          "Fale conosco": "3b6f8335-4efd-4edf-95f3-fc93077de64c",
+          "Garanta sua vaga": "6296b157-fa1a-4d51-938a-44554feaa856",
+          "Venha nos visitar": "1fb28c6a-ef10-4d08-a820-a07019037128",
+          "Sem CTA direto": "49dd8b2f-771e-4c93-a65f-f9247b7d16c4"
+        }
+      }
+    },
+    "pautas": {
+      "statusPauta": {
+        "id": "2a16e7d7-0e7f-4f19-9005-e7a656ac41d6",
+        "type": "drop_down",
+        "options": {
+          "Backlog": "758dfd70-a86c-4729-b758-6112d47c8bb5",
+          "Em Produção": "df20f218-960d-4831-b172-c382a846eef3",
+          "Produzida": "a776fe98-26c5-436f-a0b6-aa0eda5dceff"
+        }
+      },
+      "framework": {
+        "id": "13af320b-8e78-4ad4-a593-633ee8770677",
+        "type": "drop_down",
+        "options": {
+          "Cheat Sheet / Checklist": "f5429657-8b00-479f-95ad-b57dbb57a321",
+          "Desconstrução de Mito": "76b11f69-41f3-4a3b-a2b5-9845dbad26e7",
+          "Passo a Passo": "bf4bd0fa-f387-4b9a-b419-759010b280a7",
+          "Estudo de Caso": "b4eac35d-df3c-4343-b5eb-6a4c15c9fd66",
+          "Amador vs Pro": "d0a486d2-0b8f-4b31-9a9e-9afd0837310a"
+        }
+      },
+      "pilar": {
+        "id": "0e126647-3928-454e-8ce1-7d5fbc638669",
+        "type": "drop_down",
+        "options": {
+          "A — Metáfora": "ab48de1d-29c4-484f-939f-2507fa9962b2",
+          "B — Diagrama/Save": "8f18c457-6d89-4b8e-9ffc-95b5515e8fbe",
+          "C — Stop-scroll": "21785c0c-cf96-441e-a816-0e7e592e83f7"
+        }
+      },
+      "campanha": {
+        "id": "701580bb-f873-4553-bd20-32a203ec86de",
+        "type": "list_relationship"
+      }
+    },
+    "criativos": {
+      "formato": {
+        "id": "88b45c2b-d0f3-4604-be57-42bdf72bc49e",
+        "type": "drop_down",
+        "options": {
+          "Carrossel": "5add4c4d-6cfe-456e-8b61-cf616b5f0cd7",
+          "Reels": "1d8f5ed6-04c2-4553-ab68-1c85115bb08b",
+          "Story": "dd324ba5-fa66-4468-a524-d72448a5a5d5",
+          "Post Único": "2e60d210-d273-4cb5-a098-22ddc2d7fbfb"
+        }
+      },
+      "programa": {
+        "id": "be270a6f-85c7-453a-b80a-b265c260436f",
+        "type": "drop_down",
+        "options": {
+          "EBS Aprendiz": "3309ce5a-88fc-493b-bd60-a658e41bf45d",
+          "Sobreviver com a Música": "2af068de-09c9-4bca-83fa-1214de3d6baa"
+        }
+      },
+      "plataforma": {
+        "id": "dd60af26-a5c6-4781-b91a-b61fc22a7322",
+        "type": "drop_down",
+        "options": {
+          "Instagram": "5769e85a-705e-4769-9184-6f27842ef94f",
+          "TikTok": "00680995-4d82-40db-96f3-00c1d2a15e77"
+        }
+      },
+      "dataPublicacao": {
+        "id": "a92c0644-368f-4b59-90bd-a46064cd66e6",
+        "type": "date"
+      },
+      "caption": {
+        "id": "e9338bef-dd5a-4535-bd55-fae43f564517",
+        "type": "text"
+      },
+      "hashtags": {
+        "id": "048c6f57-ae2a-4ef4-8b44-010678d9010e",
+        "type": "short_text"
+      },
+      "agente": {
+        "id": "c264483e-cc89-4e86-ab6c-f88c33f02f64",
+        "type": "short_text"
+      },
+      "bufferPostId": {
+        "id": "cd5bf8d6-03b8-4582-9df1-ab952ff213ef",
+        "type": "short_text"
+      },
+      "alcance": {
+        "id": "ad5840dd-649c-43b5-aa23-f3b5c5f4ca95",
+        "type": "number"
+      },
+      "statusPipeline": {
+        "id": "424a4870-8e71-4328-bee1-a5fb25be8969",
+        "type": "drop_down",
+        "options": {
+          "Gerado": "a5c30cda-0ea9-4400-a9ce-f8e2e3493ba6",
+          "Em Aprovacao": "79ab9d61-31c5-40cc-b667-c61089a226f2",
+          "Aprovado": "527bf2f6-c89c-488d-afb5-3be5e96e6007",
+          "Agendado": "3b904b1d-7317-455a-9055-efc73a871039",
+          "Postado": "c0078733-613d-47e4-ad9e-3307cb57c7a4"
+        }
+      },
+      "campanha": {
+        "id": "98de6a28-be02-4c15-938b-b750e610a1c7",
+        "type": "list_relationship"
+      },
+      "pauta": {
+        "id": "13476579-99c8-4d0e-9392-874c119a2f31",
+        "type": "list_relationship"
+      }
+    }
+  }
+}
