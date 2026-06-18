@@ -1,0 +1,128 @@
+---
+# EBS Aprendiz — Handoff State
+# Atualizado: 2026-05-12
+# Agente: Orion (@aiox-master)
+# Sessão: interessante-hugle-e07487
+
+session_summary: |
+  Sessão anterior: setup completo (dashboard, atalho desktop, health check, agentes Cleo e Nova,
+  protocolo híbrido Claude/DeepSeek, brief de lote Lote 02).
+  Esta sessão: criação do Lote 02 — 4 de 6 carrosséis gerados.
+
+# ─────────────────────────────────────────
+# ESTADO DA FILA DE CONTEÚDO
+# ─────────────────────────────────────────
+queue_state:
+  aprovados_publicados:
+    - id: EDU-beneficios-musica-01
+      arquivo: carrosseis/EDU-beneficios-musica-01.html
+      status: publicado (repostagem pendente — post anterior deletado manualmente)
+      nota: verificar se repostagem foi feita via dashboard
+
+  aguardando_qa:
+    - id: MOT-talento-vs-metodo-02
+      arquivo: carrosseis/MOT-talento-vs-metodo-02.html
+      categoria: MOT
+      tema: Você não precisa de talento, precisa de método
+      framework: PAS
+      publico: autodidatas travados + pais
+      slides: 7
+      status: HTML gerado — aguarda QA → export PNG → fila Supabase
+
+    - id: MET-5-niveis-trilha-03
+      arquivo: carrosseis/MET-5-niveis-trilha-03.html
+      categoria: MET
+      tema: Os 5 níveis da trilha EBS — em qual você está?
+      framework: Curiosidade + Identificação
+      publico: todos os públicos
+      slides: 7
+      status: HTML gerado — aguarda QA → export PNG → fila Supabase
+
+    - id: INS-violao-ou-guitarra-04
+      arquivo: carrosseis/INS-violao-ou-guitarra-04.html
+      categoria: INS
+      tema: Violão ou guitarra — qual escolher?
+      framework: Guia de decisão
+      publico: iniciantes + pais
+      slides: 7
+      status: HTML gerado — aguarda QA → export PNG → fila Supabase
+
+    - id: TEC-o-que-e-cifra-05
+      arquivo: carrosseis/TEC-o-que-e-cifra-05.html
+      categoria: TEC
+      tema: O que é cifra e como ler em 5 minutos
+      framework: Promessa de valor imediato
+      publico: autodidatas + adolescentes
+      slides: 7
+      status: HTML gerado — aguarda QA → export PNG → fila Supabase
+
+  lote_02_completo:
+    - id: CAP-vagas-abertas-06
+      arquivo: carrosseis/CAP-vagas-abertas-06.html
+      categoria: CAP
+      tema: Vagas abertas — como se inscrever no EBS
+      framework: AIDA
+      slides: 7
+      status: HTML gerado — aguarda QA
+
+    - id: EDU-musica-desempenho-escolar-07
+      arquivo: carrosseis/EDU-musica-desempenho-escolar-07.html
+      categoria: EDU
+      tema: Música e desempenho escolar
+      framework: Autoridade + dado
+      slides: 7
+      fonte: Harvard Medical School — Gottfried Schlaug, M.D., Ph.D. (Music & Neuroimaging Lab)
+      dado_confirmado: "7% improvement in language, memory, spatial reasoning with structured music training"
+      status: HTML gerado — aguarda QA
+
+# ─────────────────────────────────────────
+# PRÓXIMOS PASSOS (em ordem)
+# ─────────────────────────────────────────
+next_steps:
+  - step: 1
+    acao: "✅ Criar 6 carrosséis (MOT-02, MET-03, INS-04, TEC-05, CAP-06, EDU-07)"
+    agente: aiox-master
+    status: CONCLUÍDO
+
+  - step: 2
+    acao: QA dos 6 carrosséis (02, 03, 04, 05, 06, 07)
+    agente: qa
+    checklist: docs/workflows/carousel-creation.yaml → fase 5
+    prioridade: ALTA
+
+  - step: 3
+    acao: Export PNG — 7 slides cada (1080x1350px via Playwright)
+    agente: instagram-carousel (skill - export)
+    condicao: qa.status == APROVADO para cada carrossel
+
+  - step: 4
+    acao: Upload Supabase + fila de postagem
+    agente: aiox-master
+    detalhes: bucket ebs-aprendiz, status approved, scheduled_for 19h BRT cada dia
+    calendario:
+      - MOT-02: segunda-feira
+      - MET-03: terça-feira
+      - INS-04: quarta-feira
+      - TEC-05: quinta-feira
+      - CAP-06: sexta-feira
+      - EDU-07: sábado
+
+# ─────────────────────────────────────────
+# CONFIGURAÇÃO ATIVA
+# ─────────────────────────────────────────
+config:
+  modelo_ativo: Claude Sonnet 4.6 (nativo Anthropic)
+  modelo_dev: DeepSeek R1 (via /deepseek + LiteLLM — apenas @dev)
+  dashboard_url: http://localhost:3000
+  instagram_handle: "@aprendiz.ebs"
+  posting_time: "19h BRT"
+  logo: ASSETS/logo-ebs-aprendiz.png (embed base64 em todos os CTAs)
+
+# ─────────────────────────────────────────
+# REFERÊNCIAS
+# ─────────────────────────────────────────
+references:
+  batch_brief: docs/batch_brief.md
+  workflow: docs/workflows/carousel-creation.yaml
+  temas_registro: docs/temas-carrosseis.md
+  brand_brief: docs/brand-brief-v1.md

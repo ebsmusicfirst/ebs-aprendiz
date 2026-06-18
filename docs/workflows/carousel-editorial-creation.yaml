@@ -1,0 +1,233 @@
+name: carousel-editorial-creation
+version: "1.0"
+description: |
+  Pipeline para criação de carrosséis editoriais estilo "tweet jornalístico"
+  (Posti Lab style) — avatar de autor + headline impactante + imagem dominante.
+owner: aiox-master
+project: EBS Aprendiz
+
+# ─────────────────────────────────────────
+# DIFERENÇA DOS OUTROS WORKFLOWS
+# ─────────────────────────────────────────
+diferencas:
+  vs_carousel_creation:
+    - "Layout 100% diferente — imagem dominante em vez de texto puro"
+    - "Requer curadoria de imagens (novo agente: imagem-curator)"
+    - "Requer redator especializado em headlines (novo agente: headline-writer)"
+    - "Persona de autor com selo verificado (não apenas marca)"
+
+  quando_usar_editorial:
+    - "Conteúdo provocativo, polêmico ou opinativo"
+    - "Storytelling longo (10-11 slides)"
+    - "Quando temos imagens fortes para usar"
+    - "Estética jornalística / Medium / NYT"
+
+  quando_NAO_usar:
+    - "Carrosséis didáticos com listas (use /instagram-carousel)"
+    - "Simulação pura de tweet (use /instagram-carousel-tweet)"
+    - "Sem orçamento/tempo para curar imagens"
+
+# ─────────────────────────────────────────
+# PIPELINE DE EXECUÇÃO
+# ─────────────────────────────────────────
+phases:
+
+  - id: 1
+    name: Briefing Editorial
+    agent: aiox-master
+    elicit: true
+    inputs:
+      - Categoria (EDU, MET, INS, SOC, MOT, TEC, CAP, BAS)
+      - Tema específico
+      - Público-alvo
+      - Persona do autor (Alex Pereira / outro especialista)
+      - Tom editorial (provocativo / informativo / inspirador)
+      - Framework (hook-viral / PAS / AIDA / listicle)
+    outputs:
+      - editorial_brief.yaml
+
+  - id: 2
+    name: Pesquisa & Fontes
+    agent: analyst
+    condition: theme_category.authority_required == true OR user_requested
+    inputs:
+      - editorial_brief.yaml
+    tasks:
+      - Buscar dados, estatísticas, fontes de autoridade
+      - Validar fontes (Johns Hopkins, Harvard, OMS, UNICEF, IBGE)
+      - Selecionar 2-3 fatos mais impactantes
+    outputs:
+      - research_brief.md
+
+  - id: 3
+    name: Redação de Headlines
+    agent: headline-writer
+    elicit: true
+    inputs:
+      - editorial_brief.yaml
+      - research_brief.md (se fase 2 executada)
+    tasks:
+      - Escolher framework apropriado
+      - Estruturar arco narrativo (11 slides)
+      - Escrever hero headline (slide 1) — scroll stopper
+      - Escrever headlines slide 2-10
+      - Escrever CTA slide 11
+      - Escrever caption completa + hashtags
+      - Gerar image_briefs.md (descrição de cada imagem para imagem-curator)
+    outputs:
+      - headlines.yaml
+      - image_briefs.md
+
+  - id: 4
+    name: Curadoria de Imagens
+    agent: imagem-curator
+    inputs:
+      - headlines.yaml
+      - image_briefs.md
+    tasks:
+      - Definir estética visual coerente
+      - Buscar 30-40 candidatas (Unsplash, Pexels)
+      - Filtrar TOP 11 (resolução, licença, vibe)
+      - Validar licença CC0/Pexels/Unsplash
+      - Baixar para ASSETS/images/{slug}/
+      - Gerar attribution.md
+    outputs:
+      - brief_imagens.yaml
+      - ASSETS/images/{slug}/slide_1.jpg até slide_11.jpg
+      - attribution.md
+
+  - id: 5
+    name: Geração do HTML
+    agent: instagram-carousel-editorial (skill)
+    inputs:
+      - editorial_brief.yaml
+      - headlines.yaml
+      - brief_imagens.yaml
+      - ASSETS/images/{slug}/*
+      - ASSETS/logo-ebs-aprendiz.png (sempre base64)
+      - ASSETS/avatar-{autor}.jpg (avatar do autor)
+    tasks:
+      - Usar template assets/template-editorial.html
+      - Embed avatar do autor (base64)
+      - Embed cada imagem de slide (base64)
+      - Embed logo EBS no slide CTA (base64)
+      - Aplicar headlines em cada slide
+      - Alternar fundos light/dark conforme tom
+      - Salvar em carrosseis/{categoria}-{tema}-{N}.html
+    outputs:
+      - carrosseis/{slug}.html
+
+  - id: 6
+    name: QA Editorial
+    agent: qa
+    elicit: true
+    checklist:
+      # Copy & Mensagem
+      - "[ ] Slide 1 tem hook forte (8+/10)"
+      - "[ ] Sequência narrativa flui (problema → aprofundamento → solução)"
+      - "[ ] Cada slide tem UMA ideia"
+      - "[ ] Tom EBS preservado (sem clickbait, sem informalidade excessiva)"
+      - "[ ] Português BR correto"
+      # Imagens
+      - "[ ] Todas as 11 imagens têm licença validada"
+      - "[ ] Estética visual coerente entre slides"
+      - "[ ] Resolução >= 1080×720 para todas"
+      - "[ ] Nenhuma imagem com texto sobreposto"
+      - "[ ] Sem rostos identificáveis de menores sem autorização"
+      # Marca
+      - "[ ] Logo EBS presente no slide CTA"
+      - "[ ] Handle @aprendiz.ebs presente"
+      - "[ ] Endereço Corbélia presente"
+      - "[ ] Nenhum preço revelado"
+      # Técnico
+      - "[ ] Indicador "1/11" em todos os slides"
+      - "[ ] Avatar do autor + selo verificado"
+      - "[ ] Footer "Powered by EBS Aprendiz" presente"
+      - "[ ] HTML válido (preview no browser funciona)"
+    outputs:
+      - status: APROVADO | AJUSTES | REPROVADO
+      - ajustes_necessarios.md (se não aprovado)
+
+  - id: 7
+    name: Exportação PNG
+    agent: instagram-carousel-editorial (skill - export)
+    condition: qa.status == APROVADO
+    tasks:
+      - Exportar 11 slides como PNG 1080×1350px
+      - Via scripts/export-carousel.js (Playwright)
+      - Salvar em slides/{slug}/slide_1.png ... slide_11.png
+    outputs:
+      - slides/{slug}/slide_1.png até slide_11.png
+
+  - id: 8
+    name: Envio para Fila de Postagem
+    agent: aiox-master
+    condition: qa.status == APROVADO
+    tasks:
+      - Inserir em queue.json com status "pending"
+      - Aguardar aprovação manual no dashboard
+      - Após aprovação, dashboard publica via Meta Graph API
+    outputs:
+      - queue.json atualizado
+
+# ─────────────────────────────────────────
+# AGENTES ESPECIALIZADOS (novos)
+# ─────────────────────────────────────────
+agents:
+
+  headline_writer:
+    nome: Hugo
+    skill_path: .claude/skills/AIOX/agents/headline-writer/SKILL.md
+    expertise:
+      - Frameworks: hook-viral, PAS, AIDA, listicle
+      - Tom EBS (mentor experiente, sem clickbait)
+      - Storytelling em sequência
+      - Português BR
+
+  imagem_curator:
+    nome: Iris
+    skill_path: .claude/skills/AIOX/agents/imagem-curator/SKILL.md
+    expertise:
+      - Curadoria visual editorial
+      - Validação de licenças (CC0, Unsplash, Pexels)
+      - Coerência estética entre slides
+      - Atribuição correta
+
+# ─────────────────────────────────────────
+# REGRAS GLOBAIS (mesmas do workflow padrão)
+# ─────────────────────────────────────────
+global_rules:
+  - Nunca revelar preços
+  - Handle no CTA: @aprendiz.ebs
+  - Endereço: Av. Minas Gerais, 57 — Centro, Corbélia-PR
+  - Logo: sempre ASSETS/logo-ebs-aprendiz.png (embed base64)
+  - Idioma: Português (BR)
+  - Tom: mentor experiente + acessível
+  - Imagens: sempre validar licença antes de usar
+  - Atribuição: sempre documentar em attribution.md
+
+# ─────────────────────────────────────────
+# NAMING CONVENTION
+# ─────────────────────────────────────────
+file_naming:
+  html: "carrosseis/{categoria-sigla}-{tema-slug}-{numero:02d}.html"
+  slides: "slides/{categoria-sigla}-{tema-slug}-{numero:02d}/slide_{n}.png"
+  images_source: "ASSETS/images/{categoria-sigla}-{tema-slug}-{numero:02d}/slide_{n}.jpg"
+  examples:
+    - "carrosseis/EDU-musica-cerebro-12.html"
+    - "slides/EDU-musica-cerebro-12/slide_1.png"
+    - "ASSETS/images/EDU-musica-cerebro-12/slide_1.jpg"
+
+# ─────────────────────────────────────────
+# COMANDOS PRINCIPAIS
+# ─────────────────────────────────────────
+commands:
+  - command: "*create-editorial {tema}"
+    description: Inicia pipeline completo
+    delegates_to: [headline-writer, imagem-curator, instagram-carousel-editorial, qa]
+
+  - command: "*quick-editorial {tema}"
+    description: Versão rápida (skip pesquisa, usa heurísticas)
+
+  - command: "*list-editorials"
+    description: Lista carrosséis editoriais criados
