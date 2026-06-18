@@ -174,6 +174,9 @@ EBS APRENDIZ/
 
 ## Skills Disponíveis
 
+### `/aiox-master`
+Ativa o Orion — AIOX Master Orchestrator. Use para orquestrar workflows, criar stories, executar tarefas com agentes especializados (@dev, @qa, @architect, @pm, @po, etc.) e coordenar o desenvolvimento completo do projeto.
+
 ### `/instagram-carousel`
 Carrosséis visuais no estilo editorial/design — slides com fundo claro/escuro alternados, sistema de cores da marca, tipografia, barra de progresso.
 

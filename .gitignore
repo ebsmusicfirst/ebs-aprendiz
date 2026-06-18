@@ -6,6 +6,8 @@
 .env.*.local
 *.key
 *.pem
+.meta-token-state.json
+tmp/
 
 # Dependencies (AIOX)
 node_modules/

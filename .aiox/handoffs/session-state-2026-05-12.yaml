@@ -1,0 +1,103 @@
+# ============================================
+# AIOX Session State — EBS Aprendiz
+# Saved: 2026-05-12
+# Agent: @aiox-master (Orion)
+# ============================================
+
+project: EBS Aprendiz
+date: 2026-05-12
+agent: aiox-master
+
+# ── Completed Tasks ─────────────────────────
+completed:
+  - task: "Fix slide export format"
+    details: "Playwright deviceScaleFactor=1080/420 — slides now export correctly at 1080x1350"
+    files:
+      - scripts/export-carousel.js
+
+  - task: "Create meta-api.js module"
+    details: "Shared Meta Graph API module with all carousel posting functions"
+    files:
+      - scripts/meta-api.js
+
+  - task: "Create offline dashboard"
+    details: "Zero-dependency Node.js dashboard with approval, scheduling, Post Now, Instagram feed tab"
+    files:
+      - scripts/dashboard.js
+    command: "npm run dashboard"
+
+  - task: "Update GitHub Actions workflow"
+    details: "Changed cron to hourly, supports both approved and scheduled carousels"
+    files:
+      - .github/workflows/post-daily.yml
+
+  - task: "Configure Meta credentials"
+    details: |
+      META_IG_USER_ID=17841459660352099
+      META_ACCESS_TOKEN=Page Access Token (permanent, 223 chars)
+      Token validated: @aprendiz.ebs, 530 followers, 161 posts
+      App ID: 1515854193414865
+      App Secret: obtained from Meta Developer Portal
+    files:
+      - .env
+      - .env.example
+
+  - task: "post-carousel.js updated"
+    details: "Uses meta-api module, handles 3 posting modes (approved, pre-container, scheduled)"
+    files:
+      - scripts/post-carousel.js
+
+# ── Pending Tasks ───────────────────────────
+pending:
+  - task: "Update GitHub Actions secrets"
+    priority: HIGH
+    details: |
+      Copy META_IG_USER_ID and META_ACCESS_TOKEN from .env to GitHub repo secrets.
+      Repo: likely ebsmusicfirst/ebs-aprendiz or similar.
+      Use: gh secret set META_IG_USER_ID --body "17841459660352099"
+           gh secret set META_ACCESS_TOKEN --body "<token from .env>"
+
+  - task: "Delete bad first post from Instagram"
+    priority: MEDIUM
+    details: |
+      Post ID: 18124394836715949 — appeared as black square with content in center.
+      User should delete manually from Instagram app.
+
+  - task: "Repost carousel 01 with correct slides"
+    priority: MEDIUM
+    details: |
+      queue.json has EDU-beneficios-musica-01 with status=approved, 7 slides.
+      Test via dashboard (npm run dashboard → Post Now button).
+
+  - task: "Create next batch of carousels"
+    priority: LOW
+    details: |
+      6 more carousels needed (categories: MOT, MET, INS, SOC, TEC, CAP).
+      Use /instagram-carousel skill.
+
+# ── Key Files Reference ─────────────────────
+key_files:
+  env: .env
+  queue: queue.json
+  dashboard: scripts/dashboard.js
+  post_script: scripts/post-carousel.js
+  meta_api: scripts/meta-api.js
+  export: scripts/export-carousel.js
+  workflow: .github/workflows/post-daily.yml
+  brand_brief: docs/brand-brief-v1.md
+
+# ── Queue State ─────────────────────────────
+queue_state:
+  carousel_id: EDU-beneficios-musica-01
+  title: "Benefícios da Música no Aprendizado"
+  status: approved
+  slides: 7
+  slides_dir: slides/EDU-beneficios-musica-01/
+
+# ── Credentials Status ──────────────────────
+credentials:
+  local_env: CONFIGURED
+  github_secrets: NEEDS_UPDATE
+  token_type: "Page Access Token (permanent, derived from long-lived user token)"
+  ig_user_id: "17841459660352099"
+  ig_username: "aprendiz.ebs"

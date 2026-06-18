@@ -1,0 +1,223 @@
+# ============================================
+# AIOX Session State — EBS Aprendiz
+# Saved: 2026-05-15
+# Agent: @aiox-master (Orion)
+# Models in use: Claude Opus 4.7 (default this session, persisted via /model)
+# Special routing: @qa + @analyst pinned to claude-opus-4-7 in their SKILL.md
+# ============================================
+
+project: EBS Aprendiz
+date: 2026-05-15
+agent: aiox-master
+session_handoff_from: 2026-05-12
+
+# ── Strategic decisions made this session ───
+strategic_decisions:
+  - decision: "Abandonar proxy DeepSeek via LiteLLM"
+    rationale: "Roteamento via proxy era frágil — modelos hardcoded no LiteLLM não cobriam claude-opus-4-7 enviado pelo Claude Code. Causou ambiguidade."
+    action: "Removidas env vars ANTHROPIC_BASE_URL e ANTHROPIC_AUTH_TOKEN de C:/Users/alexr/.claude/settings.json"
+    impact: "Tudo agora roda direto na Anthropic API"
+
+  - decision: "Modelos diferenciados por agente"
+    rationale: "Qualidade > custo para revisões críticas (QA, análise)"
+    action: "model: claude-opus-4-7 adicionado em .claude/skills/AIOX/agents/{qa,analyst}/SKILL.md"
+    impact: "Quinn e Atlas rodam em Opus quando spawn via Task subagent_type. Outros agents seguem o default da sessão."
+
+  - decision: "Auto-publisher 100% nuvem (GitHub Actions)"
+    rationale: "Garantir publicação mesmo com PC offline (estação local em Corbélia)"
+    action: "Workflow .github/workflows/post-daily.yml rewriting para usar run-scheduled.js a cada 15 min"
+    impact: "Posts agendados via dashboard publicam automaticamente sem depender do PC do Alex"
+
+  - decision: "Auto-commit + push em mutações do dashboard"
+    rationale: "Sem PNGs commitados, GitHub Actions não consegue chamar Meta API (precisa de raw.githubusercontent.com URLs)"
+    action: "Função gitAutoSync() no dashboard.js commita e pusha após export/schedule/publish"
+    impact: "Fluxo end-to-end sem intervenção manual em git"
+
+# ── Completed Tasks ─────────────────────────
+completed:
+  - task: "Diagnóstico e correção do bug que travava todos os botões do dashboard"
+    rationale: "Strings adjacentes em onclick handlers causavam SyntaxError silencioso → renderGrid quebrava e nenhum botão funcionava"
+    root_cause: "Escape sequences (\\' e \\n) dentro de template literal Node.js eram processadas pelo parser do template, virando literais ' e newline real no script entregue ao browser"
+    fix: "Substituído inline onclick por event delegation com data-action/data-id (sem escape hell). Escape de \\n virou \\\\n nos textos de modal."
+    files:
+      - scripts/dashboard.js
+    verification: "Browser headless test via Preview MCP — 14 botões, 5 tipos de ação, todos disparam handlers corretamente"
+
+  - task: "Adicionar miniaturas iframe ao vivo + painel Pexels + badge de tipo"
+    files:
+      - scripts/dashboard.js
+    details: |
+      - Cards 280px com iframe 420×525 scaled 0.6667 → navegação interativa em cada thumbnail
+      - Painel Pexels com API key pré-preenchida (7jwUr8LG...) e busca portrait
+      - Badge Tweet (azul) vs Editorial (dourado)
+
+  - task: "Endpoint POST /api/carousel/:id/export + scripts/export-one.js"
+    files:
+      - scripts/dashboard.js
+      - scripts/export-one.js
+    details: |
+      - Detecta tipo do carrossel (editorial via .slide vs tweet via .x-slide / carousel-track)
+      - Playwright export → slides/<id>/slide_N.png
+      - Atualiza queue.json com paths
+      - Auto-commit + push dos PNGs e queue.json
+    verification: "Testado com tweet-guitarra-sozinho-01 — 7 PNGs gerados, committed=true pushed=true"
+
+  - task: "Auto-publisher resiliente a offline (run-scheduled.js + GitHub Action)"
+    files:
+      - scripts/run-scheduled.js
+      - .github/workflows/post-daily.yml
+    details: |
+      - Cron */15 * * * * — checa fila a cada 15 min
+      - Filtra carousels com status=scheduled e scheduled_for <= now (UTC)
+      - Chama meta.postCarouselNow() — upload containers + publish
+      - Persiste imediatamente após cada sucesso (não republica em falha parcial)
+      - Auto-commit do queue.json atualizado
+    secrets_required:
+      - META_IG_USER_ID  # já configurado no repo
+      - META_ACCESS_TOKEN  # já configurado no repo
+    verification: "gh secret list confirma ambos. Dry run via lógica de filtro testada localmente."
+
+  - task: "Fix timezone bug no agendamento"
+    rationale: "datetime-local input retorna string sem timezone — Date.parse no GitHub Actions (UTC) interpretava local time como UTC, causando offset de 3h"
+    fix: |
+      Frontend: confirmSchedule() converte LOCAL → ISO UTC com Z via new Date(dt).toISOString()
+      Backend: aceita ISO completo e armazena em scheduled_for
+    files:
+      - scripts/dashboard.js
+    verification: "Conversão testada: 22:00 BRT → 2026-05-17T01:00:00.000Z (offset -3h correto)"
+
+  - task: "Quality gate checklist (CTA estratégico + identidade EBS)"
+    file: docs/qa-carousel-checklist.md
+    rationale: "Usuário pediu refinamento de qualidade. Regra-mãe estabelecida: max 40% dos posts em sequência com CTA direto. Conteúdo prioritariamente de valor."
+    sections:
+      - Identidade de Marca (handle, logo, cores)
+      - Tom de Voz (mentor + acessível)
+      - Estratégia de CTA (proporção 2/5)
+      - Preço (PROIBIDO no conteúdo)
+      - Estrutura, Caption, Técnico, Visual, Localidade
+    decision_matrix: "PASS / CONCERNS / WAIT / BLOCK"
+    usage: "@qa lê HTML + queue.json + últimos 4 posts → emite gate"
+
+# ── Current Pipeline State ──────────────────
+queue_state:
+  total: 8
+  by_status:
+    published: 6
+    pending: 2  # EDU-07 (musica-desempenho-escolar) + tweet-guitarra-sozinho-01
+    scheduled: 0
+  by_type:
+    editorial: 7
+    tweet: 1
+  ready_to_schedule:
+    - tweet-guitarra-sozinho-01  # 7 PNGs já exportados, queue atualizado, pronto
+
+# ── New Agents Created (this session) ───────
+agents_created_this_session: []  # populado pelo próximo passo
+agents_planned_this_session:
+  - id: maestro
+    persona: "Maestro — especialista em pedagogia musical"
+    purpose: "Revisar conteúdo técnico de carrosséis para precisão pedagógica (mitos, neurociência, didática)"
+  - id: social-manager
+    persona: "Sky — estrategista de mídia social do EBS"
+    purpose: "Decidir cronograma de postagem, calendário editorial, timing por dia da semana"
+
+# ── Tweet Carousels Planned (Atlas brainstorm) ──
+tweet_carousels_planned:
+  - id: tweet-aulas-online-nao-funcionam-02
+    angle: "Aulas online não funcionam pra iniciante — e ninguém te conta"
+    target: "Autodidata preso + pais"
+    type: "Verdade desconfortável"
+    cta_strength: weak  # post de valor
+  - id: tweet-sem-tempo-sem-metodo-03
+    angle: "Você não está sem tempo. Você está sem método."
+    target: "Adulto que se acha velho demais"
+    type: "Espelho duro"
+    cta_strength: weak
+  - id: tweet-jeito-pra-musica-04
+    angle: "Como saber se meu filho leva jeito pra música? Eu te conto: ninguém leva."
+    target: "Pais"
+    type: "Mito-busting + reassurance"
+    cta_strength: weak
+  - id: tweet-3-sinais-professor-amador-05
+    angle: "3 sinais de que seu professor é amador (e por que isso te trava)"
+    target: "Quem já tentou aula"
+    type: "Auto-diagnóstico"
+    cta_strength: medium  # implícito posiciona EBS
+  - id: tweet-criancas-musicos-bons-06
+    angle: "O que toda criança que virou músico bom tinha em comum"
+    target: "Pais"
+    type: "Storytelling investigativo"
+    cta_strength: weak
+
+# ── Architectural Memory ────────────────────
+critical_invariants:
+  - "Handle nos slides: SEMPRE @aprendiz.ebs (programa) — nunca @ebsmusicfirst"
+  - "Endereço CTA: Av. Minas Gerais, 57 — Centro, Corbélia-PR"
+  - "Logo crop: background-size:auto 112%; background-position:center 5%; esconde 'music first' do bottom"
+  - "Escape em template literals: \\n no source → newline real no output. Use \\\\n se quiser \\n literal no JS gerado."
+  - "datetime-local input é SEMPRE timezone local — converter via new Date(dt).toISOString() antes de enviar"
+  - "PNGs precisam estar commitados no repo ANTES do scheduled_for chegar, senão o Action falha"
+  - "Auto-commit do dashboard pode falhar silenciosamente se git push não tiver credenciais — frontend mostra sync.error"
+  - "Cron do Action é */15 * * * * — agendamentos têm tolerância de até 15min de atraso"
+
+context_preservation:
+  rules:
+    - "Esta sessão começou continuando de bb159d18-d048-4f5b-a3c5-d83415f2936d.jsonl (compactada)"
+    - "Toda decisão importante deve ser refletida neste arquivo de handoff"
+    - "Próxima sessão deve LER este arquivo antes de tudo (via @aiox-master ou Read direto)"
+  memory_files:
+    - .aiox/handoffs/session-state-2026-05-12.yaml  # primeira sessão
+    - .aiox/handoffs/session-state-2026-05-15.yaml  # esta sessão
+    - docs/qa-carousel-checklist.md  # regras de qualidade
+    - docs/brand-brief-v1.md  # identidade da marca
+    - C:/Users/alexr/.claude/projects/F--AIOX-PROJECTS-EBS-APRENDIZ/memory/MEMORY.md  # auto-memória do Claude
+
+# ── Open Items / Next Steps ─────────────────
+next_steps:
+  - "Criar agente @maestro (especialista em pedagogia musical)"
+  - "Criar agente @social-manager (estrategista de cronograma)"
+  - "Gerar HTML dos 5 carrosséis tweet aprovados pelo Atlas"
+  - "Social-manager propõe cronograma de publicação"
+  - "Alex aprova via dashboard → posts ficam status=scheduled com scheduled_for ISO UTC"
+
+# ── Things to NEVER FORGET ──────────────────
+never_forget:
+  - "Preço NUNCA aparece nos slides ou caption"
+  - "Não prometer aprendizado rápido / em N dias"
+  - "QA gate é obrigatório antes de aprovar"
+  - "Tom é mentor experiente, não vendedor"
+  - "Corbélia é diferencial, não limitação — usar no copy"
+  - "HANDOFFS VIVEM EM MÚLTIPLOS DIRETÓRIOS. Sempre checar .aiox/handoffs/INDEX.md primeiro"
+
+# ── Correções tardias (descobertas ao reler handoff 14/05) ─────
+late_corrections:
+  - issue: "Não li docs/handoff-2026-05-14.md antes de trabalhar"
+    impact: "Trabalhei a sessão sem saber que queue.json estava dessincronizado do Instagram real, sem saber que existia piloto MOT-talento-mito-08.html pendente, sem saber que skill /instagram-carousel-editorial e agentes @imagem-curator e @headline-writer foram criados ontem."
+    fix: "Criado .aiox/handoffs/INDEX.md como fonte canônica de localização de handoffs"
+
+  - issue: "Diagnóstico do token estava incompleto"
+    real_situation: |
+      Token IGAA atual NÃO é uma substituição aleatória do Page Token. Foi GERADO INTENCIONALMENTE
+      ontem (14/05) via fluxo "Configuração da API do Instagram" no Facebook Developers.
+      A conta @aprendiz.ebs foi adicionada como TEST USER do app SCM (não é prod oficial).
+      Token foi anotado como "long-lived 60 dias" mas o handoff 14/05 explicitamente alertava:
+      "Token IGAA... no .env ainda não foi testado em publicação"
+      Hoje (15/05) foi o primeiro teste real — falhou.
+    likely_root_cause: |
+      Test User tokens podem invalidar por razões além de expiração:
+       - App ainda "Em Desenvolvimento" (sem App Review) tem limites estritos
+       - Mudanças nas permissões do app
+       - Sessão do Facebook expirando
+      Ou simplesmente foi um short-lived (1h) confundido com long-lived no momento da geração.
+    fix_needed: "Re-gerar token via fluxo certo + atestar tipo via /debug_token (precisa APP_ID e APP_SECRET no .env)"
+
+queue_vs_instagram_truth:
+  queue_says: "6 published"
+  instagram_actually_has: "1 post no feed (EDU-musica-desempenho-escolar-07)"
+  why: "Alex deletou manualmente do feed os outros 6 porque tinham problemas visuais (slides ruins, fundo preto cortado, etc.)"
+  implication: "Se publicarmos os 5 novos tweets sem entender isso, feed fica estranho. Considerar re-publicar (com correções) os anteriores OU explicar que a estratégia mudou"
+
+pending_from_yesterday:
+  - "Iterar piloto MOT-talento-mito-08.html (editorial — feedback 'ficou ruim')"
+  - "Validar token novo em publicação real (FEITO hoje — FALHOU)"
+  - "Decidir se a skill /instagram-carousel-editorial é a mesma estratégia que tweet (atual lote usa tweet)"

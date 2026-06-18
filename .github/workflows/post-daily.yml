@@ -1,29 +1,24 @@
-name: 📸 EBS Aprendiz — Postagem Diária
+name: 📸 EBS Aprendiz — Auto-Publisher de Agendados
+
+# Roda a cada 15 minutos para publicar carrosséis agendados.
+# Funciona mesmo com o PC do usuário desligado — GitHub roda na nuvem.
 
 on:
   schedule:
-    # Roda a cada hora para verificar carrosséis agendados
-    # 12:00 UTC = 09:00 BRT  |  Ajuste: https://crontab.guru
-    - cron: '0 * * * *'
+    - cron: '*/15 * * * *'   # a cada 15 min
 
   workflow_dispatch:
     inputs:
-      confirm_post:
-        description: '✅ CONFIRMAR postagem imediata do próximo aprovado? (escreva: sim)'
-        required: false
-        default: ''
-        type: string
       dry_run:
-        description: '🧪 Dry run — valida fila sem postar'
+        description: '🧪 Dry run — lista o que seria publicado sem chamar o Meta'
         required: false
         default: 'false'
         type: boolean
 
 jobs:
-  post:
-    name: Verificar fila e postar
+  publish-scheduled:
+    name: Publicar carrosséis agendados
     runs-on: ubuntu-latest
-
     permissions:
       contents: write
 
@@ -32,107 +27,80 @@ jobs:
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0  # commit posterior precisa de histórico
 
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      - name: 🔍 Verificar fila
-        id: check_queue
+      - name: 🔍 Inspecionar fila
+        id: inspect
         run: |
           node -e "
             const q = require('./queue.json');
-            const now = new Date();
-
-            // Carrosséis aprovados (postagem imediata)
-            const approved = q.carousels.filter(c => c.status === 'approved').length;
-
-            // Carrosséis agendados prontos para publicar (scheduled_for <= agora)
-            const scheduledReady = q.carousels.filter(c =>
+            const now = Date.now();
+            const due = q.carousels.filter(c =>
               c.status === 'scheduled' &&
-              c.meta_container_id &&
               c.scheduled_for &&
-              new Date(c.scheduled_for) <= now
-            ).length;
-
-            console.log('approved=' + approved);
-            console.log('scheduledReady=' + scheduledReady);
-            console.log('total=' + (approved + scheduledReady));
+              Date.parse(c.scheduled_for) <= now
+            );
+            const future = q.carousels.filter(c =>
+              c.status === 'scheduled' &&
+              c.scheduled_for &&
+              Date.parse(c.scheduled_for) > now
+            );
+            console.log('═════════════════════════════════════════');
+            console.log('Total no queue:', q.carousels.length);
+            console.log('Vencidos (publicar agora):', due.length);
+            console.log('Agendados para o futuro:', future.length);
+            console.log('═════════════════════════════════════════');
+            due.forEach(c => console.log('🔥 DUE:', c.id, '→', c.scheduled_for));
+            future.forEach(c => console.log('⏳ Future:', c.id, '→', c.scheduled_for));
 
             const fs = require('fs');
-            const lines = [
-              'approved=' + approved,
-              'scheduled_ready=' + scheduledReady,
-              'has_work=' + (approved + scheduledReady > 0 ? 'true' : 'false'),
-            ];
-            fs.appendFileSync(process.env.GITHUB_OUTPUT, lines.join('\n') + '\n');
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, 'due_count=' + due.length + '\n');
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, 'has_due=' + (due.length > 0 ? 'true' : 'false') + '\n');
           "
 
-      - name: 📊 Resumo da verificação
+      - name: 📊 Resumo da fila
         run: |
-          echo "## 🔍 Verificação da Fila" >> $GITHUB_STEP_SUMMARY
-          echo "- **Data:** $(date -u '+%Y-%m-%d %H:%M UTC')" >> $GITHUB_STEP_SUMMARY
-          echo "- **Aprovados (imediatos):** ${{ steps.check_queue.outputs.approved }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Agendados prontos:** ${{ steps.check_queue.outputs.scheduled_ready }}" >> $GITHUB_STEP_SUMMARY
-
-      - name: ⚠️ Nada a fazer
-        if: steps.check_queue.outputs.has_work == 'false' && inputs.dry_run != 'true' && inputs.confirm_post != 'sim'
-        run: |
-          echo "Nenhum carrossel aprovado ou agendado pronto. Encerrando."
+          {
+            echo "## 📋 Fila de Publicação"
+            echo "- **Verificação:** $(date -u '+%Y-%m-%d %H:%M UTC')"
+            echo "- **Carrosséis vencidos:** ${{ steps.inspect.outputs.due_count }}"
+          } >> $GITHUB_STEP_SUMMARY
 
       - name: 🧪 Dry run
         if: inputs.dry_run == 'true'
         run: |
-          echo "🧪 DRY RUN — validando fila"
-          node -e "
-            const q = require('./queue.json');
-            const now = new Date();
-            const approved = q.carousels.filter(c => c.status === 'approved');
-            const scheduled = q.carousels.filter(c =>
-              c.status === 'scheduled' && c.meta_container_id && c.scheduled_for && new Date(c.scheduled_for) <= now
-            );
-            console.log('Aprovados:', approved.length);
-            approved.forEach(c => console.log(' -', c.id, '|', c.slides.length, 'slides'));
-            console.log('Agendados prontos:', scheduled.length);
-            scheduled.forEach(c => console.log(' -', c.id, '|', c.scheduled_for, '| container:', c.meta_container_id));
-          "
+          echo "🧪 DRY RUN — nada será publicado."
+          echo "Veja o passo 'Inspecionar fila' acima para detalhes."
 
-      - name: 🛑 Verificar confirmação (postagem manual)
+      - name: 🚀 Publicar agendados vencidos
         if: |
-          steps.check_queue.outputs.approved != '0' &&
-          inputs.dry_run != 'true' &&
-          github.event_name == 'workflow_dispatch' &&
-          inputs.confirm_post != 'sim'
-        run: |
-          echo "::warning::Postagem manual requer confirm_post=sim. Use o cron para agendados ou preencha confirm_post."
-
-      - name: 🚀 Executar postagem
-        if: |
-          inputs.dry_run != 'true' &&
-          (
-            steps.check_queue.outputs.has_work == 'true' &&
-            (github.event_name == 'schedule' || inputs.confirm_post == 'sim')
-          )
+          steps.inspect.outputs.has_due == 'true' &&
+          inputs.dry_run != 'true'
         env:
-          META_IG_USER_ID: ${{ secrets.META_IG_USER_ID }}
+          META_IG_USER_ID:   ${{ secrets.META_IG_USER_ID }}
           META_ACCESS_TOKEN: ${{ secrets.META_ACCESS_TOKEN }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          GITHUB_REF_NAME: ${{ github.ref_name }}
-        run: node scripts/post-carousel.js
+          GITHUB_REPO:       ${{ github.repository }}
+          GITHUB_REF:        ${{ github.ref_name }}
+        run: node scripts/run-scheduled.js
 
       - name: 💾 Commitar queue.json atualizado
         if: |
-          inputs.dry_run != 'true' &&
-          (
-            steps.check_queue.outputs.has_work == 'true' &&
-            (github.event_name == 'schedule' || inputs.confirm_post == 'sim')
-          )
+          steps.inspect.outputs.has_due == 'true' &&
+          inputs.dry_run != 'true'
         run: |
-          git config user.name "github-actions[bot]"
+          if git diff --quiet queue.json; then
+            echo "queue.json não mudou — nada para commitar."
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add queue.json
-          git diff --staged --quiet || git commit -m "chore: atualizar status após postagem [bot]"
+          git commit -m "chore: atualizar status após publicação automática [bot]"
           git push
 
       - name: 📊 Resumo final
@@ -140,11 +108,14 @@ jobs:
         run: |
           REMAINING=$(node -e "
             const q = require('./queue.json');
-            const c = q.carousels.filter(c => c.status==='approved'||c.status==='scheduled').length;
+            const c = q.carousels.filter(x => x.status==='scheduled').length;
             console.log(c);
-          " 2>/dev/null || echo "0")
-          echo "## 📸 EBS Aprendiz — Resultado" >> $GITHUB_STEP_SUMMARY
-          echo "- **Carrosséis restantes (approved + scheduled):** $REMAINING" >> $GITHUB_STEP_SUMMARY
-          if [ "$REMAINING" -le 2 ] 2>/dev/null; then
-            echo "- **⚠️ Fila baixa** — crie novos carrosséis em breve!" >> $GITHUB_STEP_SUMMARY
-          fi
+          " 2>/dev/null || echo "?")
+          {
+            echo ""
+            echo "## ✅ Resultado"
+            echo "- **Ainda agendados:** $REMAINING"
+            if [ "$REMAINING" = "0" ]; then
+              echo "- **⚠️ Fila zerada** — agende novos carrosséis no dashboard local."
+            fi
+          } >> $GITHUB_STEP_SUMMARY

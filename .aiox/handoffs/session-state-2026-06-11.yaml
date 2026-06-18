@@ -1,0 +1,305 @@
+# ============================================
+# AIOX Session State — EBS Aprendiz
+# Saved: 2026-06-11
+# Agent: @aiox-master (Orion)
+# Models in use: Claude Opus 4.7 (default da sessão)
+# Tipo de sessão: Implementação (código + ClickUp + carrosséis)
+# ============================================
+
+project: EBS Aprendiz
+date: 2026-06-11
+agent: aiox-master
+session_handoff_from: 2026-05-22  # Última sessão relevante
+session_type: implementation
+worktree: "F:/AIOX PROJECTS/EBS APRENDIZ/.claude/worktrees/elegant-lamport-cbe9bc"
+
+# ── Sumário executivo ─────────────────────────────────────────────────────────
+summary: |
+  Sessão dividida em dois blocos maiores:
+  1. Carrosséis tweet-v4 (fundo branco #F2F2F2 + slides #FFFFFF, sem seções de imagem)
+     — criados 2 (talvez 3) HTMLs no formato correto com texto 24px+
+  2. Integração ClickUp com Metodologia Syncra (L0/L1/L2) — criação de toda a
+     infraestrutura de dados do pipeline de conteúdo. Pipeline validado end-to-end.
+
+# ── Bloco 1: Carrosséis tweet-v4 ─────────────────────────────────────────────
+carrosseis_criados:
+  template_padrao: "tweet-v4"
+  especificacoes:
+    fundo_frame: "#F2F2F2"
+    fundo_slide: "#FFFFFF"
+    imagens: NENHUMA  # sem seções de imagem
+    fonte_principal: "24px+"
+    handle: "@aprendiz.ebs"
+    logo_placeholder: "{{LOGO_B64}}"  # ainda não injetado — ver pendencias
+
+  arquivos:
+    - file: "carrosseis/tweet-v4-3-sinais-professor-05.html"
+      tema: "3 sinais de que seu professor é amador"
+      framework: "Cheat Sheet / Checklist"
+      slides: 8
+      campanha_clickup: "86e1th44r"  # Desconstrucao de Mitos Musicais
+      criativo_clickup: "86e1th45d"
+      status_clickup: "Gerado"
+      estrutura:
+        - "S1: CAPA — '3 sinais de que seu professor é amador' + label dourado"
+        - "S2: Intro — por que isso importa"
+        - "S3: SINAL #1 — .signal-title + .abox (amplification box)"
+        - "S4: SINAL #2"
+        - "S5: SINAL #3"
+        - "S6: SAVE — checklist numerado (.chk-list, .chk-num, .save-pill)"
+        - "S7: Reflexão/bridge"
+        - "S8: CTA — gradiente escuro com {{LOGO_B64}}"
+
+    - file: "carrosseis/tweet-v4-guitarra-sozinho-01.html"
+      tema: "Por que aprender guitarra sozinho não funciona"
+      framework: "Desconstrução de Mito"
+      slides: 8
+      estrutura:
+        - "S1: CAPA — quote format (.open-q .qt) + reframe"
+        - "S2: Contexto do problema"
+        - "S3: Contraste — .contrast-a (muted italic) vs .contrast-b (gold bold)"
+        - "S4-S5: Argumentação"
+        - "S6: SAVE — tabela comparativa (.compare, .save-pill)"
+        - "S7: Bridge"
+        - "S8: CTA — gradiente escuro com {{LOGO_B64}}"
+
+    - file: "carrosseis/tweet-v4-sem-tempo-03.html"
+      tema: "Sem tempo / sem método" (presumido — estava no diretório)
+      status: "criado mas não documentado no sumário da sessão anterior"
+
+  pendencia_critica_logo:
+    descricao: |
+      Todos os tweet-v4 têm placeholder {{LOGO_B64}} no slide CTA (S8).
+      É preciso codificar ASSETS/logo-ebs-aprendiz.png em base64 e injetar
+      nos HTMLs ANTES de exportar os PNGs para o Instagram.
+    como_fazer: |
+      PowerShell:
+        $b64 = [Convert]::ToBase64String([IO.File]::ReadAllBytes("ASSETS/logo-ebs-aprendiz.png"))
+        (Get-Content "carrosseis/tweet-v4-3-sinais-professor-05.html") -replace '\{\{LOGO_B64\}\}', "data:image/png;base64,$b64" | Set-Content "carrosseis/tweet-v4-3-sinais-professor-05.html"
+      Repetir para cada arquivo tweet-v4.
+    bloqueia: "Exportação de PNGs e publicação no Buffer"
+
+# ── Bloco 2: ClickUp Syncra Integration ───────────────────────────────────────
+clickup_integration:
+  metodologia: "Syncra (Pedro Valério) — 3 níveis com herança L1→L2"
+
+  arquitetura_criada:
+    workspace: "Estúdio Black Space's Workspace (90171305838)"
+    space: "EBS Aprendiz (90176003844)"
+    estrutura: |
+      ├── 📐 L0 — Estratégico (folder: 90179269525)
+      │   ├── DNA - EBS           (list: 901714407552)  ← campo: Tipo (dropdown)
+      │   ├── ICP - Aluno Ideal   (list: 901714407554)  ← campo: Faixa Etária
+      │   └── Ofertas             (list: 901714407556)  ← campo: Periodicidade
+      ├── 🎯 L1 — Tático (folder: 90179269530)
+      │   └── Campanhas           (list: 901714407567)  ← campos: Status, Framework, RegrasCaption, HashtagsBase, CTA
+      └── ⚙️ L2 — Operacional (folder: 90179269535)
+          ├── Pautas              (list: 901714407576)  ← campos: Status, Framework, Pilar Visual, Campanha (rel)
+          ├── Criativos           (list: 901714407579)  ← campos: Formato, Programa, Plataforma, DataPublicacao,
+          │                                                          Caption, Hashtags, Agente, BufferPostId,
+          │                                                          Alcance, StatusPipeline, Campanha (rel), Pauta (rel)
+          └── Journey Log         (list: 901714407581)
+
+  fonte_de_verdade: "scripts/clickup-map.json"  # Todos os IDs de listas, fields e options
+
+  arquivos_criados:
+    - path: "scripts/clickup-bootstrap.js"
+      descricao: |
+        Script replicável (SaaS ready): cria toda a estrutura L0/L1/L2 em qualquer
+        space ClickUp. Trocar CLICKUP_SPACE_ID no .env para novo cliente.
+        Gera scripts/clickup-map.json ao final.
+
+    - path: "scripts/clickup-map.json"
+      descricao: |
+        Fonte de verdade de TODOS os IDs (folders, lists, fields, option UUIDs).
+        Consumido por scripts/clickup.js. Substitui as variáveis CLICKUP_FIELD_*
+        e CLICKUP_STATUS_* do .env (que agora são legacy/stale).
+
+    - path: "scripts/clickup.js"
+      descricao: |
+        Módulo principal da integração ClickUp — Metodologia Syncra.
+        Funções principais:
+          createCampanha(c)       → cria L1 com regras de herança
+          getCampanhaRegras(id)   → lê framework/hashtags/cta/regras de uma campanha
+          createCriativo(c)       → cria L2, herda hashtagsBase da campanha automaticamente
+          updateStatus(id, nome)  → move criativo no pipeline (usa endpoint dedicado de field)
+          journalLog(ev, id, ...)  → registra evento irremediável no Journey Log
+          migrateFromQueue(path, campanhaId) → migra queue.json para ClickUp
+        Funções de conveniência:
+          aprovar(id), marcarAgendado(id, bufferId, data), marcarPostado(id, alcance)
+
+  quirks_api_descobertos:
+    - "ClickUp Free plan NÃO permite custom task statuses via API — usar dropdown custom field"
+    - "list_relationship type_config correto: { subcategory_id: listId } (NÃO list_id)"
+    - "PUT /task com custom_fields IGNORA silenciosamente dropdowns — usar POST /task/:id/field/:fieldId"
+    - "Dropdown READ retorna orderindex (number) — resolver via type_config.options[value].name"
+    - "Dropdown WRITE precisa de option UUID (não orderindex)"
+    - "POST de custom field NÃO retorna id — sempre re-buscar com GET /list/:id/field após criar"
+
+  dados_ao_vivo:
+    campanha_teste:
+      id: "86e1th44r"
+      nome: "Desconstrucao de Mitos Musicais"
+      framework: "Desconstrução de Mito"
+      cta: "Garanta sua vaga"
+      hashtags: "#ebsaprendiz #escolademusica #corbeliapr #metodoebs #aprendermusica"
+    criativo_teste:
+      id: "86e1th45d"
+      nome: "tweet-v4-3-sinais-professor-05"
+      status_atual: "Gerado"
+      campanha_vinculada: "86e1th44r"
+      obs: "Reset para 'Gerado' ao final da sessão (limpeza pós-teste)"
+
+  pipeline_validado:
+    estados: ["Gerado", "Em Aprovacao", "Aprovado", "Agendado", "Postado"]
+    teste_completo: true
+    heranca_validada: true  # criativo herda hashtagsBase da campanha automaticamente
+    journey_log_funcionando: true
+
+# ── Estado do .env após esta sessão ──────────────────────────────────────────
+env_state:
+  novas_vars: []  # CLICKUP_API_KEY, CLICKUP_TEAM_ID, CLICKUP_SPACE_ID já estavam
+  vars_stale_legado:
+    descricao: "As variáveis abaixo do .env são legacy — agora supersedidas pelo clickup-map.json"
+    vars:
+      - CLICKUP_FOLDER_ID       # 90179268970 — folder DELETADO
+      - CLICKUP_LIST_CRIATIVOS_ID   # 901714406717 — lista antiga
+      - CLICKUP_LIST_JOURNEYLOG_ID  # 901714406705 — lista antiga
+      - CLICKUP_FIELD_FORMATO
+      - CLICKUP_FIELD_PROGRAMA
+      - CLICKUP_FIELD_PLATAFORMA
+      - CLICKUP_FIELD_DATA_PUBLICACAO
+      - CLICKUP_FIELD_CAPTION
+      - CLICKUP_FIELD_HASHTAGS
+      - CLICKUP_FIELD_AGENTE
+      - CLICKUP_FIELD_BUFFER_POST_ID
+      - CLICKUP_FIELD_ALCANCE
+      - CLICKUP_FIELD_STATUS_PIPELINE
+      - CLICKUP_STATUS_*  # todos os 5 status option IDs antigos
+      - CLICKUP_FORMATO_*
+      - CLICKUP_PROGRAMA_*
+      - CLICKUP_PLATAFORMA_*
+    acao_recomendada: "Limpar o .env removendo essas vars — clickup-map.json é a fonte agora"
+
+# ── Commits e estado git ──────────────────────────────────────────────────────
+git_state:
+  ultimo_commit_repo: "690718d feat: 15 tweet-v5 carousels + dashboard filtrado tweet-v5 only"
+  arquivos_nao_commitados:
+    - "carrosseis/tweet-v4-3-sinais-professor-05.html"
+    - "carrosseis/tweet-v4-guitarra-sozinho-01.html"
+    - "carrosseis/tweet-v4-sem-tempo-03.html"
+    - "scripts/clickup-bootstrap.js"
+    - "scripts/clickup-map.json"
+    - "scripts/clickup.js"
+    - "(vários outros legados de sessões anteriores já listados em handoffs anteriores)"
+  acao_necessaria: "git add + git commit + git push via @devops"
+
+# ── Pendências (próxima sessão — ordem de prioridade) ─────────────────────────
+next_steps:
+  PRIORIDADE_1_logo_inject:
+    descricao: "Injetar logo base64 nos 3 tweet-v4 HTMLs"
+    porque: "Todos têm {{LOGO_B64}} no slide CTA — sem isso o PNG fica sem logo"
+    como: |
+      PowerShell (batch para todos):
+        $b64 = [Convert]::ToBase64String([IO.File]::ReadAllBytes("ASSETS/logo-ebs-aprendiz.png"))
+        foreach ($f in Get-ChildItem "carrosseis/tweet-v4-*.html") {
+          (Get-Content $f.FullName) -replace '\{\{LOGO_B64\}\}', "data:image/png;base64,$b64" | Set-Content $f.FullName
+        }
+    arquivos_alvo:
+      - "carrosseis/tweet-v4-3-sinais-professor-05.html"
+      - "carrosseis/tweet-v4-guitarra-sozinho-01.html"
+      - "carrosseis/tweet-v4-sem-tempo-03.html"
+
+  PRIORIDADE_2_commit:
+    descricao: "Commitar todos os arquivos novos desta sessão"
+    arquivos:
+      - "carrosseis/tweet-v4-*.html (3 arquivos)"
+      - "scripts/clickup.js"
+      - "scripts/clickup-bootstrap.js"
+      - "scripts/clickup-map.json"
+    via: "@devops (Gage)"
+    mensagem_sugerida: "feat(clickup): integração Syncra L0/L1/L2 + 3 carrosséis tweet-v4 [Story ClickUp-1]"
+
+  PRIORIDADE_3_rodar_token:
+    descricao: "Rotacionar CLICKUP_API_KEY — token foi colado no chat"
+    acao: |
+      1. Alex acessa ClickUp Settings > Apps > API Token
+      2. Gera novo token (revoga o antigo)
+      3. Salva no .env via terminal: echo 'CLICKUP_API_KEY=pk_...' >> .env
+      4. Me diz "token renovado" (NUNCA colar o novo token no chat)
+
+  PRIORIDADE_4_env_cleanup:
+    descricao: "Limpar .env removendo vars CLICKUP_* stale"
+    porque: "clickup-map.json é a nova fonte de verdade. Ter vars antigas confunde."
+    detalhes: "Ver lista em env_state.vars_stale_legado acima"
+
+  PRIORIDADE_5_dashboard_clickup:
+    descricao: "Migrar dashboard.js de queue.json para ClickUp como backend"
+    scope: |
+      - Endpoints GET /api/carousels → listCriativos() do clickup.js
+      - Endpoint POST /api/carousel/:id/approve → aprovar()
+      - Endpoint POST /api/carousel/:id/publish-buffer → marcarAgendado() + Buffer API
+      - Exibir campo campanha_vinculada, caption, hashtags herdados
+    prerequisito: "Commit dos arquivos novos primeiro"
+    nota: "queue.json pode ser mantido como cache local temporário durante migração"
+
+  PRIORIDADE_6_migrate_queue:
+    descricao: "Migrar carrosséis do queue.json para ClickUp via migrateFromQueue()"
+    como: |
+      node -e "
+        const cu = require('./scripts/clickup.js');
+        cu.migrateFromQueue('./queue.json', '86e1th44r');
+      "
+    nota: "Campanhas L1 precisam existir antes — a campanha-teste já existe (86e1th44r)"
+
+  PRIORIDADE_7_L0_content:
+    descricao: "Popular camada L0 (DNA, ICP, Ofertas) no ClickUp"
+    porque: "A estrutura existe mas está vazia — L0 é a fonte da verdade estratégica"
+    tarefas_sugeridas_dna:
+      - "Missão: Tornar a educação musical acessível e transformadora"
+      - "Tom de Voz: Mentor experiente, porém acessível. Equilíbrio emocional + postura de escola séria."
+      - "Invariante: Nunca prometer aprendizado rápido. Nunca revelar preços. Handle: @aprendiz.ebs."
+      - "Diferencial: Método EBS + prática diária de no mínimo 10 minutos"
+      - "Credencial: 14 anos de história (fundado 2011), Alex Pereira fundador"
+
+  PRIORIDADE_8_carrosseis_restantes:
+    descricao: "Criar carrosséis tweet-v4 que ainda faltam"
+    fila:
+      - "tweet-v4-aulas-online-02.html — Por que aulas online raramente funcionam"
+      - "tweet-v4-criancas-musicos-bons-06.html — Crianças que aprendem música ficam mais inteligentes?"
+    reconstruir:
+      - "MOT-talento-mito-v4.html — Rebuild do MOT-talento-mito-08 no estilo tweet-v4 branco"
+
+  PRIORIDADE_9_export_publish:
+    descricao: "Exportar PNGs dos tweet-v4 e publicar via Buffer"
+    prerequisito: "Logo injetado (PRIORIDADE_1)"
+    via: "dashboard localhost:3000 → export PNGs → publish-buffer endpoint"
+
+# ── Verdades inconvenientes a NÃO esquecer ────────────────────────────────────
+inconvenient_truths:
+  - "CLICKUP_API_KEY no .env é o token exposto no chat — deve ser rotacionado"
+  - "Os tweet-v4 HTMLs têm {{LOGO_B64}} como literal — NÃO exportar PNGs antes de injetar o logo"
+  - ".env tem ~15 variáveis CLICKUP_* obsoletas que apontam para estrutura deletada (pasta antiga 90179268970)"
+  - "queue.json e ClickUp são sistemas paralelos — ainda não há sincronização entre eles"
+  - "MOT-talento-mito-08 pendente desde 2026-05-14 (4+ sessões) sem iteração visual"
+  - "tweet-v4-sem-tempo-03 pode estar incompleto/sem logo — verificar"
+
+# ── Security ──────────────────────────────────────────────────────────────────
+security_notes:
+  - "[EXPOSIÇÃO] CLICKUP_API_KEY pk_216113415_CAEJ6YGVWT9YQX54JZVYAGDNYNLX8T87 colado no chat nesta sessão. Salvo em .env (gitignored). ROTACIONAR em ClickUp Settings > Apps."
+  - "[REGRA] Usuário NUNCA mais cola tokens no chat. Salvar direto no .env via terminal e informar 'token salvo'."
+  - "[OK] .env está em .gitignore — o token não está comitado"
+
+# ── Session metadata ──────────────────────────────────────────────────────────
+metadata:
+  duration_estimate: "~2-3h"
+  arquivos_criados_em_repo:
+    - "carrosseis/tweet-v4-3-sinais-professor-05.html"
+    - "carrosseis/tweet-v4-guitarra-sozinho-01.html"
+    - "carrosseis/tweet-v4-sem-tempo-03.html"  # verificar existência
+    - "scripts/clickup-bootstrap.js"
+    - "scripts/clickup-map.json"
+    - "scripts/clickup.js"
+  arquivos_modificados_repo: []
+  commits_nesta_sessao: 0  # arquivos criados mas ainda não commitados
+  dados_ao_vivo_clickup: "campanha 86e1th44r + criativo 86e1th45d (reset para Gerado)"

@@ -54,6 +54,19 @@
   - **Token IGAA falhou no primeiro teste real de publicação hoje** (Cannot parse access token)
 - **Erro de processo identificado:** Não li `docs/handoff-2026-05-14.md`. Adicionei este INDEX para evitar repetição.
 
+### 2026-06-11 — ClickUp Syncra L0/L1/L2 + carrosséis tweet-v4 (fundo branco)
+- **Arquivo:** `.aiox/handoffs/session-state-2026-06-11.yaml`
+- **Highlights:**
+  - **Carrosséis tweet-v4 criados:** `tweet-v4-3-sinais-professor-05.html`, `tweet-v4-guitarra-sozinho-01.html`, `tweet-v4-sem-tempo-03.html` — fundo branco (`#F2F2F2` frame, `#FFFFFF` slides), sem seções de imagem, texto 24px+
+  - ⚠️ Todos têm `{{LOGO_B64}}` no slide CTA — **injetar logo antes de exportar PNGs**
+  - **ClickUp Syncra integration completa:** `scripts/clickup-bootstrap.js` + `scripts/clickup.js` + `scripts/clickup-map.json`
+  - Arquitetura L0 Estratégico / L1 Tático / L2 Operacional materializada no ClickUp com herança L1→L2
+  - Pipeline validado end-to-end: Gerado → Em Aprovação → Aprovado → Agendado → Postado
+  - Journey Log funcionando
+  - **Campanha ao vivo:** "Desconstrucao de Mitos Musicais" (86e1th44r) | **Criativo ao vivo:** 86e1th45d
+  - **SEGURANÇA:** CLICKUP_API_KEY exposta no chat — rotacionar em ClickUp Settings > Apps
+  - **Nada commitado** — próxima sessão deve commitar + injetar logo
+
 ### 2026-05-18 — Decisão estratégica: migrar publicação para Buffer
 - **Arquivo:** `.aiox/handoffs/session-state-2026-05-18.yaml`
 - **Highlights:**

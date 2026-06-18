@@ -112,16 +112,29 @@ theme_categories:
 # ─────────────────────────────────────────
 phases:
 
+  - id: 0
+    name: Inteligência de Nicho
+    agent: social-strategist
+    condition: recomendado antes de cada sessão de lote (4+ carrosséis)
+    frequency: a cada 2 semanas ou quando fila < 3 carrosséis
+    tasks:
+      - "*brief-batch — roda niche-scan + trending-hooks + calendar + hashtag-research"
+      - Identificar gaps de conteúdo no nicho que o EBS pode explorar
+      - Priorizar temas do backlog com base em dados reais de engajamento
+    outputs:
+      - batch_brief.md (hooks de referência + calendário 2 semanas + hashtags por categoria)
+
   - id: 1
     name: Briefing de Tema
     agent: aiox-master
     elicit: true
     inputs:
       - Categoria do tema (EDU, MET, INS, SOC, MOT, TEC, CAP, BAS)
-      - Tema específico dentro da categoria
+      - Tema específico dentro da categoria (orientado pelo batch_brief.md se disponível)
       - Público-alvo do carrossel (pais, adolescentes, adultos)
       - Objetivo: awareness | engajamento | conversão
       - Assets disponíveis? (fotos, depoimentos)
+      - batch_brief.md (opcional — se fase 0 executada)
     outputs:
       - tema_brief.yaml
 
@@ -139,21 +152,38 @@ phases:
     outputs:
       - research_brief.md (fatos + fonte + por que é autoridade)
 
-  - id: 3
-    name: Direção Criativa
-    agent: ux-design-expert
+  - id: "3a"
+    name: Direção de Copy
+    agent: copywriter
     elicit: true
     inputs:
       - tema_brief.yaml
       - research_brief.md (se fase 2 executada)
     tasks:
-      - Definir formato do carrossel (standard 7, listicle, tutorial, comparação)
-      - Escrever hook do slide 1 (deve parar o scroll)
-      - Definir estrutura slide a slide (título + body + tipo de fundo)
-      - Garantir alternância claro/escuro
-      - Definir CTA do último slide
+      - Definir público-alvo primário deste carrossel (pais | adolescentes | adultos)
+      - Selecionar framework de copy (PAS | AIDA | Curiosidade | Prova Social)
+      - Escrever hook do slide 1 — headline + subheadline (parar o scroll)
+      - Escrever copy de cada slide 2–6 (título + corpo, 1 ideia por slide)
+      - Escrever CTA do último slide (sem preço, direciona para contato)
+      - Escrever caption completa (texto + CTA + hashtags)
     outputs:
-      - slide_brief.md (estrutura completa slide a slide)
+      - slide_copy_brief.md (copy completo slide a slide + caption + hashtags)
+
+  - id: "3b"
+    name: Direção Visual
+    agent: ux-design-expert
+    elicit: true
+    inputs:
+      - tema_brief.yaml
+      - slide_copy_brief.md (da fase 3a)
+    tasks:
+      - Definir formato do carrossel (standard 7, listicle, tutorial, comparação)
+      - Distribuir o copy nos slides com hierarquia visual correta
+      - Definir tipo de fundo por slide (escuro | claro) garantindo alternância
+      - Especificar destaque visual (palavra em dourado, bloco de citação, dado em destaque)
+      - Confirmar estrutura do CTA final (logo + handle + endereço)
+    outputs:
+      - slide_brief.md (estrutura visual completa slide a slide, pronta para o skill)
 
   - id: 4
     name: Geração do HTML
@@ -177,12 +207,19 @@ phases:
     agent: qa
     elicit: true
     checklist:
+      # Copy & Mensagem
+      - "[ ] Hook do slide 1 para o scroll (curiosidade / surpresa / emoção / dado impactante)"
+      - "[ ] Cada slide tem UMA ideia — sem acúmulo de informação"
       - "[ ] Copy dentro do tom EBS (sem promessas falsas, sem informalidade excessiva)"
+      - "[ ] Linguagem adequada ao público definido no tema_brief"
+      - "[ ] Caption funciona de forma independente (sem precisar ver os slides)"
       - "[ ] Fonte de autoridade citada corretamente (nome + por que é autoridade)"
-      - "[ ] Handle @aprendiz.ebs presente no último slide"
-      - "[ ] Nenhum preço revelado nos slides"
+      # Compliance & Marca
+      - "[ ] Nenhum preço revelado nos slides nem na caption"
       - "[ ] CTA direciona para contato (não revela valor)"
+      - "[ ] Handle @aprendiz.ebs presente no último slide"
       - "[ ] Logo EBS presente e correta"
+      # Técnico & Visual
       - "[ ] Progresso e seta de swipe corretos em todos os slides"
       - "[ ] Último slide sem seta, barra 100%"
       - "[ ] Alternância claro/escuro mantida"
@@ -225,18 +262,25 @@ phases:
 batch_model:
   description: |
     Criar múltiplos carrosséis em uma sessão (7–14 por vez = 1–2 semanas de conteúdo).
-    O n8n posta 1 por dia no horário configurado enquanto a fila tiver conteúdo.
+    O GitHub Actions posta 1 por dia no horário configurado enquanto a fila tiver conteúdo.
   recommended_batch_size: 7
+  session_start: |
+    Antes de criar o lote, rodar @social-strategist *brief-batch para obter:
+    - Referências do nicho atualizadas
+    - Calendário com temas priorizados por dados
+    - Hashtags atualizadas por categoria
   category_rotation:
-    - EDU   # Dia 1 — Educação & Benefícios
-    - MOT   # Dia 2 — Motivacional
-    - MET   # Dia 3 — Método EBS
-    - INS   # Dia 4 — Instrumentos
-    - SOC   # Dia 5 — Prova Social
-    - TEC   # Dia 6 — Técnico Acessível
-    - CAP   # Dia 7 — Captação Direta
+    - EDU   # Dia 1 (Seg) — Educação & Benefícios — conteúdo de autoridade
+    - MOT   # Dia 2 (Ter) — Motivacional — engajamento mid-week
+    - MET   # Dia 3 (Qua) — Método EBS — institucional
+    - INS   # Dia 4 (Qui) — Instrumentos — alta salvabilidade
+    - TEC   # Dia 5 (Sex) — Técnico Acessível — valor prático
+    - SOC   # Dia 6 (Sáb) — Prova Social — humaniza a marca
+    - CAP   # Dia 7 (Dom) — Captação Direta — captura lead passivo
+  posting_time: "19h BRT — captura pais pós-trabalho e adolescentes pós-escola"
   alert: |
     Resend envia email para Alex quando fila ficar com < 3 carrosséis pendentes.
+    Quando receber o alerta: ativar @social-strategist *brief-batch antes de criar novo lote.
 
 # ─────────────────────────────────────────
 # REGRAS GLOBAIS
