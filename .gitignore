@@ -37,3 +37,14 @@ package-lock.json
 
 # Claude Code worktrees (git repos embutidos — não commitar)
 .claude/worktrees/
+
+# AI tool configs locais (Cursor, DeepSeek, Gemini, Codex, etc.)
+.cursor/
+.deepseek/
+.gemini/
+.codex/
+.agent/
+.antigravity/
+
+# Scripts temporários
+tmp-*.js
