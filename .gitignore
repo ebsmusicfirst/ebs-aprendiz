@@ -34,3 +34,6 @@ Thumbs.db
 playwright-report/
 test-results/
 package-lock.json
+
+# Claude Code worktrees (git repos embutidos — não commitar)
+.claude/worktrees/
