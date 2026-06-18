@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "carrosseis",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "carrosseis", "--listen", "3333", "--no-clipboard"],
+      "port": 3333
+    },
+    {
+      "name": "dashboard",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["scripts/dashboard.js"],
+      "port": 3000
+    }
+  ]
+}
