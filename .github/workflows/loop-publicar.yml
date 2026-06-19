@@ -1,0 +1,29 @@
+name: Loop Publicador — ClickUp Aprovado → Buffer
+
+on:
+  schedule:
+    - cron: '0 9,21 * * *'   # 06h e 18h BRT (UTC-3)
+  workflow_dispatch:           # disparo manual pelo GitHub
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Rodar loop-publicar
+        env:
+          CLICKUP_API_KEY:      ${{ secrets.CLICKUP_API_KEY }}
+          BUFFER_ACCESS_TOKEN:  ${{ secrets.BUFFER_ACCESS_TOKEN }}
+        run: node scripts/loop-publicar.js
