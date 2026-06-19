@@ -1,0 +1,137 @@
+# ============================================
+# AIOX Session Handoff — EBS Aprendiz
+# Data: 2026-06-19
+# Agente: Orion (@aiox-master)
+# ============================================
+
+sessao:
+  data: "2026-06-19"
+  status: CONCLUÍDA
+  commit_final: "6ba42ee"
+  branch: master
+
+# ── O QUE FOI FEITO ──────────────────────────────────────
+
+realizacoes:
+
+  incidente_buffer:
+    descricao: "10 posts foram ao Buffer sem aprovação de Alex — cancelados"
+    resolucao:
+      - "Todos os posts Buffer cancelados via API (GraphQL mutation deletePost)"
+      - "GitHub Action post-daily.yml com cron DESABILITADO (comentado)"
+      - "Regra permanente gravada em memory/feedback_buffer-publicacao-proibida.md"
+    regra: "NUNCA tocar o Buffer sem criativo 'Aprovado' no ClickUp"
+
+  fase1_clickup:
+    descricao: "Estrutura ClickUp L0/L1/L2 completamente populada e validada"
+    campos_novos:
+      - "statusPipeline (dropdown 6 opções, incluindo 'Em Revisão')"
+      - "statusPauta (dropdown 5 opções, incluindo 'Aprovada p/ Criar')"
+      - "notasRevisao (text field para feedback de revisão)"
+    ids_em: "scripts/clickup-map.json"
+    conteudo_populado:
+      L0_DNA: 5 itens
+      L0_ICP: 4 itens
+      L0_Ofertas: 3 itens
+      L1_Campanhas: 1 (Desconstrução de Mitos Musicais — 86e1th44r)
+      L2_Criativos: 3 (2 em aprovação, 1 gerado)
+      L2_Pautas: 14 no backlog
+    diagnostico_final: "🟢 SAUDÁVEL"
+
+  fase2_scripts:
+    descricao: "Scripts do loop criados, testados e commitados"
+    arquivos:
+      - "scripts/loop-gerar.js — pauta 'Aprovada p/ Criar' → HTML → PNGs → ClickUp 'Em Aprovação'"
+      - "scripts/loop-publicar.js — criativo 'Aprovado' → Buffer queue → ClickUp 'Agendado'"
+      - "STATE.md — memória persistente do loop"
+    npm_scripts:
+      - "npm run loop:gerar"
+      - "npm run loop:gerar:dry"
+      - "npm run loop:publicar"
+      - "npm run loop:publicar:dry"
+
+  fase3_github_action:
+    descricao: "GitHub Action configurado para rodar loop-publicar automaticamente"
+    arquivo: ".github/workflows/loop-publicar.yml"
+    schedule: "06h e 18h BRT (cron: 0 9,21 * * *)"
+    trigger_manual: "GitHub → Actions → 'Loop Publicador' → Run workflow"
+    secrets_registrados:
+      - "CLICKUP_API_KEY (registrado 2026-06-19)"
+      - "BUFFER_ACCESS_TOKEN (registrado 2026-06-19)"
+
+  slides_tweet_v4:
+    descricao: "3 carrosséis tweet-v4 com logo injetado + PNGs exportados"
+    arquivos:
+      - "carrosseis/tweet-v4-3-sinais-professor-05.html (8 slides)"
+      - "carrosseis/tweet-v4-guitarra-sozinho-01.html (8 slides)"
+      - "carrosseis/tweet-v4-sem-tempo-03.html (8 slides)"
+    pngs: "slides/tweet-v4-*/slide_*.png (8 × 3 = 24 PNGs)"
+    status_clickup:
+      - "86e1yky1y — tweet-v4-guitarra-sozinho-01 — Em Aprovação"
+      - "86e1yky2t — tweet-v4-sem-tempo-03 — Em Aprovação"
+      - "86e1th45d — tweet-v4-3-sinais-professor-05 — Gerado"
+
+# ── FLUXO COMPLETO (para referência) ─────────────────────
+
+fluxo_operacional:
+  1: "Alex move pauta para 'Aprovada p/ Criar' no ClickUp"
+  2: "npm run loop:gerar  →  HTML + PNGs + ClickUp 'Em Aprovação'"
+  3: "Alex revisa slides no ClickUp → move para 'Aprovado'"
+  4: "GitHub Action (06h ou 18h) roda loop-publicar"
+  5: "Criativo vai para fila do Buffer → ClickUp: 'Agendado'"
+  6: "Buffer publica no próximo slot do calendário"
+
+# ── PENDÊNCIAS ────────────────────────────────────────────
+
+pendencias:
+
+  clickup_unlimited:
+    status: PENDENTE_ALEX
+    descricao: "Assinar plano Unlimited do ClickUp ($7/mês)"
+    motivo: |
+      Free plan tem limite de custom field usages (FIELD_033).
+      Impacto: pautas foram criadas sem campos preenchidos (só título).
+      Com Unlimited: loop-gerar.js pode setar todos os campos nos criativos sem erro.
+    acao_apos_assinar: |
+      1. Abrir ClickUp → ver as 14 pautas no backlog
+      2. Setar manualmente: framework e pilar em cada pauta (ou rodar script)
+      3. Ou criar script clickup-set-pauta-fields.js para fazer isso via API
+
+  pautas_sem_campos:
+    status: AGUARDANDO_UNLIMITED
+    descricao: "14 pautas no backlog criadas sem campos preenchidos"
+    workaround_atual: "Framework embutido no título (ex: '... — framework: Checklist')"
+    solucao_ideal: "Setar statusPauta + framework + pilar em cada pauta via API"
+
+  loop_gerar_teste_e2e:
+    status: NÃO_TESTADO
+    descricao: "Testar loop-gerar.js com uma pauta real 'Aprovada p/ Criar'"
+    como_testar: |
+      1. No ClickUp: abrir uma pauta → mudar status para 'Aprovada p/ Criar'
+      2. npm run loop:gerar:dry   (ver o que vai gerar sem criar nada)
+      3. npm run loop:gerar       (gerar de verdade)
+      4. Verificar criativo no ClickUp + PNG na pasta slides/
+
+# ── ARQUIVOS CHAVE ────────────────────────────────────────
+
+arquivos_chave:
+  mapa_clickup:    "scripts/clickup-map.json"
+  modulo_clickup:  "scripts/clickup.js"
+  loop_gerador:    "scripts/loop-gerar.js"
+  loop_publicador: "scripts/loop-publicar.js"
+  estado:          "STATE.md"
+  workflow_ci:     ".github/workflows/loop-publicar.yml"
+  workflow_antigo: ".github/workflows/post-daily.yml  ← DESABILITADO"
+  memoria_buffer:  "C:/Users/alexr/.claude/projects/.../memory/feedback_buffer-publicacao-proibida.md"
+
+# ── PRIMEIRA AÇÃO NA PRÓXIMA SESSÃO ──────────────────────
+
+proxima_sessao:
+  prioridade_1:
+    acao: "Confirmar se Alex assinou o Unlimited"
+    se_sim: "Setar campos nas 14 pautas do backlog via API e testar loop:gerar end-to-end"
+    se_nao: "Testar loop:gerar com campos mínimos (só título, sem framework/pilar)"
+  prioridade_2:
+    acao: "Aprovar um dos 2 criativos 'Em Aprovação' no ClickUp"
+    como: "ClickUp → tweet-v4-guitarra-sozinho-01 ou tweet-v4-sem-tempo-03 → mudar para 'Aprovado'"
+    resultado: "GitHub Action roda automaticamente e agenda no Buffer"

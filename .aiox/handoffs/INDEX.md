@@ -54,7 +54,19 @@
   - **Token IGAA falhou no primeiro teste real de publicação hoje** (Cannot parse access token)
 - **Erro de processo identificado:** Não li `docs/handoff-2026-05-14.md`. Adicionei este INDEX para evitar repetição.
 
-### 2026-06-18 — Housekeeping + Diagnóstico ClickUp + Arquitetura do Loop ← MAIS RECENTE
+### 2026-06-19 — Loop completo (Fases 1+2+3) + incidente Buffer cancelado ← MAIS RECENTE
+- **Arquivo:** `.aiox/handoffs/session-state-2026-06-19.yaml`
+- **Highlights:**
+  - **Incidente Buffer resolvido:** 10 posts ao ar sem aprovação → todos cancelados via API. Cron `post-daily.yml` desabilitado. Regra permanente gravada em memory.
+  - **ClickUp 🟢 SAUDÁVEL:** L0 (DNA 5 / ICP 4 / Ofertas 3) + L1 (campanha ativa) + L2 (3 criativos + 14 pautas) populados via API
+  - **Fase 1 — Campos ClickUp:** statusPipeline (6 opções) + statusPauta (5 opções) + notasRevisao criados. IDs em `clickup-map.json`
+  - **Fase 2 — Scripts:** `loop-gerar.js` (pauta → HTML → PNGs → ClickUp "Em Aprovação") + `loop-publicar.js` (criativo "Aprovado" → Buffer → ClickUp "Agendado"). `STATE.md` criado.
+  - **Fase 3 — GitHub Action:** `.github/workflows/loop-publicar.yml` ativo. Cron 06h + 18h BRT. Secrets `CLICKUP_API_KEY` + `BUFFER_ACCESS_TOKEN` registrados.
+  - **Slides tweet-v4:** 3 × 8 PNGs exportados e commitados (`slides/tweet-v4-*/`)
+  - **Pendência principal:** assinar ClickUp Unlimited ($7/mês) para eliminar limite FIELD_033 e setar campos nas 14 pautas do backlog
+- **Próxima ação:** após assinar Unlimited → rodar `npm run loop:gerar` com pauta aprovada (teste end-to-end)
+
+### 2026-06-18 — Housekeeping + Diagnóstico ClickUp + Arquitetura do Loop
 - **Arquivo:** `.aiox/handoffs/session-state-2026-06-18.yaml`
 - **Highlights:**
   - **P1 concluído:** Logo base64 injetado nos 3 tweet-v4 HTMLs
