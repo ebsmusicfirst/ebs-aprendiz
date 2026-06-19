@@ -4,8 +4,9 @@ name: 📸 EBS Aprendiz — Auto-Publisher de Agendados
 # Funciona mesmo com o PC do usuário desligado — GitHub roda na nuvem.
 
 on:
-  schedule:
-    - cron: '*/15 * * * *'   # a cada 15 min
+  # DESABILITADO — publicação automática proibida sem aprovação explícita no ClickUp
+  # schedule:
+  #   - cron: '*/15 * * * *'   # a cada 15 min
 
   workflow_dispatch:
     inputs:

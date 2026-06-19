@@ -1,0 +1,44 @@
+# ============================================
+# AIOX Loop Handoff — Fase 1 CONCLUÍDA
+# Saved: 2026-06-19
+# ============================================
+
+fase: 1
+status: CONCLUÍDA
+titulo: "Setup ClickUp para suportar o loop"
+
+resumo: |
+  Todos os campos e status do ClickUp necessários para o loop estão prontos.
+  O clickup.js foi atualizado com os novos IDs e novos helpers.
+
+o_que_foi_feito:
+  - "statusPipeline (Criativos) recriado com 6 options: Gerado → Em Aprovacao → Em Revisão → Aprovado → Agendado → Postado"
+  - "statusPauta (Pautas) recriado com 5 options: Backlog → Em Refinamento → Aprovada p/ Criar → Em Produção → Produzida"
+  - "Campo 'Notas de Revisão' (text) criado em Criativos: d01cd2cb-5437-4be4-a377-572ac905b8c4"
+  - "clickup-map.json atualizado com todos os novos IDs"
+  - "clickup.js: STATUS.EM_REVISAO adicionado"
+  - "clickup.js: moverParaRevisao(), updateNotasRevisao(), listPautasAprovadas(), updateStatusPauta() adicionados"
+  - "Campos obsoletos renomeados com prefixo 🚫 na UI do ClickUp"
+  - "GitHub Action post-daily.yml: cron desabilitado (incidente de publicação sem aprovação)"
+  - "Memória gravada: NUNCA publicar no Buffer sem aprovação explícita de Alex"
+
+novos_ids_relevantes:
+  criativos:
+    statusPipeline:
+      field_id: "0ae2eb71-3611-411a-af1a-292f5ce9dd62"
+      Em_Revisao: "0dd7f5a9-eb26-463f-a08c-8bf4c426d3c6"
+    notasRevisao:
+      field_id: "d01cd2cb-5437-4be4-a377-572ac905b8c4"
+  pautas:
+    statusPauta:
+      field_id: "da40782b-e752-4732-97b7-304c3be0ad4b"
+      Aprovada_p_Criar: "dd33f8c2-ea59-438c-90b1-b1040cb339dc"
+      Em_Refinamento: "aa24f032-80b9-43fb-9bfb-eb7e2b0cf149"
+
+proxima_fase:
+  numero: 2
+  titulo: "Scripts do loop"
+  arquivos_a_criar:
+    - "scripts/loop-gerar.js — pauta aprovada → HTML → PNGs → ClickUp 'Em Aprovação'"
+    - "scripts/loop-publicar.js — criativo aprovado → Buffer draft → ClickUp 'Agendado'"
+  regra_buffer: "loop-publicar.js cria SOMENTE drafts no Buffer (draft: true). Alex publica manualmente."

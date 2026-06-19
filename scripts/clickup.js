@@ -28,6 +28,7 @@ const F = MAP.fields; // F.criativos.formato.id, F.criativos.formato.options['Ca
 const STATUS = {
   GERADO:       F.criativos.statusPipeline.options['Gerado'],
   EM_APROVACAO: F.criativos.statusPipeline.options['Em Aprovacao'],
+  EM_REVISAO:   F.criativos.statusPipeline.options['Em Revisão'],
   APROVADO:     F.criativos.statusPipeline.options['Aprovado'],
   AGENDADO:     F.criativos.statusPipeline.options['Agendado'],
   POSTADO:      F.criativos.statusPipeline.options['Postado'],
@@ -274,13 +275,29 @@ async function updateStatus(taskId, statusName, extra = {}) {
   return { id: taskId, status: statusName };
 }
 
-const aprovar        = (id) => updateStatus(id, 'Aprovado');
-const marcarAgendado = (id, bufferPostId, dataPublicacao) => updateStatus(id, 'Agendado', { bufferPostId, dataPublicacao });
-const marcarPostado  = (id, alcance) => updateStatus(id, 'Postado', { alcance });
+const aprovar           = (id) => updateStatus(id, 'Aprovado');
+const moverParaRevisao  = (id) => updateStatus(id, 'Em Revisão');
+const marcarAgendado    = (id, bufferPostId, dataPublicacao) => updateStatus(id, 'Agendado', { bufferPostId, dataPublicacao });
+const marcarPostado     = (id, alcance) => updateStatus(id, 'Postado', { alcance });
 
 async function updateCaption(taskId, caption) {
   await setFieldValue(taskId, F.criativos.caption.id, caption);
   await journalLog('caption_editada', taskId, null, {});
+}
+
+async function updateNotasRevisao(taskId, notas) {
+  await setFieldValue(taskId, F.criativos.notasRevisao.id, notas);
+  await journalLog('notas_revisao', taskId, null, { notas });
+}
+
+async function listPautasAprovadas() {
+  const tasks = await listPautas();
+  return tasks.filter(t => readDropdown(F.pautas.statusPauta, t) === 'Aprovada p/ Criar');
+}
+
+async function updateStatusPauta(taskId, statusName) {
+  await setDropdown(taskId, F.pautas.statusPauta, statusName);
+  await journalLog('pauta_status_change', taskId, null, { status: statusName });
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -348,10 +365,11 @@ module.exports = {
   // campanhas
   createCampanha, listCampanhas, getCampanha, getCampanhaRegras,
   // pautas
-  createPauta, listPautas,
+  createPauta, listPautas, listPautasAprovadas, updateStatusPauta,
   // criativos
   createCriativo, listCriativos, getCriativo, statusDe,
-  updateStatus, aprovar, marcarAgendado, marcarPostado, updateCaption,
+  updateStatus, aprovar, moverParaRevisao, marcarAgendado, marcarPostado,
+  updateCaption, updateNotasRevisao,
   // leitura/escrita de fields
   readDropdown, readField, setDropdown, setFieldValue, setRelationship,
   // util

@@ -94,13 +94,16 @@
     },
     "pautas": {
       "statusPauta": {
-        "id": "2a16e7d7-0e7f-4f19-9005-e7a656ac41d6",
+        "id": "da40782b-e752-4732-97b7-304c3be0ad4b",
         "type": "drop_down",
         "options": {
-          "Backlog": "758dfd70-a86c-4729-b758-6112d47c8bb5",
-          "Em Produção": "df20f218-960d-4831-b172-c382a846eef3",
-          "Produzida": "a776fe98-26c5-436f-a0b6-aa0eda5dceff"
-        }
+          "Backlog": "d1098330-f78c-4e73-8355-ced8d1745836",
+          "Em Refinamento": "aa24f032-80b9-43fb-9bfb-eb7e2b0cf149",
+          "Aprovada p/ Criar": "dd33f8c2-ea59-438c-90b1-b1040cb339dc",
+          "Em Produção": "e3a427b3-936f-4113-8b1c-868e86489fef",
+          "Produzida": "949a65fa-6230-4940-a644-676fd94004fe"
+        },
+        "name": "Status da Pauta"
       },
       "framework": {
         "id": "13af320b-8e78-4ad4-a593-633ee8770677",
@@ -179,14 +182,15 @@
         "type": "number"
       },
       "statusPipeline": {
-        "id": "424a4870-8e71-4328-bee1-a5fb25be8969",
+        "id": "0ae2eb71-3611-411a-af1a-292f5ce9dd62",
         "type": "drop_down",
         "options": {
-          "Gerado": "a5c30cda-0ea9-4400-a9ce-f8e2e3493ba6",
-          "Em Aprovacao": "79ab9d61-31c5-40cc-b667-c61089a226f2",
-          "Aprovado": "527bf2f6-c89c-488d-afb5-3be5e96e6007",
-          "Agendado": "3b904b1d-7317-455a-9055-efc73a871039",
-          "Postado": "c0078733-613d-47e4-ad9e-3307cb57c7a4"
+          "Gerado": "8fecc4ab-8486-432a-b584-868c552b0b7d",
+          "Em Aprovacao": "3e80b77a-e908-4208-bba3-038c5e1b0978",
+          "Em Revisão": "0dd7f5a9-eb26-463f-a08c-8bf4c426d3c6",
+          "Aprovado": "94b37728-e7c3-4a2e-b0e8-223bcbedebc4",
+          "Agendado": "62a1a299-2c89-4d84-9e47-c49cfd2c9b3e",
+          "Postado": "b2319eaa-23f9-4527-a338-977c2c534396"
         }
       },
       "campanha": {
@@ -196,6 +200,10 @@
       "pauta": {
         "id": "13476579-99c8-4d0e-9392-874c119a2f31",
         "type": "list_relationship"
+      },
+      "notasRevisao": {
+        "id": "d01cd2cb-5437-4be4-a377-572ac905b8c4",
+        "type": "text"
       }
     }
   }

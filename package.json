@@ -10,6 +10,10 @@
     "dashboard": "node scripts/dashboard.js",
     "export": "node scripts/export-carousel.js",
     "check": "node scripts/clickup-check.js",
+    "loop:gerar": "node scripts/loop-gerar.js",
+    "loop:gerar:dry": "node scripts/loop-gerar.js --dry-run",
+    "loop:publicar": "node scripts/loop-publicar.js",
+    "loop:publicar:dry": "node scripts/loop-publicar.js --dry-run",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

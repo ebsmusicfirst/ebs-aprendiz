@@ -1,0 +1,45 @@
+# ============================================
+# AIOX Loop Handoff — Fase 2 CONCLUÍDA
+# Saved: 2026-06-19
+# ============================================
+
+fase: 2
+status: CONCLUÍDA
+titulo: "Scripts do loop (loop-gerar.js + loop-publicar.js)"
+
+resumo: |
+  Os dois scripts do loop estão criados e validados via --dry-run.
+  Ambos integram com ClickUp e Buffer, respeitando a regra de não publicar sem aprovação.
+
+o_que_foi_feito:
+  - "scripts/loop-gerar.js criado — polling de pautas 'Aprovada p/ Criar' → HTML → PNGs → ClickUp 'Em Aprovação'"
+  - "scripts/loop-publicar.js criado — polling de criativos 'Aprovado' → Buffer draft (NUNCA auto-publish) → ClickUp 'Agendado'"
+  - "STATE.md criado — memória persistente do loop"
+  - "package.json atualizado: npm run loop:gerar, loop:gerar:dry, loop:publicar, loop:publicar:dry"
+  - "dry-run de ambos os scripts: OK (0 pautas aprovadas, 0 criativos aprovados — esperado)"
+
+arquivos_criados:
+  - "scripts/loop-gerar.js"
+  - "scripts/loop-publicar.js"
+  - "STATE.md"
+
+regra_buffer_gravada: |
+  loop-publicar.js usa draft:true SEMPRE.
+  A publicação no Instagram é SEMPRE manual via publish.buffer.com.
+  Memória permanente em: feedback_buffer-publicacao-proibida.md
+
+fluxo_completo:
+  1: "Alex adiciona pauta no ClickUp → muda status para 'Aprovada p/ Criar'"
+  2: "npm run loop:gerar → gera HTML + PNGs + registra no ClickUp como 'Em Aprovação'"
+  3: "Alex vê o carrossel no ClickUp → aprova (muda para 'Aprovado') ou dá feedback em 'Notas de Revisão'"
+  4: "npm run loop:publicar → cria draft no Buffer → ClickUp muda para 'Agendado'"
+  5: "Alex acessa publish.buffer.com → agenda ou publica manualmente"
+
+proxima_fase:
+  numero: 3
+  titulo: "Schedule (agendamento automático)"
+  o_que_fazer:
+    - "GitHub Action para loop-publicar.js (só API, sem Playwright) — roda na nuvem"
+    - "Windows Task Scheduler para loop-gerar.js (precisa do Playwright local)"
+    - "Ou: cron local no PC do Alex para ambos"
+  decisao_pendente: "Alex decide: GitHub Actions (nuvem, PC desligado) ou Task Scheduler (local, PC precisa estar ligado)"
