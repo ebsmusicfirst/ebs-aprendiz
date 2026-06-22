@@ -54,7 +54,16 @@
   - **Token IGAA falhou no primeiro teste real de publicação hoje** (Cannot parse access token)
 - **Erro de processo identificado:** Não li `docs/handoff-2026-05-14.md`. Adicionei este INDEX para evitar repetição.
 
-### 2026-06-19 — Loop completo (Fases 1+2+3) + incidente Buffer cancelado ← MAIS RECENTE
+### 2026-06-22 — Fix GitHub Action (package-lock + secrets contaminados) ← MAIS RECENTE
+- **Arquivo:** `.aiox/handoffs/session-state-2026-06-22.yaml`
+- **Highlights:**
+  - **Bug 1 resolvido:** `package-lock.json` estava no `.gitignore` — `npm ci` falhava no CI. Fix: removido do `.gitignore`, gerado e commitado.
+  - **Bug 2 resolvido:** Secrets `CLICKUP_API_KEY` e `BUFFER_ACCESS_TOKEN` contaminados com banner do dotenvx (`◇` = char 9671 > 255). Causava erro ByteString ao usar como header HTTP. Fix: re-setados lendo direto do arquivo `.env` sem passar por Node/dotenvx.
+  - **GitHub Action:** ✅ passando (run 27978443418, 19s)
+  - **Lição gravada:** nunca usar `require('dotenv').config()` via stdout para `gh secret set` — dotenvx contamina com Unicode
+- **Pendência:** ClickUp Unlimited ($7/mês) — aguardando Alex assinar para setar campos nas 14 pautas e testar `loop:gerar` end-to-end
+
+### 2026-06-19 — Loop completo (Fases 1+2+3) + incidente Buffer cancelado
 - **Arquivo:** `.aiox/handoffs/session-state-2026-06-19.yaml`
 - **Highlights:**
   - **Incidente Buffer resolvido:** 10 posts ao ar sem aprovação → todos cancelados via API. Cron `post-daily.yml` desabilitado. Regra permanente gravada em memory.

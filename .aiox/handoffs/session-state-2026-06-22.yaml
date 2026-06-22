@@ -1,0 +1,101 @@
+# ============================================
+# AIOX Session Handoff — EBS Aprendiz
+# Data: 2026-06-22
+# Agente: Orion (@aiox-master)
+# ============================================
+
+sessao:
+  data: "2026-06-22"
+  status: CONCLUÍDA
+  commit_final: "e125cdb"
+  branch: master
+
+# ── O QUE FOI FEITO ──────────────────────────────────────
+
+realizacoes:
+
+  fix_github_action:
+    descricao: "GitHub Action loop-publicar estava falhando em todos os runs desde 2026-06-19"
+    runs_com_falha: [27960340291, 27919021577, 27903154487]
+    causa_1:
+      problema: "package-lock.json estava no .gitignore — npm ci exige o lock file"
+      erro: "Dependencies lock file is not found in /home/runner/work/ebs-aprendiz/ebs-aprendiz"
+      fix: "Removido do .gitignore, gerado com npm install --package-lock-only, commitado"
+      arquivo: ".gitignore + package-lock.json"
+    causa_2:
+      problema: "Secrets CLICKUP_API_KEY e BUFFER_ACCESS_TOKEN contaminados com banner do dotenvx"
+      erro: "Cannot convert argument to a ByteString because the character at index 0 has a value of 9671 which is greater than 255"
+      explicacao: |
+        Ao setar os secrets em 2026-06-19, o comando usava:
+          node -e "require('dotenv').config(); process.stdout.write(process.env.KEY);" | gh secret set KEY
+        O dotenvx escreve para stdout (não stderr), então o banner '◇ injected env...'
+        foi capturado junto com o valor real da chave. O char '◇' = U+25C7 = 9671 decimal
+        causava erro ao ser usado como header HTTP.
+      fix: |
+        Re-setar secrets lendo direto do arquivo .env (sem Node/dotenvx):
+          node -e "const fs=require('fs'); const env=fs.readFileSync('.env','utf8'); ..." | gh secret set KEY
+      arquivos_nao_mudados: "Valores corretos no .env local — só o secret do GitHub estava errado"
+    resultado: "GitHub Action passando ✅ (run 27978443418 — success, 19s)"
+
+# ── LIÇÃO APRENDIDA (importante para futuros secrets) ────
+
+licao_secrets:
+  regra: "NUNCA usar 'require(dotenv).config()' para capturar valor de env var via stdout para gh secret set"
+  motivo: "dotenvx contamina stdout com banner Unicode (◇) que quebra headers HTTP"
+  forma_correta: |
+    node -e "
+    const fs = require('fs');
+    const env = fs.readFileSync('.env','utf8');
+    const match = key => { const m = env.match(new RegExp('^' + key + '=(.+)', 'm')); return m ? m[1].trim() : null; };
+    process.stdout.write(match('NOME_DA_CHAVE'));
+    " | gh secret set NOME_DA_CHAVE
+
+# ── ESTADO ATUAL DO SISTEMA ───────────────────────────────
+
+estado_sistema:
+  git: "master limpo — commit e125cdb"
+  github_action: "✅ loop-publicar.yml funcionando — cron 06h + 18h BRT"
+  clickup: "🟢 SAUDÁVEL — L0/L1/L2 populados"
+  criativos_em_aprovacao:
+    - id: "86e1yky1y"
+      nome: "tweet-v4-guitarra-sozinho-01"
+    - id: "86e1yky2t"
+      nome: "tweet-v4-sem-tempo-03"
+  pautas_backlog: 14
+
+# ── PENDÊNCIAS ────────────────────────────────────────────
+
+pendencias:
+
+  clickup_unlimited:
+    status: PENDENTE_ALEX
+    descricao: "Assinar plano Unlimited do ClickUp ($7/mês)"
+    motivo: "FIELD_033 — limite de custom field usages no Free plan"
+    acao_apos_assinar: |
+      1. Setar campos (framework, pilar, statusPauta) nas 14 pautas do backlog
+      2. Mover 1 pauta para 'Aprovada p/ Criar'
+      3. npm run loop:gerar  ← primeiro teste end-to-end real
+
+  aprovar_criativos:
+    status: AGUARDANDO_ALEX
+    descricao: "2 criativos em 'Em Aprovação' prontos para serem aprovados"
+    como: "ClickUp → tweet-v4-guitarra-sozinho-01 ou tweet-v4-sem-tempo-03 → mudar para 'Aprovado'"
+    resultado: "GitHub Action detecta automaticamente na próxima rodada (06h ou 18h) e agenda no Buffer"
+
+# ── ARQUIVOS CHAVE ────────────────────────────────────────
+
+arquivos_chave:
+  workflow_ci:       ".github/workflows/loop-publicar.yml"
+  lock_file:         "package-lock.json  ← NOVO (necessário para npm ci no CI)"
+  gitignore:         ".gitignore  ← package-lock.json removido da lista de ignorados"
+  loop_publicador:   "scripts/loop-publicar.js"
+  loop_gerador:      "scripts/loop-gerar.js"
+  mapa_clickup:      "scripts/clickup-map.json"
+  estado:            "STATE.md"
+
+# ── PRIMEIRA AÇÃO NA PRÓXIMA SESSÃO ──────────────────────
+
+proxima_sessao:
+  prioridade_1: "Confirmar se Alex assinou o Unlimited e setar campos nas pautas"
+  prioridade_2: "Aprovar um dos criativos 'Em Aprovação' e observar o ciclo completo até Buffer"
+  observar: "GitHub Action roda automaticamente 06h e 18h BRT — não precisa disparar manualmente"
