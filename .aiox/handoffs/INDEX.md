@@ -54,17 +54,20 @@
   - **Token IGAA falhou no primeiro teste real de publicação hoje** (Cannot parse access token)
 - **Erro de processo identificado:** Não li `docs/handoff-2026-05-14.md`. Adicionei este INDEX para evitar repetição.
 
-### 2026-06-23 — Campos custom nas 7 pautas + limpeza de títulos ← MAIS RECENTE
+### 2026-06-23 — loop-gerar automatizado + campos pautas ← MAIS RECENTE
 - **Arquivo:** `.aiox/handoffs/session-state-2026-06-23.yaml`
 - **Highlights:**
-  - Setados campos `framework`, `statusPauta` (Backlog) e `pilar` nas 7 pautas do backlog — via API ClickUp (ClickUp Unlimited ativo)
-  - Títulos limpos: removido sufixo "— framework: X" que era workaround do FIELD_033
-  - Verificado: `readDropdown(cu.FIELDS.pautas.framework, t)` retorna valor correto end-to-end
-  - Pipeline `loop-gerar.js` pronto para herdar framework das pautas
-- **Próximos passos:**
-  1. Testar `npm run loop:gerar` com uma pauta em "Aprovada p/ Criar"
-  2. Aprovar um criativo e observar Buffer/Action
-  3. Injetar logo base64 nos tweet-v4 com `{{LOGO_B64}}`
+  - Campos `framework` + `statusPauta` + `pilar` setados nas 7 pautas do backlog ✅
+  - Títulos das pautas limpos (removido workaround "— framework: X") ✅
+  - GitHub Action `loop-gerar.yml` criado e pushed (commit 0d440fa) ✅
+    - Cron: a cada 4h + `workflow_dispatch` (botão manual)
+    - Usa Playwright Chromium para exportar PNGs em CI
+- **⚠️ PENDENTE (bloqueador):** Alex precisa rodar no terminal:
+  `node -e "const fs=require('fs'); const env=fs.readFileSync('.env','utf8'); const m=env.match(/^ANTHROPIC_API_KEY=(.+)/m); process.stdout.write(m[1].trim());" | gh secret set ANTHROPIC_API_KEY`
+- **Próxima sessão:**
+  1. Verificar secret: `gh secret list | grep ANTHROPIC`
+  2. Mover pauta para "Aprovada p/ Criar" e disparar Action manualmente
+  3. Validar criativo gerado no ClickUp + PNGs no repositório
 
 ### 2026-06-22 — Fix GitHub Action (package-lock + secrets contaminados)
 - **Arquivo:** `.aiox/handoffs/session-state-2026-06-22.yaml`

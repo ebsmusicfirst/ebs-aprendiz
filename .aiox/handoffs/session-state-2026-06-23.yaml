@@ -1,51 +1,76 @@
 session_state:
   date: "2026-06-23"
   agent: "@aiox-master (Orion)"
-  status: "COMPLETO"
+  status: "AGUARDANDO — secret ANTHROPIC_API_KEY pendente"
 
 ## O que foi feito nesta sessão
 
-### Contexto herdado (da sessão 2026-06-22)
-- GitHub Action loop-publicar.yml funcional (3 runs consecutivos OK)
-- ClickUp Unlimited assinado (FIELD_033 resolvido)
-- 3 criativos existentes com captions atualizadas (sinal local Corbélia)
-- 7 pautas duplicadas deletadas (restan 7 limpas)
-- Regra de caption local adicionada ao headline-writer SKILL.md e loop-gerar.js
+### 1. Campos custom nas 7 pautas do backlog (concluído ✅)
+- Setados `framework`, `statusPauta` (Backlog) e `pilar` via API ClickUp
+- Títulos limpos: removido sufixo "— framework: X" (era workaround FIELD_033)
+- Verificado end-to-end: readDropdown retorna valores corretos
 
-### Feito nesta sessão
-- Setados campos custom em todas as 7 pautas do backlog:
-    - `framework`: valor correto (Estudo de Caso / Passo a Passo / Amador vs Pro / Desconstrução de Mito / Cheat Sheet-Checklist)
-    - `statusPauta`: "Backlog"
-    - `pilar`: A / B / C conforme conteúdo
-    - Títulos limpos (removido sufixo "— framework: X" que era workaround FIELD_033)
-- Verificado end-to-end: `readDropdown(cu.FIELDS.pautas.framework, t)` retorna o valor correto
+Pautas configuradas:
+  - 86e1ykyj6 | Estudo de Caso   | A — Metáfora      | A história do Método EBS — Alex Pereira
+  - 86e1ykyht | Passo a Passo    | B — Diagrama/Save  | Ritmo para quem está começando do zero
+  - 86e1ykyhk | Passo a Passo    | A — Metáfora       | Como é a entrevista inicial no EBS
+  - 86e1ykyhd | Amador vs Pro    | C — Stop-scroll    | O que separa quem aprende de quem desiste
+  - 86e1ykyh9 | Desconstrução de Mito | C — Stop-scroll | Nunca é tarde para aprender música
+  - 86e1ykyh0 | Cheat Sheet/Checklist | B — Diagrama/Save | 5 erros de quem tenta aprender instrumento sozinho
+  - 86e1ykygv | Passo a Passo    | B — Diagrama/Save  | Por que 10 minutos por dia funcionam
 
-### Estado atual das pautas (7 itens)
-- 86e1ykyj6 | Estudo de Caso   | A — Metáfora      | A história do Método EBS — Alex Pereira
-- 86e1ykyht | Passo a Passo    | B — Diagrama/Save  | Ritmo para quem está começando do zero
-- 86e1ykyhk | Passo a Passo    | A — Metáfora       | Como é a entrevista inicial no EBS
-- 86e1ykyhd | Amador vs Pro    | C — Stop-scroll    | O que separa quem aprende de quem desiste
-- 86e1ykyh9 | Desconstrução de Mito | C — Stop-scroll | Nunca é tarde para aprender música
-- 86e1ykyh0 | Cheat Sheet/Checklist | B — Diagrama/Save | 5 erros de quem tenta aprender instrumento sozinho
-- 86e1ykygv | Passo a Passo    | B — Diagrama/Save  | Por que 10 minutos por dia funcionam
+### 2. GitHub Action loop-gerar.yml criado e no ar (concluído ✅)
+- Arquivo: `.github/workflows/loop-gerar.yml`
+- Cron: `0 */4 * * *` (a cada 4 horas)
+- Também tem `workflow_dispatch` (botão manual no GitHub Actions)
+- Commit: 0d440fa — pushed para origin/master
+- O que faz: instala Playwright Chromium → roda loop-gerar.js → commita slides/ + carrosseis/ + STATE.md
 
-## Próximos passos recomendados
+### 3. PENDENTE ⚠️ — Secret ANTHROPIC_API_KEY não setado ainda
+Alex precisa rodar este comando no terminal antes da próxima sessão:
 
-1. **Testar loop end-to-end**: Mover uma pauta para "Aprovada p/ Criar" no ClickUp
-   e rodar `npm run loop:gerar` — confirmará que o framework é herdado corretamente.
+  node -e "const fs=require('fs'); const env=fs.readFileSync('.env','utf8'); const m=env.match(/^ANTHROPIC_API_KEY=(.+)/m); process.stdout.write(m[1].trim());" | gh secret set ANTHROPIC_API_KEY
 
-2. **Aprovar um criativo**: Mover um dos criativos "Em Aprovação" para "Aprovado"
-   e observar o GitHub Action enfileirá-lo no Buffer automaticamente.
+Sem esse secret, o GitHub Action vai falhar (Claude não consegue gerar o conteúdo).
 
-3. **Injetar logo base64** nos HTMLs tweet-v4 que têm {{LOGO_B64}} no CTA slide:
-   - carrosseis/tweet-v4-3-sinais-professor-05.html
-   - carrosseis/tweet-v4-guitarra-sozinho-01.html
-   - carrosseis/tweet-v4-sem-tempo-03.html
+## Pipeline completo (quando o secret estiver setado)
+
+  ClickUp: você move pauta → "Aprovada p/ Criar"
+      ↓ GitHub Action loop-gerar (automático, max 4h — ou manual pelo GitHub)
+  HTML + PNGs gerados, commitados no repositório
+  ClickUp: criativo aparece como "Em Aprovação" com preview dos slides
+      ↓ você revisa e move → "Aprovado"
+  GitHub Action loop-publicar (automático, 06h/18h BRT)
+      ↓ enfileira no Buffer → Instagram
+
+## Próximos passos para a próxima sessão
+
+### P1 — BLOQUEADOR: setar secret ANTHROPIC_API_KEY
+Antes de qualquer teste, Alex deve ter rodado:
+  node -e "..." | gh secret set ANTHROPIC_API_KEY
+Verificar com: gh secret list | grep ANTHROPIC
+
+### P2 — Testar loop-gerar end-to-end
+1. Mover uma pauta para "Aprovada p/ Criar" no ClickUp
+2. Disparar manualmente: github.com/ebsmusicfirst/ebs-aprendiz/actions
+   → workflow "Loop Gerador" → "Run workflow"
+3. Acompanhar o log do Action
+4. Verificar: criativo criado no ClickUp com status "Em Aprovação"
+5. Verificar: slides/ e carrosseis/ commitados no repositório
+
+### P3 — Testar loop completo (opcional, após P2 ok)
+- Mover o criativo gerado para "Aprovado" no ClickUp
+- Aguardar o loop-publicar (ou disparar manualmente)
+- Verificar enfileiramento no Buffer
+
+## Estado dos GitHub Actions
+
+| Action | Status | Cron |
+|---|---|---|
+| loop-publicar.yml | ✅ ativo | 0 9,21 * * * (06h/18h BRT) |
+| loop-gerar.yml | ✅ ativo (falta secret) | 0 */4 * * * (a cada 4h) |
 
 ## Arquivos modificados nesta sessão
-- Nenhum (apenas chamadas de API ClickUp — sem mudanças de código)
-
-## Estado do GitHub Action
-- Último run: sucesso (cron 06h e 18h BRT)
-- Secrets: CLICKUP_API_KEY e BUFFER_ACCESS_TOKEN corretos (fix 2026-06-22)
-- package-lock.json: commitado desde 2026-06-22
+- .github/workflows/loop-gerar.yml (novo — commit 0d440fa)
+- .aiox/handoffs/INDEX.md (atualizado)
+- .aiox/handoffs/session-state-2026-06-23.yaml (este arquivo)
