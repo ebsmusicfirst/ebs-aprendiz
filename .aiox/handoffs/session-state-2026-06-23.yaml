@@ -1,0 +1,51 @@
+session_state:
+  date: "2026-06-23"
+  agent: "@aiox-master (Orion)"
+  status: "COMPLETO"
+
+## O que foi feito nesta sessão
+
+### Contexto herdado (da sessão 2026-06-22)
+- GitHub Action loop-publicar.yml funcional (3 runs consecutivos OK)
+- ClickUp Unlimited assinado (FIELD_033 resolvido)
+- 3 criativos existentes com captions atualizadas (sinal local Corbélia)
+- 7 pautas duplicadas deletadas (restan 7 limpas)
+- Regra de caption local adicionada ao headline-writer SKILL.md e loop-gerar.js
+
+### Feito nesta sessão
+- Setados campos custom em todas as 7 pautas do backlog:
+    - `framework`: valor correto (Estudo de Caso / Passo a Passo / Amador vs Pro / Desconstrução de Mito / Cheat Sheet-Checklist)
+    - `statusPauta`: "Backlog"
+    - `pilar`: A / B / C conforme conteúdo
+    - Títulos limpos (removido sufixo "— framework: X" que era workaround FIELD_033)
+- Verificado end-to-end: `readDropdown(cu.FIELDS.pautas.framework, t)` retorna o valor correto
+
+### Estado atual das pautas (7 itens)
+- 86e1ykyj6 | Estudo de Caso   | A — Metáfora      | A história do Método EBS — Alex Pereira
+- 86e1ykyht | Passo a Passo    | B — Diagrama/Save  | Ritmo para quem está começando do zero
+- 86e1ykyhk | Passo a Passo    | A — Metáfora       | Como é a entrevista inicial no EBS
+- 86e1ykyhd | Amador vs Pro    | C — Stop-scroll    | O que separa quem aprende de quem desiste
+- 86e1ykyh9 | Desconstrução de Mito | C — Stop-scroll | Nunca é tarde para aprender música
+- 86e1ykyh0 | Cheat Sheet/Checklist | B — Diagrama/Save | 5 erros de quem tenta aprender instrumento sozinho
+- 86e1ykygv | Passo a Passo    | B — Diagrama/Save  | Por que 10 minutos por dia funcionam
+
+## Próximos passos recomendados
+
+1. **Testar loop end-to-end**: Mover uma pauta para "Aprovada p/ Criar" no ClickUp
+   e rodar `npm run loop:gerar` — confirmará que o framework é herdado corretamente.
+
+2. **Aprovar um criativo**: Mover um dos criativos "Em Aprovação" para "Aprovado"
+   e observar o GitHub Action enfileirá-lo no Buffer automaticamente.
+
+3. **Injetar logo base64** nos HTMLs tweet-v4 que têm {{LOGO_B64}} no CTA slide:
+   - carrosseis/tweet-v4-3-sinais-professor-05.html
+   - carrosseis/tweet-v4-guitarra-sozinho-01.html
+   - carrosseis/tweet-v4-sem-tempo-03.html
+
+## Arquivos modificados nesta sessão
+- Nenhum (apenas chamadas de API ClickUp — sem mudanças de código)
+
+## Estado do GitHub Action
+- Último run: sucesso (cron 06h e 18h BRT)
+- Secrets: CLICKUP_API_KEY e BUFFER_ACCESS_TOKEN corretos (fix 2026-06-22)
+- package-lock.json: commitado desde 2026-06-22

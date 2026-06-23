@@ -54,7 +54,19 @@
   - **Token IGAA falhou no primeiro teste real de publicação hoje** (Cannot parse access token)
 - **Erro de processo identificado:** Não li `docs/handoff-2026-05-14.md`. Adicionei este INDEX para evitar repetição.
 
-### 2026-06-22 — Fix GitHub Action (package-lock + secrets contaminados) ← MAIS RECENTE
+### 2026-06-23 — Campos custom nas 7 pautas + limpeza de títulos ← MAIS RECENTE
+- **Arquivo:** `.aiox/handoffs/session-state-2026-06-23.yaml`
+- **Highlights:**
+  - Setados campos `framework`, `statusPauta` (Backlog) e `pilar` nas 7 pautas do backlog — via API ClickUp (ClickUp Unlimited ativo)
+  - Títulos limpos: removido sufixo "— framework: X" que era workaround do FIELD_033
+  - Verificado: `readDropdown(cu.FIELDS.pautas.framework, t)` retorna valor correto end-to-end
+  - Pipeline `loop-gerar.js` pronto para herdar framework das pautas
+- **Próximos passos:**
+  1. Testar `npm run loop:gerar` com uma pauta em "Aprovada p/ Criar"
+  2. Aprovar um criativo e observar Buffer/Action
+  3. Injetar logo base64 nos tweet-v4 com `{{LOGO_B64}}`
+
+### 2026-06-22 — Fix GitHub Action (package-lock + secrets contaminados)
 - **Arquivo:** `.aiox/handoffs/session-state-2026-06-22.yaml`
 - **Highlights:**
   - **Bug 1 resolvido:** `package-lock.json` estava no `.gitignore` — `npm ci` falhava no CI. Fix: removido do `.gitignore`, gerado e commitado.

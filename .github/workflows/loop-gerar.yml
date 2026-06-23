@@ -1,0 +1,43 @@
+name: Loop Gerador — ClickUp Aprovada → Carrossel
+
+on:
+  schedule:
+    - cron: '0 */4 * * *'   # a cada 4 horas (06h, 10h, 14h, 18h, 22h, 02h BRT)
+  workflow_dispatch:          # disparo manual pelo GitHub (Actions > Run workflow)
+
+jobs:
+  gerar:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Instalar Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Rodar loop-gerar
+        env:
+          CLICKUP_API_KEY:   ${{ secrets.CLICKUP_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: node scripts/loop-gerar.js
+
+      - name: Commit e push arquivos gerados
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add carrosseis/ slides/ STATE.md
+          git diff --cached --quiet \
+            && echo "Nenhuma pauta gerada — sem commit." \
+            || git commit -m "chore(auto): carrossel gerado via loop-gerar" && git push
