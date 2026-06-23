@@ -93,6 +93,11 @@ function readField(fieldDef, task) {
   return f ? f.value : null;
 }
 
+/** Atualiza a descrição markdown de uma task (usado para preview de slides). */
+async function updateTaskDescription(taskId, markdownText) {
+  await api('PUT', `/task/${taskId}`, { markdown_description: markdownText });
+}
+
 /** Seta um relationship field (add target task). Roda após criar a task. */
 async function setRelationship(taskId, fieldId, targetTaskId) {
   if (!targetTaskId) return;
@@ -369,7 +374,7 @@ module.exports = {
   // criativos
   createCriativo, listCriativos, getCriativo, statusDe,
   updateStatus, aprovar, moverParaRevisao, marcarAgendado, marcarPostado,
-  updateCaption, updateNotasRevisao,
+  updateCaption, updateNotasRevisao, updateTaskDescription,
   // leitura/escrita de fields
   readDropdown, readField, setDropdown, setFieldValue, setRelationship,
   // util

@@ -369,6 +369,15 @@ async function run() {
   await cu.updateStatus(criativo.id, 'Em Aprovacao');
   console.log(`  ✅ Criativo ${criativo.id} — status: Em Aprovação`);
 
+  // 7b. ADICIONAR PREVIEW DOS SLIDES NA DESCRIÇÃO
+  const GITHUB_RAW = 'https://raw.githubusercontent.com/ebsmusicfirst/ebs-aprendiz/master/slides';
+  const descLines = [`**Preview — ${slug}** (${pngs.length} slides)\n`];
+  for (let i = 1; i <= pngs.length; i++) {
+    descLines.push(`![Slide ${i}](${GITHUB_RAW}/${slug}/slide_${i}.png)`);
+  }
+  await cu.updateTaskDescription(criativo.id, descLines.join('\n'));
+  console.log(`  ✅ Preview dos slides adicionado à descrição do ClickUp`);
+
   // 8. ATUALIZAR STATUS DA PAUTA
   await cu.updateStatusPauta(pauta.id, 'Em Produção');
   console.log(`  ✅ Pauta ${pauta.id} → Em Produção`);
