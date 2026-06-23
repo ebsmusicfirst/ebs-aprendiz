@@ -141,7 +141,7 @@ Cria arco narrativo de N slides com transição lógica.
 - Direto e claro
 - Mentor experiente (sabe do que fala)
 - Citar fontes de autoridade (Johns Hopkins, Harvard)
-- "Aqui em Corbélia" — toque local
+- **Caption SEMPRE começa com sinal local** — ex: "Tá em Corbélia?", "Em Corbélia...", "Aqui em Corbélia," — público é local, post deve soar assim
 - Linguagem acessível mas séria
 
 ❌ **Nunca:**
@@ -209,7 +209,7 @@ tom: "Provocativo + autoridade"
 fonte_principal: "Johns Hopkins Medicine"
 
 caption_completa: |
-  Você sabia que tocar um instrumento musical é a única atividade
+  Tá em Corbélia? Sabia que tocar um instrumento musical é a única atividade
   humana que ativa praticamente TODAS as áreas do cérebro ao mesmo tempo?
 
   Segundo o Johns Hopkins Medicine — referência mundial em medicina há 22 anos

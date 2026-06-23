@@ -106,7 +106,7 @@ FORMATO: tweet-v4 (estilo post do X/Twitter)
 OUTPUT: retorne SOMENTE um JSON com esta estrutura (sem markdown, sem explicação):
 {
   "titulo": "slug-do-arquivo",
-  "caption": "texto do post no Instagram (sem preço, max 300 chars)",
+  "caption": "texto do post no Instagram — DEVE começar com sinal local (ex: 'Tá em Corbélia?', 'Em Corbélia...', 'Aqui em Corbélia,') — sem preço, max 300 chars",
   "hashtags": "#ebsaprendiz #escolademusica #corbeliapr",
   "slides": [
     { "tipo": "capa", "headline": "...", "sub": "..." },
