@@ -162,6 +162,51 @@ async function getCampanhaRegras(campanhaId) {
 }
 
 // ─────────────────────────────────────────────────────────────
+// L0 — ESTRATÉGICO (DNA): governa o tom de toda geração de conteúdo
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * Lê o DNA Estratégico (L0) do cliente direto do ClickUp.
+ * Cada entrada do DNA tem o resumo no `name` e regras detalhadas na descrição.
+ * Indexa por Tipo (Missão | Tom de Voz | Invariante | Diferencial | Credencial).
+ *
+ * SaaS: nenhum conteúdo de marca é hardcoded — vem todo daqui, por list-ID
+ * do cliente em clickup-map.json. Cliente N+1 só preenche o ClickUp dele.
+ *
+ * @returns {Promise<Object>} { missao, tomDeVoz, invariante, diferencial, credencial }
+ *   onde cada valor é { resumo, detalhe }.
+ */
+async function getDnaEstrategico() {
+  const d = await api('GET', `/list/${LISTS.dna}/task?include_closed=true`);
+  const tasks = d.tasks || [];
+  const tipoField = F.dna.tipo;
+
+  const out = {};
+  const slugByTipo = {
+    'Missão': 'missao',
+    'Tom de Voz': 'tomDeVoz',
+    'Invariante': 'invariante',
+    'Diferencial': 'diferencial',
+    'Credencial': 'credencial',
+  };
+
+  for (const t of tasks) {
+    const tipo = readDropdown(tipoField, t);
+    const slug = slugByTipo[tipo];
+    if (!slug) continue;
+    // A descrição rica (regras detalhadas) pode não vir no list endpoint;
+    // refetch individual garante text_content completo quando o resumo tem detalhe.
+    let detalhe = (t.text_content || t.description || '').trim();
+    if (!detalhe) {
+      const full = await api('GET', `/task/${t.id}`).catch(() => null);
+      if (full) detalhe = (full.text_content || full.description || '').trim();
+    }
+    out[slug] = { resumo: (t.name || '').trim(), detalhe };
+  }
+  return out;
+}
+
+// ─────────────────────────────────────────────────────────────
 // L2 — PAUTAS (backlog → alimenta agentes)
 // ─────────────────────────────────────────────────────────────
 
@@ -367,6 +412,8 @@ async function migrateFromQueue(queuePath, campanhaId) {
 
 module.exports = {
   MAP, LISTS, FIELDS: F, STATUS,
+  // L0 estratégico
+  getDnaEstrategico,
   // campanhas
   createCampanha, listCampanhas, getCampanha, getCampanhaRegras,
   // pautas

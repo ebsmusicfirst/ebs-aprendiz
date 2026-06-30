@@ -117,9 +117,59 @@ OUTPUT: retorne SOMENTE um JSON com esta estrutura (sem markdown, sem explicaç�
 }
 `;
 
+/**
+ * Fallback das regras anti-AI — usado APENAS se o ClickUp (DNA → Tom de Voz)
+ * estiver indisponível. A fonte de verdade é o ClickUp; isto é graceful
+ * degradation. Mantenha sincronizado com docs/anti-ai-writing.md.
+ */
+const FALLBACK_TOM_DE_VOZ = [
+  'TOM: mentor experiente e acessível, direto. Nunca vendedor.',
+  '',
+  'REGRAS DE ESCRITA (anti-AI) — o texto deve soar como pessoa real:',
+  '- Frases curtas e declarativas. Ponto final no lugar de travessão (nunca em-dash como conectivo).',
+  '- Sem negrito. Sem emoji no corpo. Sem bullet points dentro dos slides.',
+  '- Primeira pessoa quando couber. Experiência específica ("travei seis meses no mesmo acorde"), nunca genérico.',
+  '- Tom seco, de quem já viu de tudo. Sem entusiasmo forçado ("vamos lá!", "incrível!").',
+  '- Frases de tamanhos irregulares. Vocabulário coloquial real, nunca pomposo.',
+  '- Proibido abrir com "Você sabia que", "Descubra", "Imagine". Entre direto, com cena concreta.',
+  '- Evite a fórmula "não é sobre X, é sobre Y".',
+].join('\n');
+
+/**
+ * Monta o bloco de Tom de Voz para o prompt, lendo o DNA do ClickUp (L0).
+ * SaaS: o tom vem do DNA do cliente, não de hardcode. Fallback só se o ClickUp falhar.
+ */
+async function montarBlocoTomDeVoz() {
+  try {
+    const dna = await cu.getDnaEstrategico();
+    const tv = dna.tomDeVoz || {};
+    const partes = [];
+    if (tv.resumo) partes.push(`TOM: ${tv.resumo}`);
+    if (tv.detalhe) partes.push(tv.detalhe);
+    // Invariantes da marca também vêm do DNA quando disponíveis
+    if (dna.invariante && dna.invariante.resumo) {
+      partes.push(`INVARIANTES: ${dna.invariante.resumo}`);
+    }
+    const bloco = partes.join('\n\n').trim();
+    if (bloco) {
+      console.log('  ✓ Tom de voz carregado do ClickUp (DNA L0)');
+      return bloco;
+    }
+    console.log('  ⚠ DNA sem Tom de Voz preenchido — usando fallback hardcoded');
+    return FALLBACK_TOM_DE_VOZ;
+  } catch (e) {
+    console.log(`  ⚠ ClickUp indisponível p/ DNA (${e.message}) — usando fallback hardcoded`);
+    return FALLBACK_TOM_DE_VOZ;
+  }
+}
+
 async function gerarConteudo(pauta, regras) {
   const framework = cu.readDropdown(cu.FIELDS.pautas.framework, pauta) || regras.framework || 'Cheat Sheet / Checklist';
   const pilar     = cu.readDropdown(cu.FIELDS.pautas.pilar, pauta) || 'A — Metáfora';
+
+  // Tom de voz + regras anti-AI vêm do DNA (L0) do ClickUp — não hardcoded (SaaS)
+  const blocoTom = await montarBlocoTomDeVoz();
+  const systemPrompt = `${SYSTEM_GERAR_CAROUSEL}\n\n=== TOM DE VOZ E REGRAS DE ESCRITA (obrigatório) ===\n${blocoTom}`;
 
   const prompt = `
 Crie um carrossel para o Instagram do EBS Aprendiz com base na pauta abaixo.
@@ -135,7 +185,7 @@ Aplique o framework "${framework}" para estruturar os slides.
 Retorne SOMENTE o JSON, sem markdown.
 `;
 
-  const raw = await callClaude(SYSTEM_GERAR_CAROUSEL, prompt);
+  const raw = await callClaude(systemPrompt, prompt);
 
   // Extrai JSON mesmo se vier com markdown
   const match = raw.match(/\{[\s\S]*\}/);
