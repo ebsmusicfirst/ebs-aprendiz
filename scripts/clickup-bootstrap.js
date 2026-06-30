@@ -66,10 +66,23 @@ async function createList(folderId, name) {
 }
 
 /**
- * Cria custom field e retorna { id, options } re-buscando da lista
- * (o POST de field retorna id undefined no ClickUp).
+ * Cria custom field idempotente — reutiliza se já existir com o mesmo nome.
+ * (O POST de field retorna id undefined no ClickUp, por isso re-busca após criar.)
  */
 async function createField(listId, def) {
+  // Verificar se já existe antes de criar (evita duplicatas em re-runs do bootstrap)
+  const existing = await api('GET', `/list/${listId}/field`);
+  const found = (existing.fields || []).find((x) => x.name === def.name);
+  if (found) {
+    const out = { id: found.id, type: found.type };
+    if (found.type_config && Array.isArray(found.type_config.options)) {
+      out.options = {};
+      for (const o of found.type_config.options) out.options[o.name] = o.id;
+    }
+    console.log(`      ↩ Field: ${def.name} (já existe, reutilizando)`);
+    return out;
+  }
+
   try {
     await api('POST', `/list/${listId}/field`, def);
   } catch (e) {
